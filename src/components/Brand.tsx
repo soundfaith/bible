@@ -2,9 +2,9 @@ import { Moon, Sun } from "lucide-react";
 
 export function Brand() {
   return (
-    <a className="wordmark" href="#/" aria-label="SoundFaith home">
+    <a className="wordmark" href="#/" aria-label="Soundfaith Bible home">
       <span className="wordmark-mark">sf</span>
-      <span>soundfaith</span>
+      <span>soundfaith bible</span>
     </a>
   );
 }

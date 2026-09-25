@@ -1,11 +1,7 @@
-import type { Project } from "../lib/supabase";
+import type { TemplateProject as Project } from "../lib/template";
 
 export function optimizeProjectImageUrl(imageUrl: string, width: number) {
-  return imageUrl
-    .replace("/storage/v1/object/public/", "/storage/v1/render/image/public/")
-    .concat(
-      `${imageUrl.includes("?") ? "&" : "?"}width=${width}&quality=78&resize=contain`
-    );
+  return imageUrl;
 }
 
 export function Progress({ project, large = false }: { project: Project; large?: boolean }) {
@@ -42,7 +38,7 @@ export function ProjectVisual({ project, featured = false, compact = false }: { 
           <span className="visual-line" />
         </>
       )}
-      <span className="visual-label">{project.location}, {project.country}</span>
+      <span className="visual-label">{project.location}</span>
     </div>
   );
 }

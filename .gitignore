@@ -6,4 +6,3 @@ dist/
 contracts/donation/target/
 contracts/donation/artifacts/
 *.wasm
-supabase/.temp/
