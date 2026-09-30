@@ -1,5 +1,6 @@
 node_modules/
 dist/
+/narration/
 .env
 .env.*
 !.env.example
