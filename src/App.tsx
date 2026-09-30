@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
   BookOpen,
-  CalendarDays,
   Home,
+  Headphones,
+  LibraryBig,
   Pause,
   Play,
   Menu,
@@ -11,19 +12,23 @@ import {
   X,
 } from "lucide-react";
 import { Brand, ThemeToggle } from "./components/Brand";
+import { BibleMark } from "./components/BibleMark";
 import { ModalLayer, type Modal } from "./components/ModalLayer";
 import { SearchModal, type SearchResult } from "./components/SearchModal";
 import { HomePage } from "./pages/HomePage";
+import { AboutPage } from "./pages/AboutPage";
 import {
   ChapterPage,
   getLastReading,
   type ReadingPosition,
+  type SelectedVerseRange,
 } from "./pages/ChapterPage";
 import { MassReadingPage } from "./pages/MassReadingPage";
 import { BookmarksPage } from "./pages/BookmarksPage";
+import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter } from "./lib/bible";
-import { getTodaysMassReading, resolveReference } from "./lib/readings";
-import { getBookmarks, saveBookmarks, type Bookmark } from "./lib/bookmarks";
+import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
+import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
 import {
   getNarrationSnapshot,
   pauseSpeaking,
@@ -32,10 +37,10 @@ import {
   subscribeNarration,
 } from "./components/NarratorButton";
 
-type Route = "home" | "read" | "mass" | "bookmarks";
+type Route = "home" | "read" | "mass" | "bookmarks" | "library" | "about";
 function readRoute(): Route {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0];
-  return path === "read" || path === "mass" || path === "bookmarks"
+  return path === "read" || path === "mass" || path === "bookmarks" || path === "library" || path === "about"
     ? path
     : "home";
 }
@@ -49,10 +54,12 @@ export default function App() {
   );
   const [readingPosition, setReadingPosition] =
     useState<ReadingPosition>(getLastReading);
+  const [massDate, setMassDate] = useState(() => getTodaysMassReading().date);
   const [highlightVerse, setHighlightVerse] = useState<number | null>(null);
   const [pendingNarration, setPendingNarration] = useState(false);
   const [narration, setNarration] = useState(getNarrationSnapshot);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(getBookmarks);
+  const [bookmarkCategories, setBookmarkCategories] = useState<string[]>(getBookmarkCategories);
   const menuRef = useRef<HTMLElement | null>(null);
   const searchSheetStartY = useRef<number | null>(null);
   useEffect(() => {
@@ -106,31 +113,55 @@ export default function App() {
     setHighlightVerse(verse);
     window.location.hash = "#/read";
   };
-  const isBookmarked =
+  const isChapterBookmarked =
     route === "read" &&
     bookmarks.some(
       (bookmark) =>
         bookmark.bookId === readingPosition.bookId &&
-        bookmark.chapter === readingPosition.chapter,
+        bookmark.chapter === readingPosition.chapter &&
+        !isVerseBookmark(bookmark),
     );
-  const toggleBookmark = () => {
-    setBookmarks((current) =>
-      isBookmarked
-        ? current.filter(
-            (bookmark) =>
-              bookmark.bookId !== readingPosition.bookId ||
-              bookmark.chapter !== readingPosition.chapter,
-          )
-        : [{ ...readingPosition, createdAt: Date.now() }, ...current],
-    );
+  const isBookmarked = route === "read" && bookmarks.some(
+    (bookmark) => bookmark.bookId === readingPosition.bookId && bookmark.chapter === readingPosition.chapter,
+  );
+  const toggleBookmark = (verseRange?: SelectedVerseRange) => {
+    if (!verseRange && isChapterBookmarked) {
+      setBookmarks((current) => current.filter((bookmark) => bookmark.bookId !== readingPosition.bookId || bookmark.chapter !== readingPosition.chapter || isVerseBookmark(bookmark)));
+      return;
+    }
+    setModal({ type: "bookmark", categories: bookmarkCategories, onSave: (category) => {
+      setBookmarkCategories((current) => {
+        if (current.some((item) => item.toLowerCase() === category.toLowerCase())) return current;
+        const next = [...current, category];
+        saveBookmarkCategories(next);
+        return next;
+      });
+      setBookmarks((current) => {
+        const bookmark: Bookmark = { ...readingPosition, createdAt: Date.now(), category };
+        if (verseRange) Object.assign(bookmark, verseRange);
+        return [bookmark, ...current];
+      });
+    }, onAddCategory: (category) => {
+      setBookmarkCategories((current) => {
+        const next = current.some((item) => item.toLowerCase() === category.toLowerCase()) ? current : [...current, category];
+        saveBookmarkCategories(next);
+        return next;
+      });
+    } });
   };
   const removeBookmark = (bookmark: Bookmark) =>
     setBookmarks((current) =>
       current.filter(
         (item) =>
-          item.bookId !== bookmark.bookId || item.chapter !== bookmark.chapter,
+          item.bookId !== bookmark.bookId || item.chapter !== bookmark.chapter ||
+          item.verseStart !== bookmark.verseStart || item.verseEnd !== bookmark.verseEnd,
       ),
     );
+  const removeBookmarkCategory = (category: string) => {
+    const next = bookmarkCategories.filter((item) => item !== category);
+    setBookmarkCategories(next);
+    saveBookmarkCategories(next);
+  };
   const shareApp = async () => {
     const shareData = {
       title: "Soundfaith Bible",
@@ -147,7 +178,7 @@ export default function App() {
       ? getChapter(readingPosition.bookId, readingPosition.chapter)
           .map((verse) => verse.text)
           .join(" ")
-      : Object.values(getTodaysMassReading().readings)
+      : Object.values((getMassReadingForDate(massDate) || getTodaysMassReading()).readings)
           .map((reading) => reading.text)
           .join("\n\n");
   const startNarration = () => {
@@ -162,7 +193,7 @@ export default function App() {
     } else startSpeaking(currentNarration());
   };
   useEffect(() => {
-    const listenButton = document.querySelector(".mobile-about");
+    const listenButton = document.querySelector(".mobile-listen");
     if (!listenButton) return;
     const handleListen = (event: Event) => {
       event.preventDefault();
@@ -214,22 +245,30 @@ export default function App() {
         onSelectChapter={openPicker}
         highlightVerse={highlightVerse}
         isBookmarked={isBookmarked}
+        isChapterBookmarked={isChapterBookmarked}
         onToggleBookmark={toggleBookmark}
       />
     ) : route === "mass" ? (
-      <MassReadingPage onOpenReference={openMassReference} />
+      <MassReadingPage onOpenReference={openMassReference} selectedDate={massDate} onSelectedDateChange={setMassDate} />
     ) : route === "bookmarks" ? (
       <BookmarksPage
         bookmarks={bookmarks}
-        onOpen={(bookmark) => openReader(bookmark)}
+        categories={bookmarkCategories}
+        onOpen={(bookmark) => openReader(bookmark, isVerseBookmark(bookmark) ? bookmark.verseStart! : null)}
         onRemove={removeBookmark}
+        onRemoveCategory={removeBookmarkCategory}
       />
+    ) : route === "library" ? (
+      <ReferencePage eyebrow="Component library" title={<>A practical<br /><em>design library.</em></>} copy="A reference for the components and patterns used across the template." />
+    ) : route === "about" ? (
+      <AboutPage />
     ) : (
       <HomePage
         lastReading={readingPosition}
         onResume={() => openReader()}
         onChoose={openPicker}
         onMass={() => {
+          setMassDate(getTodaysMassReading().date);
           window.location.hash = "#/mass";
         }}
         onExplore={openSearch}
@@ -254,14 +293,12 @@ export default function App() {
             </button>
           </div>
           <a href="#/">Home</a>
-          <a href="#/read">Read</a>
-          <a href="#/mass">Mass reading</a>
-          <a href="#/bookmarks">Bookmarks</a>
-          <button className="nav-text-button" onClick={openSearch}>
-            Explore
-          </button>
+          <a href="#/read">Read Scripture</a>
+          <a href="#/mass">Daily Mass</a>
+          <a href="#/bookmarks">Saved passages</a>
+          <a href="#/about">About</a>
           <div className="mobile-menu-theme">
-            <span>Appearance</span>
+            <span>Theme</span>
             <ThemeToggle
               theme={theme}
               onToggle={() => setTheme(theme === "light" ? "dark" : "light")}
@@ -269,6 +306,9 @@ export default function App() {
           </div>
         </nav>
         <div className="header-actions">
+          <button className="icon-button header-search-button" aria-label="Explore Scripture" onClick={openSearch}>
+            <Search size={18} />
+          </button>
           <ThemeToggle
             theme={theme}
             onToggle={() => setTheme(theme === "light" ? "dark" : "light")}
@@ -295,10 +335,10 @@ export default function App() {
           <Home size={17} />
           <span>Home</span>
         </a>
-        <a href="#/mass" className={route === "mass" ? "active" : ""}>
-          <CalendarDays size={17} />
-          <span>Mass</span>
-        </a>
+        <button className={route === "read" ? "active" : ""} onClick={openPicker}>
+          <LibraryBig size={17} />
+          <span>Books</span>
+        </button>
         <a href="#/read" className="mobile-donate">
           <BookOpen size={20} />
           <span>Resume</span>
@@ -307,28 +347,18 @@ export default function App() {
           <Search size={17} />
           <span>Explore</span>
         </button>
-        <a href="#/" className="mobile-about">
-          <Info size={17} />
-          <span>About</span>
+        <a href="#/" className="mobile-listen">
+          <Headphones size={17} />
+          <span>Listen</span>
         </a>
       </nav>
       <footer className="site-footer">
-        <div className="footer-brand">
-          <span className="wordmark-mark">sf</span>
-          <span>Soundfaith Bible</span>
-        </div>
         <div className="footer-bottom">
           <span>© 2026</span>
-          <span className="footer-status">
-            <i /> Always free
-          </span>
-          <span>Take your time</span>
-          <button className="footer-share" onClick={shareApp}>
-            <Share2 size={14} /> Share
-          </button>
+          <button className="footer-share" onClick={shareApp}><Share2 size={14} /> Share</button>
         </div>
       </footer>
-      {modal?.type === "chapter" && (
+      {(modal?.type === "chapter" || modal?.type === "bookmark") && (
         <ModalLayer modal={modal} close={() => setModal(null)} />
       )}
       {modal?.type === "search" && (

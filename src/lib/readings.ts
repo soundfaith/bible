@@ -4,9 +4,12 @@ import { bibleBooks, getBook, type BibleVerse } from "./bible";
 type MassReading = { reference: string; text: string };
 export type MassEntry = { date: string; season: string; readings: Record<string, MassReading> };
 
+const entries = massReadings.entries as Record<string, MassEntry>;
+export function getAvailableMassReadingDates() { return Object.keys(entries).sort(); }
+export function getMassReadingForDate(date: string) { return entries[date] ?? null; }
+
 export function getTodaysMassReading(date = new Date()) {
-  const target = date.toISOString().slice(0, 10);
-  const entries = massReadings.entries as Record<string, MassEntry>;
+  const target = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
   if (entries[target]) return entries[target];
   const fallback = Object.keys(entries).filter((key) => key <= target).sort().pop();
   return fallback ? entries[fallback] : entries[Object.keys(entries).sort()[0]];
