@@ -45,6 +45,11 @@ function readRoute(): Route {
     : "home";
 }
 
+function narrationAudioUrlFor(position: ReadingPosition) {
+  const baseUrl = bibleBooks.find((book) => book.id === position.bookId)?.narrationAudioBaseUrl;
+  return baseUrl ? `${baseUrl.replace(/\/$/, "")}/${position.chapter}.mp3` : undefined;
+}
+
 export default function App() {
   const [route, setRoute] = useState<Route>(readRoute);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -93,6 +98,7 @@ export default function App() {
       getChapter(readingPosition.bookId, readingPosition.chapter)
         .map((verse) => verse.text)
         .join(" "),
+      narrationAudioUrlFor(readingPosition),
     );
     setPendingNarration(false);
   }, [pendingNarration, readingPosition, route]);
@@ -181,6 +187,10 @@ export default function App() {
       : Object.values((getMassReadingForDate(massDate) || getTodaysMassReading()).readings)
           .map((reading) => reading.text)
           .join("\n\n");
+  const currentNarrationAudioUrl = () => {
+    if (route !== "read") return undefined;
+    return narrationAudioUrlFor(readingPosition);
+  };
   const startNarration = () => {
     const current = getNarrationSnapshot();
     if (current.status === "playing") {
@@ -190,7 +200,7 @@ export default function App() {
     if (route === "home") {
       setPendingNarration(true);
       openReader();
-    } else startSpeaking(currentNarration());
+    } else startSpeaking(currentNarration(), currentNarrationAudioUrl());
   };
   useEffect(() => {
     const listenButton = document.querySelector(".mobile-listen");
