@@ -7,3 +7,4 @@ dist/
 contracts/donation/target/
 contracts/donation/artifacts/
 *.wasm
+ffmpeg.exe
