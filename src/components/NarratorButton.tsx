@@ -5,6 +5,7 @@ type NarrationStatus = "idle" | "playing" | "paused";
 export type NarrationSnapshot = { status: NarrationStatus; text: string; position: number };
 
 let activeSpeech: SpeechSynthesisUtterance | null = null;
+let activeAudio: HTMLAudioElement | null = null;
 let snapshot: NarrationSnapshot = { status: "idle", text: "", position: 0 };
 const listeners = new Set<() => void>();
 
@@ -18,16 +19,23 @@ export function subscribeNarration(listener: () => void) {
 }
 
 export function stopSpeaking() {
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
+  if (activeAudio) {
+    activeAudio.pause();
+    activeAudio.currentTime = 0;
+    activeAudio = null;
+  }
   activeSpeech = null;
   snapshot = { status: "idle", text: "", position: 0 };
   notify();
 }
 
-export function startSpeaking(text: string) {
+function startTextToSpeech(text: string) {
   if (!("speechSynthesis" in window) || !text.trim()) return false;
   const position = snapshot.text === text ? snapshot.position : 0;
   window.speechSynthesis.cancel();
+  activeAudio?.pause();
+  activeAudio = null;
   const utterance = new SpeechSynthesisUtterance(text.slice(position));
   utterance.rate = 0.92;
   utterance.pitch = 1;
@@ -50,15 +58,61 @@ export function startSpeaking(text: string) {
   return true;
 }
 
+export function startSpeaking(text: string, audioUrl?: string) {
+  if (!text.trim()) return false;
+  if (!audioUrl) return startTextToSpeech(text);
+
+  if (!("Audio" in window)) return startTextToSpeech(text);
+  window.speechSynthesis?.cancel();
+  activeSpeech = null;
+  activeAudio?.pause();
+  const audio = new Audio(audioUrl);
+  activeAudio = audio;
+  snapshot = { status: "playing", text, position: 0 };
+  audio.onended = () => {
+    if (activeAudio !== audio) return;
+    activeAudio = null;
+    snapshot = { status: "idle", text: "", position: 0 };
+    notify();
+  };
+  audio.onerror = () => {
+    if (activeAudio !== audio) return;
+    activeAudio = null;
+    startTextToSpeech(text);
+  };
+  notify();
+  void audio.play().catch(() => {
+    if (activeAudio !== audio) return;
+    activeAudio = null;
+    startTextToSpeech(text);
+  });
+  return true;
+}
+
+export function resumeSpeaking(text: string, audioUrl?: string) {
+  if (snapshot.text !== text || snapshot.status !== "paused") return startSpeaking(text, audioUrl);
+  if (activeAudio) {
+    snapshot = { ...snapshot, status: "playing" };
+    notify();
+    void activeAudio.play().catch(() => {
+      activeAudio = null;
+      startTextToSpeech(text);
+    });
+    return true;
+  }
+  return startTextToSpeech(text);
+}
+
 export function pauseSpeaking() {
-  if (!("speechSynthesis" in window) || snapshot.status !== "playing") return;
-  window.speechSynthesis.cancel();
+  if (snapshot.status !== "playing") return;
+  if (activeAudio) activeAudio.pause();
+  else if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   activeSpeech = null;
   snapshot = { ...snapshot, status: "paused" };
   notify();
 }
 
-export function NarratorButton({ text }: { text: string }) {
+export function NarratorButton({ text, audioUrl }: { text: string; audioUrl?: string }) {
   const [current, setCurrent] = useState(getNarrationSnapshot);
 
   useEffect(() => subscribeNarration(() => setCurrent(getNarrationSnapshot())), []);
@@ -66,7 +120,8 @@ export function NarratorButton({ text }: { text: string }) {
   const isCurrent = current.text === text && current.status !== "idle";
   const toggle = () => {
     if (isCurrent && current.status === "playing") pauseSpeaking();
-    else startSpeaking(text);
+    else if (isCurrent && current.status === "paused") resumeSpeaking(text, audioUrl);
+    else startSpeaking(text, audioUrl);
   };
 
   return <button className="narrator-button button button-outline" onClick={toggle} aria-label={isCurrent && current.status === "playing" ? "Pause narration" : "Listen to this reading"}>

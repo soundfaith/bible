@@ -6,7 +6,8 @@
       "id": "genesis",
       "name": "Genesis",
       "abbreviation": "GEN",
-      "verseCount": 1533
+      "verseCount": 1533,
+      "narrationAudioBaseUrl": "https://archive.org/download/1_20261001"
     },
     {
       "id": "exodus",
