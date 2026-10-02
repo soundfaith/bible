@@ -20,25 +20,29 @@
       "id": "leviticus",
       "name": "Leviticus",
       "abbreviation": "LEV",
-      "verseCount": 859
+      "verseCount": 859,
+      "narrationAudioBaseUrl": "https://archive.org/download/13_20261002_202610"
     },
     {
       "id": "numbers",
       "name": "Numbers",
       "abbreviation": "NUM",
-      "verseCount": 1288
+      "verseCount": 1288,
+      "narrationAudioBaseUrl": "https://archive.org/download/26_20261002"
     },
     {
       "id": "deuteronomy",
       "name": "Deuteronomy",
       "abbreviation": "DEU",
-      "verseCount": 959
+      "verseCount": 959,
+      "narrationAudioBaseUrl": "https://archive.org/download/28_20261002"
     },
     {
       "id": "joshua",
       "name": "Joshua",
       "abbreviation": "JOS",
-      "verseCount": 658
+      "verseCount": 658,
+      "narrationAudioBaseUrl": "https://archive.org/download/10_20261002"
     },
     {
       "id": "judges",

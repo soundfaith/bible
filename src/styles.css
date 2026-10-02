@@ -343,6 +343,43 @@ input,textarea,select { border-radius:var(--radius-sm); } .site-footer { positio
 .bible-reading-copy,
 .mass-reading-text { font-family:var(--font-body); font-weight:400; }
 
+/* Shared reading controls */
+.bible-reading-copy,
+.mass-reading-text { font-size:var(--reader-font-size,22px); }
+.mobile-toggle { display:grid; margin-left:12px; }
+.desktop-nav { display:flex; align-items:center; gap:26px; margin-left:auto; margin-right:18px; color:var(--muted); font-size:12px; font-weight:700; }
+.desktop-nav a { display:flex; align-items:center; gap:7px; white-space:nowrap; }
+.desktop-nav a.active,.desktop-nav a:hover { color:var(--accent); }
+.main-nav { display:none; }
+.main-nav.nav-open { display:flex; position:absolute; top:calc(100% + 10px); right:0; z-index:14; width:310px; max-height:calc(100vh - 110px); overflow-y:auto; margin:0; padding:18px 22px; border:1px solid var(--line); background:var(--white); box-shadow:var(--shadow-soft); flex-direction:column; gap:0; }
+.main-nav > a { display:flex; align-items:center; gap:11px; padding:12px 0; border-bottom:1px solid var(--line); }
+.main-nav > a[href="#/bookmarks"] { border-bottom:0; }
+.main-nav > .mobile-drawer-link { display:none; }
+.menu-heading { display:none; }
+.mobile-menu-theme { display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; }
+.mobile-menu-theme .theme-toggle { display:grid; margin:0; }
+.font-size-control { padding:14px 0; }
+.font-size-heading { display:flex; justify-content:space-between; color:var(--muted); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; }
+.font-size-preview { margin:12px 0; padding:12px; border:1px solid var(--line); background:var(--paper); color:var(--ink); font:400 var(--reader-font-size,22px)/1.72 var(--font-body); overflow-wrap:anywhere; }
+.font-size-buttons { display:flex; gap:8px; }
+.font-size-buttons .icon-button { width:34px; padding:0; }
+.font-size-buttons .icon-button:disabled { opacity:.4; cursor:default; }
+
+@media (max-width:760px) {
+	.desktop-nav { display:none; }
+	.main-nav.nav-open { position:fixed; top:0; right:0; left:auto; width:min(82vw,330px); height:100dvh; max-height:100dvh; margin:0; padding:20px 28px 24px; border:0; gap:0; transform:translateX(0); }
+	.main-nav { transform:translateX(105%); transition:transform .28s var(--ease-out); }
+	.menu-heading { display:flex; justify-content:flex-end; margin-bottom:8px; }
+	.menu-heading .icon-button { width:30px; height:30px; }
+	.main-nav > a { padding:11px 0; border:0; font-size:14px; }
+	.main-nav > .mobile-drawer-link { display:flex; }
+	.main-nav > a[href="#/about"] { border-bottom:0; }
+	.font-size-control { border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+	.mobile-menu-theme { margin-top:auto; padding-top:22px; border-top:0; }
+	.bible-reading-copy,
+	.mass-reading-text { font-size:var(--reader-font-size,22px) !important; }
+}
+
 @media (min-width:761px) {
 	.landing-principles article { min-height:235px; gap:16px; padding:28px 24px 24px; }
 	.landing-principles article p { line-height:1.75; max-width:240px; }

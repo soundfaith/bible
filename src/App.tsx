@@ -1,13 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import {
   BookOpen,
+  Bookmark as BookmarkMenuIcon,
   Bookmark as BookmarkIcon,
+  CalendarDays,
+  House,
+  CircleHelp,
   Home,
   Headphones,
   LibraryBig,
   Pause,
   Play,
   Menu,
+  Minus,
+  Plus,
   Search,
   Share2,
   X,
@@ -55,6 +61,10 @@ function narrationAudioUrlFor(position: ReadingPosition) {
 export default function App() {
   const [route, setRoute] = useState<Route>(readRoute);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = Number(window.localStorage.getItem("reader-font-size"));
+    return Number.isFinite(saved) && saved >= 16 && saved <= 30 ? saved : 22;
+  });
   const [modal, setModal] = useState<Modal | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">(() =>
     window.localStorage.getItem("template-theme") === "dark" ? "dark" : "light",
@@ -82,6 +92,10 @@ export default function App() {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem("template-theme", theme);
   }, [theme]);
+  useEffect(() => {
+    document.documentElement.style.setProperty("--reader-font-size", `${fontSize}px`);
+    window.localStorage.setItem("reader-font-size", String(fontSize));
+  }, [fontSize]);
   useEffect(() => {
     saveBookmarks(bookmarks);
   }, [bookmarks]);
@@ -286,12 +300,16 @@ export default function App() {
     <div className="app-shell">
       <header className="site-header" ref={menuRef}>
         <Brand />
+        <nav className="desktop-nav" aria-label="Primary navigation">
+          <a href="#/" className={route === "home" ? "active" : ""}>Home</a>
+          <a href="#/read" className={route === "read" ? "active" : ""}>Read Scripture</a>
+          <a href="#/mass" className={route === "mass" ? "active" : ""}>Daily Mass</a>
+        </nav>
         <nav
           className={menuOpen ? "main-nav nav-open" : "main-nav"}
           aria-label="Primary navigation"
         >
           <div className="menu-heading">
-            <strong>Menu</strong>
             <button
               className="icon-button"
               aria-label="Close menu"
@@ -300,11 +318,19 @@ export default function App() {
               <X size={18} />
             </button>
           </div>
-          <a href="#/">Home</a>
-          <a href="#/read">Read Scripture</a>
-          <a href="#/mass">Daily Mass</a>
-          <a href="#/bookmarks">Saved passages</a>
-          <a href="#/about">About</a>
+          <a href="#/" className="mobile-drawer-link"><House size={17} />Home</a>
+          <a href="#/read" className="mobile-drawer-link"><BookOpen size={17} />Read Scripture</a>
+          <a href="#/mass" className="mobile-drawer-link"><CalendarDays size={17} />Daily Mass</a>
+          <a href="#/bookmarks"><BookmarkMenuIcon size={17} />Saved Passages</a>
+          <a href="#/about"><CircleHelp size={17} />About</a>
+          <section className="font-size-control" aria-label="Reading font size">
+            <div className="font-size-heading"><span>Text size</span><span>{fontSize}px</span></div>
+            <div className="font-size-preview">The Lord is my shepherd; I shall not want.</div>
+            <div className="font-size-buttons">
+              <button className="icon-button" aria-label="Decrease font size" disabled={fontSize <= 16} onClick={() => setFontSize((size) => Math.max(16, size - 2))}><Minus size={16} /></button>
+              <button className="icon-button" aria-label="Increase font size" disabled={fontSize >= 30} onClick={() => setFontSize((size) => Math.min(30, size + 2))}><Plus size={16} /></button>
+            </div>
+          </section>
           <div className="mobile-menu-theme">
             <span>Theme</span>
             <ThemeToggle
@@ -317,10 +343,6 @@ export default function App() {
           <button className="icon-button header-search-button" aria-label="Explore Scripture" onClick={openSearch}>
             <Search size={18} />
           </button>
-          <ThemeToggle
-            theme={theme}
-            onToggle={() => setTheme(theme === "light" ? "dark" : "light")}
-          />
           <button
             className="icon-button mobile-toggle"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
