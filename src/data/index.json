@@ -13,7 +13,8 @@
       "id": "exodus",
       "name": "Exodus",
       "abbreviation": "EXO",
-      "verseCount": 1213
+      "verseCount": 1213,
+      "narrationAudioBaseUrl": "https://archive.org/download/3_20261001_202610"
     },
     {
       "id": "leviticus",

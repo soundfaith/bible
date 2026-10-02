@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   BookOpen,
+  Bookmark as BookmarkIcon,
   Home,
   Headphones,
   LibraryBig,
@@ -32,6 +33,7 @@ import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCateg
 import {
   getNarrationSnapshot,
   pauseSpeaking,
+  resumeSpeaking,
   startSpeaking,
   stopSpeaking,
   subscribeNarration,
@@ -193,25 +195,21 @@ export default function App() {
   };
   const startNarration = () => {
     const current = getNarrationSnapshot();
-    if (current.status === "playing") {
+    const text = currentNarration();
+    const audioUrl = currentNarrationAudioUrl();
+    if (current.text === text && current.status === "playing") {
       pauseSpeaking();
+      return;
+    }
+    if (current.text === text && current.status === "paused") {
+      resumeSpeaking(text, audioUrl);
       return;
     }
     if (route === "home") {
       setPendingNarration(true);
       openReader();
-    } else startSpeaking(currentNarration(), currentNarrationAudioUrl());
+    } else startSpeaking(text, audioUrl);
   };
-  useEffect(() => {
-    const listenButton = document.querySelector(".mobile-listen");
-    if (!listenButton) return;
-    const handleListen = (event: Event) => {
-      event.preventDefault();
-      startNarration();
-    };
-    listenButton.addEventListener("click", handleListen);
-    return () => listenButton.removeEventListener("click", handleListen);
-  }, [route, readingPosition, narration]);
   const openPicker = () =>
     setModal({
       type: "chapter",
@@ -349,17 +347,27 @@ export default function App() {
           <LibraryBig size={17} />
           <span>Books</span>
         </button>
-        <a href="#/read" className="mobile-donate">
-          <BookOpen size={20} />
-          <span>Resume</span>
-        </a>
+        {route === "read" ? (
+          <button
+            className="mobile-donate mobile-center-playback"
+            onClick={startNarration}
+            aria-label={narration.status === "playing" ? "Pause narration" : narration.status === "paused" ? "Resume narration" : "Listen to this chapter"}
+          >
+            {narration.status === "playing" ? <><span className="audio-equalizer" aria-hidden="true"><i /><i /><i /><i /></span><span>Playing</span></> : narration.status === "paused" ? <><Pause size={18} /><span>Resume</span></> : <><Headphones size={20} /><span>Listen</span></>}
+          </button>
+        ) : (
+          <a href="#/read" className="mobile-donate">
+            <BookOpen size={20} />
+            <span>Resume</span>
+          </a>
+        )}
         <button onClick={openSearch}>
           <Search size={17} />
           <span>Explore</span>
         </button>
-        <a href="#/" className="mobile-listen">
-          <Headphones size={17} />
-          <span>Listen</span>
+        <a href="#/bookmarks" className={route === "bookmarks" ? "mobile-listen active" : "mobile-listen"}>
+          <BookmarkIcon size={17} />
+          <span>Bookmarks</span>
         </a>
       </nav>
       <footer className="site-footer">

@@ -78,12 +78,14 @@ export function startSpeaking(text: string, audioUrl?: string) {
   audio.onerror = () => {
     if (activeAudio !== audio) return;
     activeAudio = null;
+    console.warn(`Narration MP3 could not be loaded: ${audioUrl}`, audio.error);
     startTextToSpeech(text);
   };
   notify();
-  void audio.play().catch(() => {
+  void audio.play().catch((error: unknown) => {
     if (activeAudio !== audio) return;
     activeAudio = null;
+    console.warn(`Narration MP3 could not be played: ${audioUrl}`, error);
     startTextToSpeech(text);
   });
   return true;
