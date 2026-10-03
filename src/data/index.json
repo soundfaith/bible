@@ -7,486 +7,560 @@
       "name": "Genesis",
       "abbreviation": "GEN",
       "verseCount": 1533,
-      "narrationAudioBaseUrl": "https://archive.org/download/1_20261001"
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_genesis"
     },
     {
       "id": "exodus",
       "name": "Exodus",
       "abbreviation": "EXO",
       "verseCount": 1213,
-      "narrationAudioBaseUrl": "https://archive.org/download/3_20261001_202610"
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_exodus"
     },
     {
       "id": "leviticus",
       "name": "Leviticus",
       "abbreviation": "LEV",
       "verseCount": 859,
-      "narrationAudioBaseUrl": "https://archive.org/download/13_20261002_202610"
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_leviticus"
     },
     {
       "id": "numbers",
       "name": "Numbers",
       "abbreviation": "NUM",
       "verseCount": 1288,
-      "narrationAudioBaseUrl": "https://archive.org/download/26_20261002"
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_numbers"
     },
     {
       "id": "deuteronomy",
       "name": "Deuteronomy",
       "abbreviation": "DEU",
       "verseCount": 959,
-      "narrationAudioBaseUrl": "https://archive.org/download/28_20261002"
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_deuteronomy"
     },
     {
       "id": "joshua",
       "name": "Joshua",
       "abbreviation": "JOS",
       "verseCount": 658,
-      "narrationAudioBaseUrl": "https://archive.org/download/10_20261002"
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_joshua"
     },
     {
       "id": "judges",
       "name": "Judges",
       "abbreviation": "JDG",
-      "verseCount": 618
+      "verseCount": 618,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_judges"
     },
     {
       "id": "ruth",
       "name": "Ruth",
       "abbreviation": "RUT",
-      "verseCount": 85
+      "verseCount": 85,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_ruth"
     },
     {
       "id": "1_samuel",
       "name": "1 Samuel",
       "abbreviation": "1SA",
-      "verseCount": 810
+      "verseCount": 810,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_samuel"
     },
     {
       "id": "2_samuel",
       "name": "2 Samuel",
       "abbreviation": "2SA",
-      "verseCount": 695
+      "verseCount": 695,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_2_samuel"
     },
     {
       "id": "1_kings",
       "name": "1 Kings",
       "abbreviation": "1KI",
-      "verseCount": 816
+      "verseCount": 816,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_kings"
     },
     {
       "id": "2_kings",
       "name": "2 Kings",
       "abbreviation": "2KI",
-      "verseCount": 719
+      "verseCount": 719,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_2_kings"
     },
     {
       "id": "1_chronicles",
       "name": "1 Chronicles",
       "abbreviation": "1CH",
-      "verseCount": 942
+      "verseCount": 942,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_chronicles"
     },
     {
       "id": "2_chronicles",
       "name": "2 Chronicles",
       "abbreviation": "2CH",
-      "verseCount": 822
+      "verseCount": 822,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_2_chronicles"
     },
     {
       "id": "ezra",
       "name": "Ezra",
       "abbreviation": "EZR",
-      "verseCount": 280
+      "verseCount": 280,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_ezra"
     },
     {
       "id": "nehemiah",
       "name": "Nehemiah",
       "abbreviation": "NEH",
-      "verseCount": 406
+      "verseCount": 406,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_nehemiah"
     },
     {
       "id": "esther",
       "name": "Esther",
       "abbreviation": "EST",
-      "verseCount": 167
+      "verseCount": 167,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_esther"
     },
     {
       "id": "job",
       "name": "Job",
       "abbreviation": "JOB",
-      "verseCount": 1070
+      "verseCount": 1070,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_job"
     },
     {
       "id": "psalms",
       "name": "Psalms",
       "abbreviation": "PSA",
-      "verseCount": 2461
+      "verseCount": 2461,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_psalms"
     },
     {
       "id": "proverbs",
       "name": "Proverbs",
       "abbreviation": "PRO",
-      "verseCount": 915
+      "verseCount": 915,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_proverbs"
     },
     {
       "id": "ecclesiastes",
       "name": "Ecclesiastes",
       "abbreviation": "ECC",
-      "verseCount": 222
+      "verseCount": 222,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_ecclesiastes"
     },
     {
       "id": "song_of_solomon",
       "name": "Song of Solomon",
       "abbreviation": "SNG",
-      "verseCount": 117
+      "verseCount": 117,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_song_of_solomon"
     },
     {
       "id": "isaiah",
       "name": "Isaiah",
       "abbreviation": "ISA",
-      "verseCount": 1292
+      "verseCount": 1292,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_isaiah"
     },
     {
       "id": "jeremiah",
       "name": "Jeremiah",
       "abbreviation": "JER",
-      "verseCount": 1364
+      "verseCount": 1364,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_jeremiah"
     },
     {
       "id": "lamentations",
       "name": "Lamentations",
       "abbreviation": "LAM",
-      "verseCount": 154
+      "verseCount": 154,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_lamentations"
     },
     {
       "id": "ezekiel",
       "name": "Ezekiel",
       "abbreviation": "EZE",
-      "verseCount": 1273
+      "verseCount": 1273,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_ezekiel"
     },
     {
       "id": "daniel",
       "name": "Daniel",
       "abbreviation": "DAN",
-      "verseCount": 357
+      "verseCount": 357,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_daniel"
     },
     {
       "id": "hosea",
       "name": "Hosea",
       "abbreviation": "HOS",
-      "verseCount": 197
+      "verseCount": 197,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_hosea"
     },
     {
       "id": "joel",
       "name": "Joel",
       "abbreviation": "JOL",
-      "verseCount": 73
+      "verseCount": 73,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_joel"
     },
     {
       "id": "amos",
       "name": "Amos",
       "abbreviation": "AMO",
-      "verseCount": 146
+      "verseCount": 146,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_amos"
     },
     {
       "id": "obadiah",
       "name": "Obadiah",
       "abbreviation": "OBA",
-      "verseCount": 21
+      "verseCount": 21,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_obadiah"
     },
     {
       "id": "jonah",
       "name": "Jonah",
       "abbreviation": "JON",
-      "verseCount": 48
+      "verseCount": 48,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_jonah"
     },
     {
       "id": "micah",
       "name": "Micah",
       "abbreviation": "MIC",
-      "verseCount": 105
+      "verseCount": 105,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_micah"
     },
     {
       "id": "nahum",
       "name": "Nahum",
       "abbreviation": "NAH",
-      "verseCount": 47
+      "verseCount": 47,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_nahum"
     },
     {
       "id": "habakkuk",
       "name": "Habakkuk",
       "abbreviation": "HAB",
-      "verseCount": 56
+      "verseCount": 56,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_habakkuk"
     },
     {
       "id": "zephaniah",
       "name": "Zephaniah",
       "abbreviation": "ZEP",
-      "verseCount": 53
+      "verseCount": 53,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_zephaniah"
     },
     {
       "id": "haggai",
       "name": "Haggai",
       "abbreviation": "HAG",
-      "verseCount": 38
+      "verseCount": 38,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_haggai"
     },
     {
       "id": "zechariah",
       "name": "Zechariah",
       "abbreviation": "ZEC",
-      "verseCount": 211
+      "verseCount": 211,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_zechariah"
     },
     {
       "id": "malachi",
       "name": "Malachi",
       "abbreviation": "MAL",
-      "verseCount": 55
+      "verseCount": 55,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_malachi"
     },
     {
       "id": "tobit",
       "name": "Tobit",
       "abbreviation": "TOB",
-      "verseCount": 244
+      "verseCount": 244,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_tobit"
     },
     {
       "id": "judith",
       "name": "Judith",
       "abbreviation": "JDT",
-      "verseCount": 339
+      "verseCount": 339,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_judith"
     },
     {
       "id": "esther_greek",
       "name": "Esther (Greek)",
       "abbreviation": "ESG",
-      "verseCount": 205
+      "verseCount": 205,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_esther_greek" 
     },
     {
       "id": "wisdom",
       "name": "Wisdom",
       "abbreviation": "WIS",
-      "verseCount": 436
+      "verseCount": 436,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_wisdom"
     },
     {
       "id": "sirach",
       "name": "Sirach",
       "abbreviation": "SIR",
-      "verseCount": 1383
+      "verseCount": 1383,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_sirach"
     },
     {
       "id": "baruch",
       "name": "Baruch",
       "abbreviation": "BAR",
-      "verseCount": 213
+      "verseCount": 213,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_baruch"
     },
     {
       "id": "1_maccabees",
       "name": "1 Maccabees",
       "abbreviation": "1MA",
-      "verseCount": 924
+      "verseCount": 924,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_maccabees"  
     },
     {
       "id": "2_maccabees",
       "name": "2 Maccabees",
       "abbreviation": "2MA",
-      "verseCount": 555
+      "verseCount": 555,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_2_maccabees"
     },
     {
       "id": "1_esdras",
       "name": "1 Esdras",
       "abbreviation": "1ES",
-      "verseCount": 448
+      "verseCount": 448,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_esdras" 
     },
     {
       "id": "prayer_of_manasseh",
       "name": "Prayer of Manasseh",
       "abbreviation": "PRM",
-      "verseCount": 15
+      "verseCount": 15,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_prayer_of_manasseh"
     },
     {
       "id": "3_maccabees",
       "name": "3 Maccabees",
       "abbreviation": "3MA",
-      "verseCount": 228
+      "verseCount": 228,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_3_maccabees"
     },
     {
       "id": "4_esdras",
       "name": "4 Esdras",
       "abbreviation": "4ES",
-      "verseCount": 944
+      "verseCount": 944,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_4_esdras"
     },
     {
       "id": "4_maccabees",
       "name": "4 Maccabees",
       "abbreviation": "4MA",
-      "verseCount": 484
+      "verseCount": 484,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_4_maccabees"
     },
     {
       "id": "daniel_greek",
       "name": "Daniel (Greek)",
       "abbreviation": "DNG",
-      "verseCount": 530
+      "verseCount": 530,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_daniel_greek"
     },
     {
       "id": "matthew",
       "name": "Matthew",
       "abbreviation": "MAT",
-      "verseCount": 1071
+      "verseCount": 1071,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_matthew"
     },
     {
       "id": "mark",
       "name": "Mark",
       "abbreviation": "MRK",
-      "verseCount": 678
+      "verseCount": 678,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_mark"
     },
     {
       "id": "luke",
       "name": "Luke",
       "abbreviation": "LUK",
-      "verseCount": 1150
+      "verseCount": 1150,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_luke"
     },
     {
       "id": "john",
       "name": "John",
       "abbreviation": "JHN",
-      "verseCount": 879
+      "verseCount": 879,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_john"
     },
     {
       "id": "acts",
       "name": "Acts",
       "abbreviation": "ACT",
-      "verseCount": 1004
+      "verseCount": 1004,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_acts"
     },
     {
       "id": "romans",
       "name": "Romans",
       "abbreviation": "ROM",
-      "verseCount": 433
+      "verseCount": 433,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_romans"
     },
     {
       "id": "1_corinthians",
       "name": "1 Corinthians",
       "abbreviation": "1CO",
-      "verseCount": 437
+      "verseCount": 437,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_corinthians"
     },
     {
       "id": "2_corinthians",
       "name": "2 Corinthians",
       "abbreviation": "2CO",
-      "verseCount": 257
+      "verseCount": 257,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_2_corinthians"
     },
     {
       "id": "galatians",
       "name": "Galatians",
       "abbreviation": "GAL",
-      "verseCount": 149
+      "verseCount": 149,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_galatians"
     },
     {
       "id": "ephesians",
       "name": "Ephesians",
       "abbreviation": "EPH",
-      "verseCount": 155
+      "verseCount": 155,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_ephesians"
     },
     {
       "id": "philippians",
       "name": "Philippians",
       "abbreviation": "PHP",
-      "verseCount": 104
+      "verseCount": 104,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_philippians"
     },
     {
       "id": "colossians",
       "name": "Colossians",
       "abbreviation": "COL",
-      "verseCount": 95
+      "verseCount": 95,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_colossians"
     },
     {
       "id": "1_thessalonians",
       "name": "1 Thessalonians",
       "abbreviation": "1TH",
-      "verseCount": 89
+      "verseCount": 89,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_thessalonians"
     },
     {
       "id": "2_thessalonians",
       "name": "2 Thessalonians",
       "abbreviation": "2TH",
-      "verseCount": 47
+      "verseCount": 47,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_2_thessalonians"
     },
     {
       "id": "1_timothy",
       "name": "1 Timothy",
       "abbreviation": "1TI",
-      "verseCount": 113
+      "verseCount": 113,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_timothy"
     },
     {
       "id": "2_timothy",
       "name": "2 Timothy",
       "abbreviation": "2TI",
-      "verseCount": 83
+      "verseCount": 83,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_2_timothy"
     },
     {
       "id": "titus",
       "name": "Titus",
       "abbreviation": "TIT",
-      "verseCount": 46
+      "verseCount": 46,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_titus"
     },
     {
       "id": "philemon",
       "name": "Philemon",
       "abbreviation": "PHM",
-      "verseCount": 25
+      "verseCount": 25,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_philemon"
     },
     {
       "id": "hebrews",
       "name": "Hebrews",
       "abbreviation": "HEB",
-      "verseCount": 303
+      "verseCount": 303,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_hebrews"
     },
     {
       "id": "james",
       "name": "James",
       "abbreviation": "JAS",
-      "verseCount": 108
+      "verseCount": 108,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_james"
     },
     {
       "id": "1_peter",
       "name": "1 Peter",
       "abbreviation": "1PE",
-      "verseCount": 105
+      "verseCount": 105,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_peter"
     },
     {
       "id": "2_peter",
       "name": "2 Peter",
       "abbreviation": "2PE",
-      "verseCount": 61
+      "verseCount": 61,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_2_peter"
     },
     {
       "id": "1_john",
       "name": "1 John",
       "abbreviation": "1JN",
-      "verseCount": 105
+      "verseCount": 105,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_1_john"
     },
     {
       "id": "2_john",
       "name": "2 John",
       "abbreviation": "2JN",
-      "verseCount": 13
+      "verseCount": 13,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_2_john"
     },
     {
       "id": "3_john",
       "name": "3 John",
       "abbreviation": "3JN",
-      "verseCount": 14
+      "verseCount": 14,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_3_john"
     },
     {
       "id": "jude",
       "name": "Jude",
       "abbreviation": "JUD",
-      "verseCount": 25
+      "verseCount": 25,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_jude"
     },
     {
       "id": "revelation",
       "name": "Revelation",
       "abbreviation": "REV",
-      "verseCount": 404
+      "verseCount": 404,
+      "narrationAudioBaseUrl": "https://archive.org/download/sf_revelation"
     }
   ]
 }

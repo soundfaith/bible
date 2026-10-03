@@ -1,5 +1,39 @@
 # Atelier UI Template
 
+## Upload narration to Internet Archive
+
+The upload script creates one Archive.org item per book folder under
+`narration/male`. It uses each book's `narrationAudioBaseUrl` identifier from
+`src/data/index.json` (for example, `sf_ezra`). Genesis through 2 Chronicles
+and Ecclesiastes are skipped because they have already been uploaded. Books
+without a local folder of MP3 files are skipped automatically.
+
+Install the uploader dependency and preview the upload list:
+
+```powershell
+python -m pip install -r requirements-upload.txt
+python scripts/upload_to_archive.py --dry-run
+```
+
+To upload one book first, use Ezra as a small sample:
+
+```powershell
+python scripts/upload_to_archive.py --only ezra
+```
+
+After that, omit `--only` to upload all remaining books.
+
+When prompted, enter your Internet Archive S3 access and secret keys. The
+prompts hide the keys, and they are not written to a file. Alternatively, set
+`IA_ACCESS_KEY` and `IA_SECRET_KEY` in your current PowerShell session before
+running the script; the script reads them from the environment. Review the listed
+items and type `UPLOAD` to begin. Before each book, the script checks its
+Archive.org file list and skips chapter filenames already present. It also
+records each successful upload in `.archive_upload_state.json` after every
+file. If a run stops, rerunning it checks both the remote item and that local
+checkpoint, then sends only the remaining chapter files. The checkpoint is
+ignored by Git and contains filenames and item IDs, not credentials.
+
 A frontend-only React and Vite template for building thoughtful, consistent digital products. It keeps a warm editorial visual language, reusable cards, buttons, tabs, forms, upload boxes, modals, responsive navigation, and reference pages without a required backend.
 
 ## Run locally
