@@ -19,15 +19,6 @@ INDEX_PATH = ROOT / "src" / "data" / "index.json"
 AUDIO_ROOT = ROOT / "narration" / "male"
 STATE_PATH = ROOT / ".archive_upload_state.json"
 
-# Genesis through 2 Chronicles are fourteen books; Ecclesiastes was also
-# uploaded separately, as noted in the project instructions.
-ALREADY_UPLOADED = {
-    "genesis", "exodus", "leviticus", "numbers", "deuteronomy",
-    "joshua", "judges", "ruth", "1_samuel", "2_samuel", "1_kings",
-    "2_kings", "1_chronicles", "2_chronicles", "ecclesiastes",
-}
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Upload each local book folder as an Archive.org item."
@@ -55,8 +46,6 @@ def main() -> int:
         if args.only and book_id.casefold() != args.only.casefold():
             continue
         folder = AUDIO_ROOT / book_id
-        if book_id in ALREADY_UPLOADED:
-            continue
         if not folder.is_dir():
             no_audio.append(book)
             continue
@@ -70,7 +59,6 @@ def main() -> int:
             identifier = "sf_" + book_id
         plan.append((book, identifier, files))
 
-    print(f"Already uploaded (skipped): {len(ALREADY_UPLOADED)} books.")
     print(f"Found {len(plan)} book(s) with MP3 files to upload:")
     for book, identifier, files in plan:
         print(f"  {book['name']} -> {identifier} ({len(files)} MP3 files)")
@@ -80,10 +68,7 @@ def main() -> int:
             print(f"  {book['name']}")
     if args.dry_run or not plan:
         if args.only and not plan:
-            if args.only.casefold() in ALREADY_UPLOADED:
-                print(f"Book '{args.only}' is on the already-uploaded skip list.")
-                return 0
-            print(f"No MP3 files found for book ID '{args.only}'. Check the folder name and skip list.")
+            print(f"No MP3 files found for book ID '{args.only}'. Check the folder name.")
             return 1
         return 0
 

@@ -33,11 +33,12 @@ import {
 import { MassReadingPage } from "./pages/MassReadingPage";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
-import { bibleBooks, getChapter } from "./lib/bible";
+import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
 import {
   getNarrationSnapshot,
+  NarrationProgress,
   pauseSpeaking,
   resumeSpeaking,
   startSpeaking,
@@ -79,6 +80,15 @@ export default function App() {
   const [bookmarkCategories, setBookmarkCategories] = useState<string[]>(getBookmarkCategories);
   const menuRef = useRef<HTMLElement | null>(null);
   const searchSheetStartY = useRef<number | null>(null);
+  const advanceNarration = () => {
+    if (route !== "read") return;
+    if (readingPosition.chapter >= getChapterCount(readingPosition.bookId)) {
+      stopSpeaking();
+      return;
+    }
+    setReadingPosition({ ...readingPosition, chapter: readingPosition.chapter + 1 });
+    setPendingNarration(true);
+  };
   useEffect(() => {
     const change = () => {
       setRoute(readRoute());
@@ -115,6 +125,7 @@ export default function App() {
         .map((verse) => verse.text)
         .join(" "),
       narrationAudioUrlFor(readingPosition),
+      advanceNarration,
     );
     setPendingNarration(false);
   }, [pendingNarration, readingPosition, route]);
@@ -216,13 +227,13 @@ export default function App() {
       return;
     }
     if (current.text === text && current.status === "paused") {
-      resumeSpeaking(text, audioUrl);
+      resumeSpeaking(text, audioUrl, advanceNarration);
       return;
     }
     if (route === "home") {
       setPendingNarration(true);
       openReader();
-    } else startSpeaking(text, audioUrl);
+    } else startSpeaking(text, audioUrl, advanceNarration);
   };
   const openPicker = () =>
     setModal({
@@ -269,6 +280,7 @@ export default function App() {
         isBookmarked={isBookmarked}
         isChapterBookmarked={isChapterBookmarked}
         onToggleBookmark={toggleBookmark}
+        onNarrationEnded={advanceNarration}
       />
     ) : route === "mass" ? (
       <MassReadingPage onOpenReference={openMassReference} selectedDate={massDate} onSelectedDateChange={setMassDate} />
@@ -361,6 +373,7 @@ export default function App() {
       )}
       {page}
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+        {route === "read" && <NarrationProgress className="narration-progress-mobile" enabled={Boolean(narrationAudioUrlFor(readingPosition))} />}
         <a href="#/" className={route === "home" ? "active" : ""}>
           <Home size={17} />
           <span>Home</span>
