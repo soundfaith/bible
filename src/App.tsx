@@ -34,6 +34,7 @@ import { MassReadingPage } from "./pages/MassReadingPage";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
+import { narrationAudioUrlsFor } from "./lib/narrationAudio";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
 import {
@@ -54,11 +55,6 @@ function readRoute(): Route {
     : "home";
 }
 
-function narrationAudioUrlFor(position: ReadingPosition) {
-  const baseUrl = bibleBooks.find((book) => book.id === position.bookId)?.narrationAudioBaseUrl;
-  return baseUrl ? `${baseUrl.replace(/\/$/, "")}/${position.chapter}.mp3` : undefined;
-}
-
 export default function App() {
   const [route, setRoute] = useState<Route>(readRoute);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -67,6 +63,7 @@ export default function App() {
     return Number.isFinite(saved) && saved >= 16 && saved <= 30 ? saved : 22;
   });
   const [modal, setModal] = useState<Modal | null>(null);
+  const [searchInteracted, setSearchInteracted] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">(() =>
     window.localStorage.getItem("template-theme") === "dark" ? "dark" : "light",
   );
@@ -120,11 +117,13 @@ export default function App() {
   );
   useEffect(() => {
     if (!pendingNarration || route !== "read") return;
+    const audioUrls = narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter);
     startSpeaking(
       getChapter(readingPosition.bookId, readingPosition.chapter)
         .map((verse) => verse.text)
         .join(" "),
-      narrationAudioUrlFor(readingPosition),
+      audioUrls[0],
+      audioUrls[1],
       advanceNarration,
     );
     setPendingNarration(false);
@@ -215,8 +214,8 @@ export default function App() {
           .map((reading) => reading.text)
           .join("\n\n");
   const currentNarrationAudioUrl = () => {
-    if (route !== "read") return undefined;
-    return narrationAudioUrlFor(readingPosition);
+    if (route !== "read") return [] as string[];
+    return narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter);
   };
   const startNarration = () => {
     const current = getNarrationSnapshot();
@@ -227,13 +226,13 @@ export default function App() {
       return;
     }
     if (current.text === text && current.status === "paused") {
-      resumeSpeaking(text, audioUrl, advanceNarration);
+      resumeSpeaking(text, audioUrl[0], audioUrl[1], advanceNarration);
       return;
     }
     if (route === "home") {
       setPendingNarration(true);
       openReader();
-    } else startSpeaking(text, audioUrl, advanceNarration);
+    } else startSpeaking(text, audioUrl[0], audioUrl[1], advanceNarration);
   };
   const openPicker = () =>
     setModal({
@@ -241,7 +240,8 @@ export default function App() {
       current: readingPosition,
       onChoose: (position) => openReader(position),
     });
-  const openSearch = () =>
+  const openSearch = () => {
+    setSearchInteracted(false);
     setModal({
       type: "search",
       onChoose: (result) =>
@@ -250,6 +250,7 @@ export default function App() {
           result.verse,
         ),
     });
+  };
   const openMassReference = (reference: string) => {
     const verses = resolveReference(reference);
     const bookName = reference.split(/\s+\d+:/)[0].toLowerCase();
@@ -373,7 +374,7 @@ export default function App() {
       )}
       {page}
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-        {route === "read" && <NarrationProgress className="narration-progress-mobile" enabled={Boolean(narrationAudioUrlFor(readingPosition))} />}
+        {route === "read" && <NarrationProgress className="narration-progress-mobile" enabled={narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter).length > 0} />}
         <a href="#/" className={route === "home" ? "active" : ""}>
           <Home size={17} />
           <span>Home</span>
@@ -423,7 +424,7 @@ export default function App() {
           }}
         >
           <section
-            className="modal search-modal-shell"
+            className={searchInteracted ? "modal search-modal-shell search-modal-engaged" : "modal search-modal-shell"}
             role="dialog"
             aria-modal="true"
             onTouchStart={(event) => {
@@ -446,6 +447,7 @@ export default function App() {
             }}
           >
             <SearchModal
+              onInteraction={() => setSearchInteracted(true)}
               close={() => setModal(null)}
               onChoose={(result: SearchResult) => {
                 modal.onChoose(result);

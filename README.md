@@ -34,17 +34,17 @@ file. If a run stops, rerunning it checks both the remote item and that local
 checkpoint, then sends only the remaining chapter files. The checkpoint is
 ignored by Git and contains filenames and item IDs, not credentials.
 
-To delete the 15 manually uploaded Archive.org items, preview the indexed IDs
+To delete the 15 manually uploaded Archive.org items, preview the item IDs
 first:
 
 ```powershell
 python scripts/delete_manual_uploads.py
 ```
 
-The script uses each book's Archive.org identifier from
-`src/data/index.json` (for example, Genesis is `1_20261001`). When the list is
-correct, run with `--execute`. The script asks for your Internet Archive S3
-keys and requires typing `DELETE 15 ITEMS`.
+The script uses the explicit Archive.org IDs in its deletion list (for
+example, Genesis is `1_20261001`) and does not look them up in the project
+index. When the list is correct, run with `--execute`. The script asks for your
+Internet Archive S3 keys and requires typing `DELETE 15 ITEMS`.
 For each successful deletion, it removes that item's entry from the local
 upload checkpoint so the uploader can send its chapters again. Deletion
 removes the files from the Archive.org items; Archive.org system metadata may

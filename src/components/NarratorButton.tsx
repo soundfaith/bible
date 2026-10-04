@@ -2,12 +2,14 @@ import { Pause, Volume2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type NarrationStatus = "idle" | "playing" | "paused";
-export type NarrationSnapshot = { status: NarrationStatus; text: string; position: number; duration: number };
+export type NarrationSnapshot = { status: NarrationStatus; text: string; position: number; duration: number; usesAudioFile: boolean };
 
 let activeSpeech: SpeechSynthesisUtterance | null = null;
 let activeAudio: HTMLAudioElement | null = null;
+let activeAudioSources: string[] = [];
+let activeAudioSourceIndex = 0;
 let completionHandler: (() => void) | undefined;
-let snapshot: NarrationSnapshot = { status: "idle", text: "", position: 0, duration: 0 };
+let snapshot: NarrationSnapshot = { status: "idle", text: "", position: 0, duration: 0, usesAudioFile: false };
 const listeners = new Set<() => void>();
 
 function notify() { listeners.forEach((listener) => listener()); }
@@ -27,14 +29,16 @@ export function stopSpeaking() {
     activeAudio = null;
   }
   activeSpeech = null;
+  activeAudioSources = [];
+  activeAudioSourceIndex = 0;
   completionHandler = undefined;
-  snapshot = { status: "idle", text: "", position: 0, duration: 0 };
+  snapshot = { status: "idle", text: "", position: 0, duration: 0, usesAudioFile: false };
   notify();
 }
 
-function startTextToSpeech(text: string, onEnded?: () => void) {
+function startTextToSpeech(text: string, onEnded?: () => void, fromPosition = 0) {
   if (!("speechSynthesis" in window) || !text.trim()) return false;
-  const position = snapshot.text === text ? snapshot.position : 0;
+  const position = snapshot.text === text ? Math.max(0, fromPosition) : 0;
   window.speechSynthesis.cancel();
   activeAudio?.pause();
   activeAudio = null;
@@ -58,24 +62,22 @@ function startTextToSpeech(text: string, onEnded?: () => void) {
   };
   utterance.onerror = () => { if (activeSpeech === utterance) stopSpeaking(); };
   activeSpeech = utterance;
-  snapshot = { status: "playing", text, position, duration: 0 };
+  snapshot = { status: "playing", text, position, duration: 0, usesAudioFile: false };
   window.speechSynthesis.speak(utterance);
   notify();
   return true;
 }
 
-export function startSpeaking(text: string, audioUrl?: string, onEnded?: () => void) {
-  if (!text.trim()) return false;
-  if (!audioUrl) return startTextToSpeech(text, onEnded);
-
-  if (!("Audio" in window)) return startTextToSpeech(text, onEnded);
-  window.speechSynthesis?.cancel();
-  activeSpeech = null;
-  activeAudio?.pause();
-  completionHandler = onEnded;
+function playAudioSource(text: string, sourceIndex: number, onEnded?: () => void) {
+  if (sourceIndex >= activeAudioSources.length) {
+    activeAudio = null;
+    return startTextToSpeech(text, onEnded, 0);
+  }
+  activeAudioSourceIndex = sourceIndex;
+  const audioUrl = activeAudioSources[sourceIndex];
   const audio = new Audio(audioUrl);
   activeAudio = audio;
-  snapshot = { status: "playing", text, position: 0, duration: 0 };
+  snapshot = { status: "playing", text, position: 0, duration: 0, usesAudioFile: true };
   const updateAudioProgress = () => {
     if (activeAudio !== audio) return;
     snapshot = { ...snapshot, position: audio.currentTime, duration: Number.isFinite(audio.duration) ? audio.duration : 0 };
@@ -87,7 +89,9 @@ export function startSpeaking(text: string, audioUrl?: string, onEnded?: () => v
   audio.onended = () => {
     if (activeAudio !== audio) return;
     activeAudio = null;
-    snapshot = { ...snapshot, status: "idle", position: 0, duration: 0 };
+    activeAudioSources = [];
+    activeAudioSourceIndex = 0;
+    snapshot = { ...snapshot, status: "idle", position: 0, duration: 0, usesAudioFile: false };
     const onComplete = completionHandler;
     completionHandler = undefined;
     notify();
@@ -95,33 +99,47 @@ export function startSpeaking(text: string, audioUrl?: string, onEnded?: () => v
   };
   audio.onerror = () => {
     if (activeAudio !== audio) return;
-    activeAudio = null;
     console.warn(`Narration MP3 could not be loaded: ${audioUrl}`, audio.error);
-    startTextToSpeech(text, onEnded);
+    activeAudio = null;
+    void playAudioSource(text, sourceIndex + 1, onEnded);
   };
   notify();
   void audio.play().catch((error: unknown) => {
     if (activeAudio !== audio) return;
-    activeAudio = null;
     console.warn(`Narration MP3 could not be played: ${audioUrl}`, error);
-    startTextToSpeech(text, onEnded);
+    activeAudio = null;
+    void playAudioSource(text, sourceIndex + 1, onEnded);
   });
   return true;
 }
 
-export function resumeSpeaking(text: string, audioUrl?: string, onEnded?: () => void) {
-  if (snapshot.text !== text || snapshot.status !== "paused") return startSpeaking(text, audioUrl, onEnded);
+export function startSpeaking(text: string, audioUrl?: string, fallbackAudioUrl?: string, onEnded?: () => void) {
+  if (!text.trim()) return false;
+  activeAudioSources = [...new Set([audioUrl, fallbackAudioUrl].filter((url): url is string => Boolean(url)))];
+  activeAudioSourceIndex = 0;
+  if (!activeAudioSources.length || !("Audio" in window)) return startTextToSpeech(text, onEnded);
+  window.speechSynthesis?.cancel();
+  activeSpeech = null;
+  activeAudio?.pause();
+  completionHandler = onEnded;
+  return playAudioSource(text, 0, onEnded);
+}
+
+export function resumeSpeaking(text: string, audioUrl?: string, fallbackAudioUrl?: string, onEnded?: () => void) {
+  if (snapshot.text !== text || snapshot.status !== "paused") return startSpeaking(text, audioUrl, fallbackAudioUrl, onEnded);
   if (onEnded) completionHandler = onEnded;
   if (activeAudio) {
+    const audio = activeAudio;
     snapshot = { ...snapshot, status: "playing" };
     notify();
-    void activeAudio.play().catch(() => {
+    void audio.play().catch(() => {
+      if (activeAudio !== audio) return;
       activeAudio = null;
-      startTextToSpeech(text, onEnded);
+      void playAudioSource(text, activeAudioSourceIndex + 1, onEnded);
     });
     return true;
   }
-  return startTextToSpeech(text, onEnded);
+  return startTextToSpeech(text, onEnded, snapshot.usesAudioFile ? 0 : snapshot.position);
 }
 
 export function pauseSpeaking() {
@@ -149,7 +167,7 @@ function formatTime(seconds: number) {
 export function NarrationProgress({ className, enabled = true }: { className: string; enabled?: boolean }) {
   const [current, setCurrent] = useState(getNarrationSnapshot);
   useEffect(() => subscribeNarration(() => setCurrent(getNarrationSnapshot())), []);
-  if (!enabled) return null;
+  if (!enabled || current.status !== "playing" || !current.usesAudioFile) return null;
   return <div className={`narration-progress ${className}`}>
     <span className="narration-time">{formatTime(current.position)}</span>
     <input
@@ -167,7 +185,7 @@ export function NarrationProgress({ className, enabled = true }: { className: st
   </div>;
 }
 
-export function NarratorButton({ text, audioUrl, onEnded }: { text: string; audioUrl?: string; onEnded?: () => void }) {
+export function NarratorButton({ text, audioUrl, fallbackAudioUrl, onEnded }: { text: string; audioUrl?: string; fallbackAudioUrl?: string; onEnded?: () => void }) {
   const [current, setCurrent] = useState(getNarrationSnapshot);
 
   useEffect(() => subscribeNarration(() => setCurrent(getNarrationSnapshot())), []);
@@ -175,8 +193,8 @@ export function NarratorButton({ text, audioUrl, onEnded }: { text: string; audi
   const isCurrent = current.text === text && current.status !== "idle";
   const toggle = () => {
     if (isCurrent && current.status === "playing") pauseSpeaking();
-    else if (isCurrent && current.status === "paused") resumeSpeaking(text, audioUrl, onEnded);
-    else startSpeaking(text, audioUrl, onEnded);
+    else if (isCurrent && current.status === "paused") resumeSpeaking(text, audioUrl, fallbackAudioUrl, onEnded);
+    else startSpeaking(text, audioUrl, fallbackAudioUrl, onEnded);
   };
 
   return <button className="narrator-button button button-outline" onClick={toggle} aria-label={isCurrent && current.status === "playing" ? "Pause narration" : "Listen to this reading"}>
