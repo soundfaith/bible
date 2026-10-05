@@ -1,8 +1,15 @@
+export type JourneyStory = {
+  title: string;
+  summary: string;
+  references: string[];
+};
+
 export type JourneyPeriod = {
   id: string;
   title: string;
   overview: string;
-  references: string[];
+  teaser: string;
+  stories: JourneyStory[];
   scene: string;
   artPrompt: string;
 };
@@ -10,122 +17,214 @@ export type JourneyPeriod = {
 export const bibleJourney: JourneyPeriod[] = [
   {
     id: "a-world-awakened",
-    title: "Creation, Fracture, and a World in Need",
-    overview:
-      "God makes a good world and entrusts it to humankind. Human distrust fractures that beginning; violence spreads, a flood brings judgment and rescue, and Babel scatters a people seeking to make a name for themselves.",
-    references: ["Genesis 1:1-5", "Genesis 3:8-15", "Genesis 6:13-22", "Genesis 11:1-9"],
+    title: "Beginnings",
+    overview: "Creation, human freedom, violence, judgment, and a renewed beginning frame the opening chapters of Scripture.",
+    teaser: "A good world begins, fractures, and receives a promise of hope.",
     scene: "creation",
-    artPrompt:
-      "An original editorial illustration of the first light over an unfinished ancient world: deep indigo heavens, a warm horizon, dark water, and newly emerging land, contemplative and symbolic rather than literal, with no text.",
+    artPrompt: "First light rises over deep water and newly emerging land.",
+    stories: [
+      { title: "Creation", summary: "God brings light, sky, land, and life into being, calling the work good and entrusting the earth to humankind.", references: ["Genesis 1:1-5", "Genesis 1:26-31"] },
+      { title: "Adam and Eve", summary: "The first humans receive a garden home and a vocation: to tend creation and live within God's generous care.", references: ["Genesis 2:7-9", "Genesis 2:15-17"] },
+      { title: "The Fall", summary: "Distrust leads the humans to cross a boundary, and their closeness with God and one another gives way to fear and hardship.", references: ["Genesis 3:1-7", "Genesis 3:14-19"] },
+      { title: "Cain and Abel", summary: "Jealousy turns into violence between brothers, yet God confronts Cain and places a mark of protection upon him.", references: ["Genesis 4:1-12"] },
+      { title: "A Promise of Hope", summary: "Even as the garden is lost, God speaks of the defeat of evil and clothes the vulnerable before they leave.", references: ["Genesis 3:14-15", "Genesis 3:21-24"] },
+      { title: "Noah and the Ark", summary: "In a world filled with violence, Noah is told to build an ark; his family and the animals pass through the flood toward a new beginning.", references: ["Genesis 6:13-22", "Genesis 8:15-22"] },
+      { title: "The Tower of Babel", summary: "Humanity seeks a name and a city reaching the heavens; scattered languages send people outward across the earth.", references: ["Genesis 11:1-9"] },
+    ],
   },
   {
     id: "a-promise-takes-root",
-    title: "A Family Chosen for Blessing",
-    overview:
-      "Abram and Sarai leave home with a promise that their family will become a blessing to all peoples. Isaac, Jacob, and Joseph carry that family story through conflict and reconciliation until famine brings them to Egypt.",
-    references: ["Genesis 12:1-9", "Genesis 15:1-6", "Genesis 22:1-14", "Genesis 50:15-21"],
+    title: "Patriarchs",
+    overview: "A promise entrusted to Abraham and Sarah travels through Isaac, Jacob, and Joseph, becoming the story of a family that will grow into a people.",
+    teaser: "A family carries God's promise through conflict, famine, and reconciliation.",
     scene: "family",
-    artPrompt:
-      "An original editorial illustration of a small ancient family caravan crossing a wide ochre wilderness beneath a star-filled sky, with distant hills and one guiding path, humane and quietly hopeful, no text.",
+    artPrompt: "A family caravan journeys beneath a star-filled desert sky; a well and a richly colored coat recall the generations.",
+    stories: [
+      { title: "Abraham's Call", summary: "Abram leaves his country at God's call, carrying a promise that through him all families of the earth will be blessed.", references: ["Genesis 12:1-9"] },
+      { title: "Abraham and Sarah", summary: "God renews the covenant and promises descendants as numerous as the stars, even when the promise seems beyond reach.", references: ["Genesis 15:1-6", "Genesis 17:15-19"] },
+      { title: "The Binding of Isaac", summary: "Abraham's trust is tested on the mountain, where God provides a ram and Isaac's life is spared.", references: ["Genesis 22:1-14"] },
+      { title: "Isaac and Rebekah", summary: "A journey to find Isaac a wife leads to Rebekah, whose welcome at the well begins the next generation of the family.", references: ["Genesis 24:10-20", "Genesis 24:58-67"] },
+      { title: "Jacob and Esau", summary: "Twin brothers contend over birthright and blessing, and Jacob leaves home fearing his brother's anger.", references: ["Genesis 25:27-34", "Genesis 27:18-29"] },
+      { title: "Jacob Becomes Israel", summary: "On his way home, Jacob wrestles through the night and receives a new name: Israel, before preparing to meet Esau again.", references: ["Genesis 32:22-32"] },
+      { title: "Jacob and Esau Reunited", summary: "Jacob approaches with fear, but Esau runs to meet him; the brothers embrace and begin to make peace.", references: ["Genesis 33:1-11"] },
+      { title: "Joseph and His Brothers", summary: "Joseph's dreams and favored coat stir his brothers' envy; they sell him and tell their father he is gone.", references: ["Genesis 37:3-11", "Genesis 37:23-28"] },
+      { title: "Joseph in Egypt", summary: "Though sold into slavery and imprisoned, Joseph rises to interpret Pharaoh's dreams and prepare Egypt for famine.", references: ["Genesis 39:19-23", "Genesis 41:14-16", "Genesis 41:46-49"] },
+      { title: "Jacob's Family Goes to Egypt", summary: "Joseph reveals himself to his brothers and forgives them; Jacob's whole household moves to Egypt to survive the famine.", references: ["Genesis 45:1-11", "Genesis 46:1-7", "Genesis 50:15-21"] },
+    ],
   },
   {
     id: "freedom-and-belonging",
-    title: "Out of Egypt, Into Covenant",
-    overview:
-      "Oppressed in Egypt, the descendants of Israel hear Moses called at the burning bush. Passover and the crossing of the sea lead them toward Sinai, where a newly freed people receive a covenant and learn a shared way of life.",
-    references: ["Exodus 3:1-12", "Exodus 12:21-28", "Exodus 14:21-31", "Exodus 19:3-8"],
+    title: "Exodus",
+    overview: "God hears an enslaved people, brings them out of Egypt, and forms them through a covenant at Sinai.",
+    teaser: "Deliverance from Egypt leads to covenant and a shared life.",
     scene: "exodus",
-    artPrompt:
-      "An original editorial illustration of a people crossing a passage through the sea at dawn, water rising like deep blue walls around a dry path, with a small warm light ahead, respectful and cinematic, no text.",
+    artPrompt: "A dry path opens between towering sea walls; a staff, Passover doorway, and covenant tablets signal the journey.",
+    stories: [
+      { title: "Israel Oppressed", summary: "A new Pharaoh fears Israel's growth and subjects the people to forced labor, but their cries reach God.", references: ["Exodus 1:8-14", "Exodus 2:23-25"] },
+      { title: "Moses Is Called", summary: "At a bush burning without being consumed, God calls Moses to lead the people out and promises to be with him.", references: ["Exodus 3:1-12"] },
+      { title: "Plagues and Passover", summary: "After Pharaoh refuses to release Israel, the people keep the Passover meal and mark their homes before the final plague.", references: ["Exodus 12:21-28"] },
+      { title: "Departure and Sea Crossing", summary: "Israel leaves Egypt; trapped between Pharaoh's army and the sea, they cross on dry ground as the waters close behind them.", references: ["Exodus 14:21-31"] },
+      { title: "The Covenant at Sinai", summary: "At the mountain, God recalls the rescue from Egypt and calls Israel to become a treasured people and a holy nation.", references: ["Exodus 19:3-8", "Exodus 20:1-6"] },
+      { title: "The Golden Calf", summary: "While Moses is on the mountain, the people make a golden calf; Moses intercedes and the covenant relationship is renewed.", references: ["Exodus 32:1-14", "Exodus 34:4-10"] },
+      { title: "The Tabernacle", summary: "The people build a meeting place for worship, and a cloud covers it as God's presence fills the tabernacle.", references: ["Exodus 40:34-38"] },
+    ],
   },
   {
     id: "a-kingdom-under-question",
-    title: "A Land, a People, and the Judges",
-    overview:
-      "After the wilderness, Israel enters the land and renews its covenant. The generations that follow struggle to remain faithful; the judges rise in seasons of crisis, while Ruth's loyalty offers a quieter portrait of steadfastness.",
-    references: ["Joshua 3:14-17", "Joshua 24:14-24", "Judges 2:6-19", "Ruth 1:16-17"],
-    scene: "land",
-    artPrompt:
-      "An original editorial illustration of a green valley opening beyond a river toward the hill country, with a simple stone marker in the foreground and late-summer light, grounded in the ancient landscape, no text.",
+    title: "Wilderness",
+    overview: "Between Egypt and the land, Israel learns daily dependence, struggles with fear, and hears Moses' final invitation to choose life.",
+    teaser: "Manna, testing, and Moses' last words shape a generation on the way.",
+    scene: "wilderness",
+    artPrompt: "A desert camp gathers around a water jar, manna, and a bronze serpent beneath an expansive wilderness sky.",
+    stories: [
+      { title: "Manna and Quail", summary: "Hungry in the wilderness, Israel receives quail in the evening and bread-like manna each morning.", references: ["Exodus 16:13-18"] },
+      { title: "Water from the Rock", summary: "When the people have no water, Moses is told to speak to a rock; water flows, though the quarrel exposes the strain of the journey.", references: ["Numbers 20:1-13"] },
+      { title: "The Spies and the People's Fear", summary: "Twelve scouts explore Canaan; ten report danger, and the frightened people refuse to trust the promise of the land.", references: ["Numbers 13:1-3", "Numbers 13:25-33"] },
+      { title: "Rebellion and Wandering", summary: "The people's refusal leads to years of wandering, while a new generation grows up on the journey.", references: ["Numbers 14:1-10", "Numbers 14:26-35"] },
+      { title: "The Bronze Serpent", summary: "After another crisis in the wilderness, Moses raises a bronze serpent so that those who look toward it may live.", references: ["Numbers 21:4-9"] },
+      { title: "Moses' Final Words", summary: "As the people stand near the land, Moses sets before them the choice between life and death and urges them to choose life.", references: ["Deuteronomy 30:15-20"] },
+      { title: "Moses' Death", summary: "Moses sees the promised land from Mount Nebo and dies; Joshua will lead the people across the Jordan.", references: ["Deuteronomy 34:1-8"] },
+    ],
   },
   {
     id: "voices-for-the-road-home",
-    title: "One Kingdom: Saul, David, and Solomon",
-    overview:
-      "Israel asks for a king. Saul's reign gives way to David, whose house receives a lasting promise; Solomon succeeds him and builds the Jerusalem temple, the center of worship for the united kingdom.",
-    references: ["1 Samuel 8:4-9", "1 Samuel 16:1-13", "2 Samuel 7:8-16", "1 Kings 8:22-30"],
-    scene: "kingdom",
-    artPrompt:
-      "An original editorial illustration of ancient Jerusalem on a ridge at sunset, a modest royal citadel and temple silhouette above terraced stone houses, muted copper and olive tones, no text.",
+    title: "Promised Land",
+    overview: "Joshua leads Israel across the Jordan; settlement and the judges follow, with stories of courage and loyalty along the way.",
+    teaser: "A river crossing opens into a land, a cycle of judges, and Ruth's loyalty.",
+    scene: "land",
+    artPrompt: "A river crossing opens toward walled towns, a stone marker, and fields ready for harvest.",
+    stories: [
+      { title: "Crossing the Jordan", summary: "The people cross the Jordan on dry ground as the ark leads the way, echoing their earlier passage through the sea.", references: ["Joshua 3:14-17", "Joshua 4:1-7"] },
+      { title: "Jericho's Walls", summary: "Israel circles Jericho as instructed; the walls fall, and Rahab and her household are spared.", references: ["Joshua 6:12-20", "Joshua 6:22-25"] },
+      { title: "The Land Is Shared", summary: "The land is apportioned among the tribes, and Joshua gathers the people to renew their covenant.", references: ["Joshua 18:1-10", "Joshua 24:14-24"] },
+      { title: "The Judges and the Cycle", summary: "After Joshua's generation, Israel repeatedly turns away, suffers oppression, cries out, and is rescued by judges.", references: ["Judges 2:6-19"] },
+      { title: "Deborah and Barak", summary: "The prophet and judge Deborah summons Barak to lead Israel against an oppressor, and the people find deliverance.", references: ["Judges 4:4-10", "Judges 4:14-16"] },
+      { title: "Gideon Is Called", summary: "God calls Gideon, who sees himself as least in his family, and promises to be with him.", references: ["Judges 6:11-18"] },
+      { title: "Ruth's Loyalty", summary: "Ruth refuses to leave her widowed mother-in-law Naomi; her faithfulness brings her into the family line of David.", references: ["Ruth 1:16-17", "Ruth 4:13-17"] },
+      { title: "Samuel Hears God", summary: "The boy Samuel serves at the sanctuary and learns to answer God's call, becoming a prophet for Israel.", references: ["1 Samuel 3:1-10", "1 Samuel 3:19-21"] },
+    ],
   },
   {
     id: "good-news-in-a-small-town",
-    title: "Two Kingdoms and the Prophets",
-    overview:
-      "After Solomon, the kingdom divides into Israel in the north and Judah in the south. Prophets call both kingdoms back to justice and covenant faithfulness; the northern kingdom falls to Assyria, and later Babylon conquers Judah.",
-    references: ["1 Kings 12:16-24", "Isaiah 1:16-20", "2 Kings 17:6-18", "2 Kings 25:1-12"],
-    scene: "kingdoms",
-    artPrompt:
-      "An original editorial illustration of two neighboring ancient hilltop cities divided by a deep valley, distant storm clouds gathering beyond their walls, a lone prophetic figure in the foreground, restrained earth tones, no text.",
+    title: "Kingdom",
+    overview: "Israel's first kings give way to David's rule in Jerusalem and Solomon's temple, while God's promise to David looks beyond one reign.",
+    teaser: "Saul, David, and Solomon shape a kingdom centered on Jerusalem.",
+    scene: "kingdom",
+    artPrompt: "Jerusalem rises on a ridge with a temple silhouette, a sling, and a royal crown against copper evening light.",
+    stories: [
+      { title: "Saul Becomes King", summary: "Israel asks for a king, and Saul is chosen and presented to the people as their first ruler.", references: ["1 Samuel 8:4-9", "1 Samuel 10:17-24"] },
+      { title: "David and Goliath", summary: "The young David faces the Philistine champion with a sling, trusting that the battle belongs to God.", references: ["1 Samuel 17:40-50"] },
+      { title: "David Becomes King", summary: "The tribes come to David at Hebron and anoint him king over Israel; he will rule for forty years.", references: ["2 Samuel 5:1-5"] },
+      { title: "Jerusalem and the Ark", summary: "David brings the ark to Jerusalem with celebration, making the city the heart of Israel's worship and rule.", references: ["2 Samuel 6:12-19"] },
+      { title: "A Covenant with David", summary: "Through Nathan, God promises David a lasting house and a kingdom, a promise that shapes Israel's hope.", references: ["2 Samuel 7:8-16"] },
+      { title: "Solomon Builds the Temple", summary: "Solomon dedicates the temple and asks God to hear the prayers offered there, including those of foreigners.", references: ["1 Kings 8:22-30", "1 Kings 8:41-43"] },
+    ],
   },
   {
     id: "love-given-to-the-end",
-    title: "Exile: Jerusalem Falls, Hope Endures",
-    overview:
-      "Jerusalem's temple and walls are destroyed, and many people are deported to Babylon. Far from home, they grieve, keep faith, and imagine renewal; Daniel's courage and Ezekiel's vision hold hope open in exile.",
-    references: ["Psalms 137:1-6", "Daniel 1:1-7", "Daniel 6:16-23", "Ezekiel 37:1-14"],
-    scene: "exile",
-    artPrompt:
-      "An original editorial illustration of Judean exiles beside the rivers of Babylon, distant city walls reflected in still water, a small harp resting nearby beneath a broad dusk sky, tender and dignified, no text.",
+    title: "Divided Kingdom",
+    overview: "After Solomon, the kingdom splits; prophets challenge injustice and idolatry as the northern kingdom falls and Judah's last kings face warning.",
+    teaser: "A divided people hear prophetic calls before conquest reaches both kingdoms.",
+    scene: "kingdoms",
+    artPrompt: "Two hilltop kingdoms face one another across a ravine, with prophetic scrolls and distant Assyrian walls.",
+    stories: [
+      { title: "The Kingdom Divides", summary: "Rehoboam refuses to lighten the people's burden, and the northern tribes break away under Jeroboam.", references: ["1 Kings 12:16-24"] },
+      { title: "Elijah on Mount Carmel", summary: "Elijah challenges the prophets of Baal before the people; fire answers, and Israel confesses the Lord as God.", references: ["1 Kings 18:20-24", "1 Kings 18:36-39"] },
+      { title: "Prophets Call Israel Back", summary: "God sends prophets repeatedly to warn Israel and Judah, but the people persist in rejecting the covenant.", references: ["2 Kings 17:13-18"] },
+      { title: "Hezekiah's Reform", summary: "Judah's king Hezekiah removes shrines and idols and holds fast to the Lord during a dangerous age.", references: ["2 Kings 18:1-8"] },
+      { title: "Josiah Finds the Law", summary: "A scroll is found in the temple; Josiah hears its words, grieves, and gathers the people to renew the covenant.", references: ["2 Kings 22:8-13", "2 Kings 23:1-3"] },
+      { title: "Assyria Conquers the North", summary: "Assyria captures Samaria and carries Israel away, bringing the northern kingdom to an end.", references: ["2 Kings 17:5-6"] },
+      { title: "Judah's Final Kings", summary: "Babylon breaches Jerusalem's walls, burns the temple, and takes many people into exile.", references: ["2 Kings 25:1-12"] },
+    ],
   },
   {
     id: "morning-beyond-the-stone",
-    title: "Return, Rebuilding, and Waiting",
-    overview:
-      "Persia's king permits the exiles to return. The temple and Jerusalem's community are rebuilt; Ezra reads the law aloud, and later prophets keep alive the hope of God's promised renewal.",
-    references: ["Ezra 1:1-8", "Ezra 3:10-13", "Nehemiah 8:1-12", "Malachi 3:1-4"],
-    scene: "return",
-    artPrompt:
-      "An original editorial illustration of Jerusalem's temple being rebuilt with hand-cut pale stone, workers and families gathering in the foreground, morning light over the city, patient and hopeful, no text.",
+    title: "Exile",
+    overview: "In Babylon, the displaced people grieve Jerusalem and find ways to remain faithful; Daniel, Ezekiel, and Esther offer courage and hope.",
+    teaser: "Far from home, songs, visions, and courageous choices keep hope alive.",
+    scene: "exile",
+    artPrompt: "A river in Babylon reflects distant walls while a harp, scroll, and royal signet evoke lives far from home.",
+    stories: [
+      { title: "Jerusalem Falls", summary: "The city and temple are destroyed, and the survivors are carried away, leaving the land desolate.", references: ["2 Kings 25:8-12"] },
+      { title: "A Song beside Babylon's Rivers", summary: "The exiles remember Jerusalem with grief and refuse to forget the city they have lost.", references: ["Psalms 137:1-6"] },
+      { title: "Daniel in Babylon", summary: "Taken to the king's court, Daniel and his companions resolve to remain faithful while learning life in exile.", references: ["Daniel 1:1-7"] },
+      { title: "Daniel in the Lions' Den", summary: "Daniel continues to pray despite the royal decree; the king finds him alive when dawn comes.", references: ["Daniel 6:16-23"] },
+      { title: "Ezekiel's Valley of Bones", summary: "Ezekiel sees dry bones come together and live, a sign that God can restore a people who feel beyond hope.", references: ["Ezekiel 37:1-14"] },
+      { title: "Esther's Courage", summary: "Queen Esther risks approaching the king to plead for her people, accepting that her position may be for this moment.", references: ["Esther 4:12-17"] },
+      { title: "Deliverance in Persia", summary: "Esther speaks before the king, and the threat against her people is overturned; joy and relief spread through the city.", references: ["Esther 7:1-6", "Esther 8:15-17"] },
+    ],
   },
   {
     id: "a-welcome-without-borders",
-    title: "Jesus Arrives and Announces God's Reign",
-    overview:
-      "After generations of waiting, the birth of Jesus is announced. At his baptism he is named God's beloved Son, then begins teaching and healing, declaring good news and release in the towns of Galilee.",
-    references: ["Luke 1:26-38", "Luke 2:1-14", "Luke 3:21-22", "Luke 4:16-21"],
-    scene: "galilee",
-    artPrompt:
-      "An original editorial illustration of a first-century Galilean village at morning, a teacher speaking beneath a simple stone portico as neighbors gather to listen, warm natural light and human scale, no text.",
+    title: "Return",
+    overview: "Persian rule opens a way home; returned exiles rebuild the temple and city, hear the law again, and wait for renewal.",
+    teaser: "The return brings worship, rebuilt walls, and renewed expectation.",
+    scene: "return",
+    artPrompt: "Temple stones and Jerusalem's wall rise in morning light as workers gather around a scroll.",
+    stories: [
+      { title: "The Return Begins", summary: "Cyrus of Persia permits the exiles to return and rebuild the house of God in Jerusalem.", references: ["Ezra 1:1-8"] },
+      { title: "The Altar and Temple Foundations", summary: "The returned community builds the altar and lays the temple's foundation, weeping and rejoicing together.", references: ["Ezra 3:10-13"] },
+      { title: "Nehemiah Rebuilds Jerusalem", summary: "Nehemiah surveys the broken walls by night, then calls the people to rebuild despite opposition.", references: ["Nehemiah 2:11-18"] },
+      { title: "The Walls Are Finished", summary: "The wall is completed despite threats, and even neighboring peoples recognize that the work has been accomplished with God's help.", references: ["Nehemiah 6:15-16"] },
+      { title: "Ezra Teaches the Law", summary: "Ezra reads the law to a gathered community; the people listen, understand, weep, and are urged to celebrate.", references: ["Nehemiah 8:1-12"] },
+      { title: "The Prophets Call for Renewal", summary: "Haggai urges the people to rebuild the temple and promises that God is with them.", references: ["Haggai 1:7-11"] },
+      { title: "Hope for God's Messenger", summary: "Malachi speaks of a messenger who will prepare the way and of a refining presence among the people.", references: ["Malachi 3:1-4"] },
+    ],
   },
   {
     id: "learning-to-be-one-body",
-    title: "The Cross and the Empty Tomb",
-    overview:
-      "At the final meal Jesus shares bread and cup with his disciples. He is crucified and buried; on the third day women find the tomb empty. The risen Jesus sends his followers to bear witness to all nations.",
-    references: ["Mark 14:22-25", "Mark 15:33-39", "Luke 24:1-12", "Matthew 28:16-20"],
-    scene: "resurrection",
-    artPrompt:
-      "An original editorial illustration of an open rock-cut tomb at first light, a rolled stone and folded linen visible at the entrance, olive branches and a quiet path, reverent and hopeful without depicting the risen Jesus, no text.",
+    title: "Messiah",
+    overview: "Jesus' birth, baptism, teaching, healing, and signs announce God's reign; his journey leads toward Jerusalem.",
+    teaser: "Jesus announces God's reign in words, healings, parables, and signs.",
+    scene: "galilee",
+    artPrompt: "A village teacher, fishing nets, a small lamp, and a road toward Jerusalem suggest the public life of Jesus.",
+    stories: [
+      { title: "The Annunciation", summary: "The angel Gabriel tells Mary she will bear Jesus, and she receives the calling with trust.", references: ["Luke 1:26-38"] },
+      { title: "The Birth of Jesus", summary: "Jesus is born in Bethlehem; shepherds hear the good news and find the child lying in a manger.", references: ["Luke 2:1-14"] },
+      { title: "Jesus Is Baptized", summary: "As Jesus prays after his baptism, the heavens open and a voice names him God's beloved Son.", references: ["Luke 3:21-22"] },
+      { title: "The First Disciples", summary: "After a remarkable catch of fish, Simon Peter and his companions leave their nets to follow Jesus.", references: ["Luke 5:1-11"] },
+      { title: "Good News for the Poor", summary: "In Nazareth, Jesus reads Isaiah's promise of good news and declares that the Scripture is fulfilled that day.", references: ["Luke 4:16-21"] },
+      { title: "The Lost Son Returns", summary: "In a parable, a father welcomes home a son who wasted his inheritance, revealing the joy of restoration.", references: ["Luke 15:11-24"] },
+      { title: "A Paralytic Is Healed", summary: "Friends lower a paralyzed man through a roof; Jesus forgives him and restores his ability to walk.", references: ["Mark 2:1-12"] },
+      { title: "The Transfiguration", summary: "On a mountain, Jesus' appearance changes and Moses and Elijah appear; the disciples hear that they should listen to him.", references: ["Luke 9:28-36"] },
+      { title: "Jesus Enters Jerusalem", summary: "Jesus rides into Jerusalem as the crowds praise God, marking the beginning of the final days of his ministry.", references: ["Luke 19:28-40"] },
+    ],
   },
   {
     id: "a-future-worth-living-toward",
-    title: "The Spirit Forms a New Community",
-    overview:
-      "At Pentecost the Spirit empowers Jesus' followers to speak across languages. They share meals and possessions, welcome new believers, and continue their witness even as persecution scatters them from Jerusalem.",
-    references: ["Acts 2:1-13", "Acts 2:42-47", "Acts 7:54-60", "Acts 8:1-8"],
-    scene: "pentecost",
-    artPrompt:
-      "An original editorial illustration of a diverse first-century gathering sharing bread in a sunlit courtyard, small flame-like lights suggested above the group, lively yet gentle and historically grounded, no text.",
+    title: "Resurrection",
+    overview: "At the Passover meal Jesus serves his disciples, then is crucified and buried; the empty tomb and encounters with the risen Jesus change their grief into witness.",
+    teaser: "The cross, empty tomb, and encounters with the risen Jesus transform the disciples.",
+    scene: "resurrection",
+    artPrompt: "An empty rock-cut tomb, rolled stone, linen, and a cross-shaped shadow meet first light.",
+    stories: [
+      { title: "The Last Supper", summary: "At the Passover meal Jesus gives bread and a cup to his disciples and asks them to remember him.", references: ["Luke 22:14-23"] },
+      { title: "Gethsemane", summary: "Jesus prays on the Mount of Olives, submitting to the Father's will as his disciples struggle to stay awake.", references: ["Luke 22:39-46"] },
+      { title: "Trial and Crucifixion", summary: "Jesus is crucified between criminals; at his death the centurion praises God and calls him righteous.", references: ["Luke 23:32-49"] },
+      { title: "Burial", summary: "Joseph of Arimathea places Jesus' body in a tomb, and the women prepare spices before resting on the Sabbath.", references: ["Luke 23:50-56"] },
+      { title: "The Empty Tomb", summary: "At dawn the women find the stone rolled away and hear that Jesus is risen; they tell the apostles, who struggle to believe.", references: ["Luke 24:1-12"] },
+      { title: "The Road to Emmaus", summary: "The risen Jesus walks with two disciples and opens the Scriptures to them; they recognize him in the breaking of bread.", references: ["Luke 24:13-35"] },
+      { title: "Jesus Appears to the Disciples", summary: "Jesus comes to the gathered disciples, shows them his wounds, and sends them with peace and the Holy Spirit.", references: ["John 20:19-23"] },
+      { title: "The Commission and Ascension", summary: "Jesus promises the Spirit and tells his followers to bear witness to the ends of the earth before he is taken up.", references: ["Acts 1:6-11"] },
+    ],
   },
   {
     id: "the-story-in-our-hands",
-    title: "The Good News Crosses the World",
-    overview:
-      "Peter recognizes God's welcome among Gentiles, and the church sends Paul and Barnabas on mission. The message travels through cities and across the sea to Rome; Acts ends with the good news still being proclaimed, and the church's mission continuing.",
-    references: ["Acts 10:34-48", "Acts 13:1-5", "Acts 15:6-11", "Acts 28:23-31"],
+    title: "The Church",
+    overview: "The Spirit gathers a multilingual community in Jerusalem; its witness moves through Judea and beyond, across peoples and cities, to Rome.",
+    teaser: "A Spirit-filled community carries the good news across borders and seas.",
     scene: "mission",
-    artPrompt:
-      "An original editorial illustration of an ancient Mediterranean harbor with a small sailing vessel setting out toward distant coastal cities, a winding road leading from the shore, bright open sky, expansive and unfinished, no text.",
+    artPrompt: "A shared table, Pentecost flame, open scroll, and a small ship point toward the Church's continuing mission.",
+    stories: [
+      { title: "Pentecost", summary: "The Spirit comes upon Jesus' followers, and people from many nations hear them speaking in their own languages.", references: ["Acts 2:1-13"] },
+      { title: "A Shared Life", summary: "The first believers learn together, pray, break bread, and share their possessions so that no one is left in need.", references: ["Acts 2:42-47"] },
+      { title: "Stephen and Persecution", summary: "Stephen bears witness before the council and is killed; persecution scatters believers beyond Jerusalem.", references: ["Acts 7:54-60", "Acts 8:1-4"] },
+      { title: "Philip and the Ethiopian Official", summary: "Philip explains Isaiah to an Ethiopian official, who believes and is baptized on the road.", references: ["Acts 8:26-36,38-40"] },
+      { title: "Saul Becomes a Witness", summary: "On the road to Damascus, Saul encounters Jesus; the persecutor will become a messenger to the nations.", references: ["Acts 9:1-9", "Acts 9:17-22"] },
+      { title: "Peter and the Gentiles", summary: "Peter proclaims that God shows no partiality, and the Holy Spirit comes upon Gentiles who hear the message.", references: ["Acts 10:34-48"] },
+      { title: "The Council at Jerusalem", summary: "The apostles and elders meet to discern whether Gentile believers must become Jews, and affirm God's welcome among them.", references: ["Acts 15:6-11"] },
+      { title: "Mission across the Sea", summary: "The church sends Paul and Barnabas, and later Paul receives a vision calling him across the sea to Macedonia.", references: ["Acts 13:1-5", "Acts 16:6-10"] },
+      { title: "The Good News Reaches Rome", summary: "Under guard in Rome, Paul welcomes visitors and proclaims God's kingdom openly, with no one stopping him.", references: ["Acts 28:23-31"] },
+    ],
   },
 ];

@@ -24,7 +24,7 @@ import { BibleMark } from "./components/BibleMark";
 import { ModalLayer, type Modal } from "./components/ModalLayer";
 import { SearchModal, type SearchResult } from "./components/SearchModal";
 import { HomePage } from "./pages/HomePage";
-import { BibleJourneyPage } from "./pages/BibleJourneyPage";
+import { BibleJourneyLibrary, BibleJourneyPage } from "./pages/BibleJourneyPage";
 import { AboutPage } from "./pages/AboutPage";
 import {
   ChapterPage,
@@ -52,14 +52,26 @@ import {
 
 type Route = "home" | "read" | "mass" | "bookmarks" | "library" | "about" | "journey";
 function readRoute(): Route {
-  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0];
-  return path === "read" || path === "mass" || path === "bookmarks" || path === "library" || path === "about" || path === "journey"
-    ? path
+  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
+  return path.startsWith("journey/") ? "journey"
+    : path === "read" || path === "mass" || path === "bookmarks" || path === "library" || path === "about" || path === "journey"
+      ? path
     : "home";
+}
+
+function readJourneyPeriodId() {
+  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
+  if (!path.startsWith("journey/")) return null;
+  try {
+    return decodeURIComponent(path.slice("journey/".length));
+  } catch {
+    return path.slice("journey/".length);
+  }
 }
 
 export default function App() {
   const [route, setRoute] = useState<Route>(readRoute);
+  const [journeyPeriodId, setJourneyPeriodId] = useState<string | null>(readJourneyPeriodId);
   const [menuOpen, setMenuOpen] = useState(false);
   const [fontSize, setFontSize] = useState(() => {
     const saved = Number(window.localStorage.getItem("reader-font-size"));
@@ -93,6 +105,7 @@ export default function App() {
   useEffect(() => {
     const change = () => {
       setRoute(readRoute());
+      setJourneyPeriodId(readJourneyPeriodId());
       setMenuOpen(false);
       window.scrollTo(0, 0);
     };
@@ -307,12 +320,18 @@ export default function App() {
         onRemove={removeBookmark}
         onRemoveCategory={removeBookmarkCategory}
       />
-    ) : route === "journey" ? (
+    ) : route === "journey" ? journeyPeriodId ? (
       <BibleJourneyPage
+        periodId={journeyPeriodId}
         completedIds={journeyProgress.completedIds}
         storageError={journeyProgress.storageError}
         onToggleComplete={toggleJourneyPeriod}
         onOpenPassage={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)}
+      />
+    ) : (
+      <BibleJourneyLibrary
+        completedIds={journeyProgress.completedIds}
+        storageError={journeyProgress.storageError}
       />
     ) : route === "library" ? (
       <ReferencePage eyebrow="Component library" title={<>A practical<br /><em>design library.</em></>} copy="A reference for the components and patterns used across the template." />
