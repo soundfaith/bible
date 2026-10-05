@@ -36,8 +36,9 @@ export function BibleJourneyPage({
           <p className="eyebrow"><span className="eyebrow-dot" /> A guided way through Scripture</p>
           <h1>Bible <em>Journey</em></h1>
           <p className="journey-intro">
-            Follow twelve turning points in the biblical story, from creation to the hope we carry forward.
-            Take them at your own pace; each stop pairs an original reflection with passages to read.
+            Follow the Bible’s story in chronological order, from creation through Jesus to the forming and
+            continuing mission of the Church. These twelve stops offer representative readings, not an
+            exhaustive account; take them at your own pace.
           </p>
         </div>
         <aside className="journey-progress" aria-label="Journey progress">
@@ -62,7 +63,7 @@ export function BibleJourneyPage({
             <p className="eyebrow">The unfolding story</p>
             <h2>Twelve places to pause.</h2>
           </div>
-          <p>Open a period to explore its reflection and passages.</p>
+          <p>Open a period for its story, illustration direction, and representative passages.</p>
         </div>
         <ol className="journey-period-list">
           {bibleJourney.map((period, index) => {
@@ -96,6 +97,24 @@ export function BibleJourneyPage({
                   {isExpanded && (
                     <div className="journey-period-content">
                       <p className="journey-period-overview">{period.overview}</p>
+                      <figure
+                        className={`journey-artwork journey-artwork--${period.scene}`}
+                        role="img"
+                        aria-label={`Illustration placeholder for ${period.title}. ${period.artPrompt}`}
+                      >
+                        <span className="journey-artwork-sky" aria-hidden="true" />
+                        <span className="journey-artwork-orbit" aria-hidden="true" />
+                        <span className="journey-artwork-land journey-artwork-land-back" aria-hidden="true" />
+                        <span className="journey-artwork-land journey-artwork-land-front" aria-hidden="true" />
+                        <span className="journey-artwork-motif" aria-hidden="true" />
+                        <span className="journey-artwork-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                        <span className="journey-artwork-label">Illustration placeholder</span>
+                        <figcaption className="journey-artwork-caption">{period.title}</figcaption>
+                      </figure>
+                      <details className="journey-art-prompt">
+                        <summary>Original illustration prompt</summary>
+                        <p>{period.artPrompt}</p>
+                      </details>
                       <div className="journey-passages">
                         <p className="eyebrow">Read the passages</p>
                         {period.references.map((reference) => {

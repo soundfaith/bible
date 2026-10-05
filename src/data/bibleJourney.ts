@@ -3,91 +3,129 @@ export type JourneyPeriod = {
   title: string;
   overview: string;
   references: string[];
+  scene: string;
+  artPrompt: string;
 };
 
 export const bibleJourney: JourneyPeriod[] = [
   {
     id: "a-world-awakened",
-    title: "A World Awakened",
+    title: "Creation, Fracture, and a World in Need",
     overview:
-      "The Bible opens with a generous vision of creation: a world called good, entrusted to human care, and still held by its Creator when trust breaks.",
-    references: ["Genesis 1:1-5", "Genesis 3:8-15"],
+      "God makes a good world and entrusts it to humankind. Human distrust fractures that beginning; violence spreads, a flood brings judgment and rescue, and Babel scatters a people seeking to make a name for themselves.",
+    references: ["Genesis 1:1-5", "Genesis 3:8-15", "Genesis 6:13-22", "Genesis 11:1-9"],
+    scene: "creation",
+    artPrompt:
+      "An original editorial illustration of the first light over an unfinished ancient world: deep indigo heavens, a warm horizon, dark water, and newly emerging land, contemplative and symbolic rather than literal, with no text.",
   },
   {
     id: "a-promise-takes-root",
-    title: "A Promise Takes Root",
+    title: "A Family Chosen for Blessing",
     overview:
-      "One family is invited to set out in faith. Through blessing, struggle, and generations, the promise widens beyond its first home.",
-    references: ["Genesis 12:1-9", "Genesis 15:1-6"],
+      "Abram and Sarai leave home with a promise that their family will become a blessing to all peoples. Isaac, Jacob, and Joseph carry that family story through conflict and reconciliation until famine brings them to Egypt.",
+    references: ["Genesis 12:1-9", "Genesis 15:1-6", "Genesis 22:1-14", "Genesis 50:15-21"],
+    scene: "family",
+    artPrompt:
+      "An original editorial illustration of a small ancient family caravan crossing a wide ochre wilderness beneath a star-filled sky, with distant hills and one guiding path, humane and quietly hopeful, no text.",
   },
   {
     id: "freedom-and-belonging",
-    title: "Freedom and Belonging",
+    title: "Out of Egypt, Into Covenant",
     overview:
-      "A people are led out of oppression and taught a way of life shaped by worship, justice, and care for one another.",
-    references: ["Exodus 3:1-12", "Exodus 19:3-8"],
+      "Oppressed in Egypt, the descendants of Israel hear Moses called at the burning bush. Passover and the crossing of the sea lead them toward Sinai, where a newly freed people receive a covenant and learn a shared way of life.",
+    references: ["Exodus 3:1-12", "Exodus 12:21-28", "Exodus 14:21-31", "Exodus 19:3-8"],
+    scene: "exodus",
+    artPrompt:
+      "An original editorial illustration of a people crossing a passage through the sea at dawn, water rising like deep blue walls around a dry path, with a small warm light ahead, respectful and cinematic, no text.",
   },
   {
     id: "a-kingdom-under-question",
-    title: "A Kingdom Under Question",
+    title: "A Land, a People, and the Judges",
     overview:
-      "Israel's kingship carries both hope and danger. The Scriptures measure leadership by faithfulness and concern for the vulnerable.",
-    references: ["2 Samuel 7:8-16", "Psalm 72:1-7"],
+      "After the wilderness, Israel enters the land and renews its covenant. The generations that follow struggle to remain faithful; the judges rise in seasons of crisis, while Ruth's loyalty offers a quieter portrait of steadfastness.",
+    references: ["Joshua 3:14-17", "Joshua 24:14-24", "Judges 2:6-19", "Ruth 1:16-17"],
+    scene: "land",
+    artPrompt:
+      "An original editorial illustration of a green valley opening beyond a river toward the hill country, with a simple stone marker in the foreground and late-summer light, grounded in the ancient landscape, no text.",
   },
   {
     id: "voices-for-the-road-home",
-    title: "Voices for the Road Home",
+    title: "One Kingdom: Saul, David, and Solomon",
     overview:
-      "Prophets speak honestly about injustice and loss, while holding open the possibility of return, healing, and a renewed heart.",
-    references: ["Isaiah 40:1-11", "Jeremiah 31:31-34"],
+      "Israel asks for a king. Saul's reign gives way to David, whose house receives a lasting promise; Solomon succeeds him and builds the Jerusalem temple, the center of worship for the united kingdom.",
+    references: ["1 Samuel 8:4-9", "1 Samuel 16:1-13", "2 Samuel 7:8-16", "1 Kings 8:22-30"],
+    scene: "kingdom",
+    artPrompt:
+      "An original editorial illustration of ancient Jerusalem on a ridge at sunset, a modest royal citadel and temple silhouette above terraced stone houses, muted copper and olive tones, no text.",
   },
   {
     id: "good-news-in-a-small-town",
-    title: "Good News in a Small Town",
+    title: "Two Kingdoms and the Prophets",
     overview:
-      "In Jesus, God's promises meet ordinary lives. His words and actions announce release, welcome, and a different picture of power.",
-    references: ["Luke 1:26-38", "Luke 4:16-21"],
+      "After Solomon, the kingdom divides into Israel in the north and Judah in the south. Prophets call both kingdoms back to justice and covenant faithfulness; the northern kingdom falls to Assyria, and later Babylon conquers Judah.",
+    references: ["1 Kings 12:16-24", "Isaiah 1:16-20", "2 Kings 17:6-18", "2 Kings 25:1-12"],
+    scene: "kingdoms",
+    artPrompt:
+      "An original editorial illustration of two neighboring ancient hilltop cities divided by a deep valley, distant storm clouds gathering beyond their walls, a lone prophetic figure in the foreground, restrained earth tones, no text.",
   },
   {
     id: "love-given-to-the-end",
-    title: "Love Given to the End",
+    title: "Exile: Jerusalem Falls, Hope Endures",
     overview:
-      "At the table and at the cross, Jesus gives himself in love. The disciples face the cost of this way before they can see what follows.",
-    references: ["Mark 14:22-25", "Mark 15:33-39"],
+      "Jerusalem's temple and walls are destroyed, and many people are deported to Babylon. Far from home, they grieve, keep faith, and imagine renewal; Daniel's courage and Ezekiel's vision hold hope open in exile.",
+    references: ["Psalms 137:1-6", "Daniel 1:1-7", "Daniel 6:16-23", "Ezekiel 37:1-14"],
+    scene: "exile",
+    artPrompt:
+      "An original editorial illustration of Judean exiles beside the rivers of Babylon, distant city walls reflected in still water, a small harp resting nearby beneath a broad dusk sky, tender and dignified, no text.",
   },
   {
     id: "morning-beyond-the-stone",
-    title: "Morning Beyond the Stone",
+    title: "Return, Rebuilding, and Waiting",
     overview:
-      "The resurrection turns grief into witness. The first communities learn to read their Scriptures in light of a living hope.",
-    references: ["John 20:1-18", "Acts 2:22-32"],
+      "Persia's king permits the exiles to return. The temple and Jerusalem's community are rebuilt; Ezra reads the law aloud, and later prophets keep alive the hope of God's promised renewal.",
+    references: ["Ezra 1:1-8", "Ezra 3:10-13", "Nehemiah 8:1-12", "Malachi 3:1-4"],
+    scene: "return",
+    artPrompt:
+      "An original editorial illustration of Jerusalem's temple being rebuilt with hand-cut pale stone, workers and families gathering in the foreground, morning light over the city, patient and hopeful, no text.",
   },
   {
     id: "a-welcome-without-borders",
-    title: "A Welcome Without Borders",
+    title: "Jesus Arrives and Announces God's Reign",
     overview:
-      "The good news crosses familiar boundaries. Disagreement and discernment help the early church recognize God's welcome in new places.",
-    references: ["Acts 10:34-48", "Acts 15:6-11"],
+      "After generations of waiting, the birth of Jesus is announced. At his baptism he is named God's beloved Son, then begins teaching and healing, declaring good news and release in the towns of Galilee.",
+    references: ["Luke 1:26-38", "Luke 2:1-14", "Luke 3:21-22", "Luke 4:16-21"],
+    scene: "galilee",
+    artPrompt:
+      "An original editorial illustration of a first-century Galilean village at morning, a teacher speaking beneath a simple stone portico as neighbors gather to listen, warm natural light and human scale, no text.",
   },
   {
     id: "learning-to-be-one-body",
-    title: "Learning to Be One Body",
+    title: "The Cross and the Empty Tomb",
     overview:
-      "Letters help scattered communities practice a shared life: receiving grace, bearing one another's burdens, and honoring different gifts.",
-    references: ["Romans 8:18-30", "1 Corinthians 12:12-27"],
+      "At the final meal Jesus shares bread and cup with his disciples. He is crucified and buried; on the third day women find the tomb empty. The risen Jesus sends his followers to bear witness to all nations.",
+    references: ["Mark 14:22-25", "Mark 15:33-39", "Luke 24:1-12", "Matthew 28:16-20"],
+    scene: "resurrection",
+    artPrompt:
+      "An original editorial illustration of an open rock-cut tomb at first light, a rolled stone and folded linen visible at the entrance, olive branches and a quiet path, reverent and hopeful without depicting the risen Jesus, no text.",
   },
   {
     id: "a-future-worth-living-toward",
-    title: "A Future Worth Living Toward",
+    title: "The Spirit Forms a New Community",
     overview:
-      "Visions of a healed creation offer courage in difficult times and invite readers to live now as people shaped by God's promised renewal.",
-    references: ["Revelation 21:1-7", "Revelation 22:1-5"],
+      "At Pentecost the Spirit empowers Jesus' followers to speak across languages. They share meals and possessions, welcome new believers, and continue their witness even as persecution scatters them from Jerusalem.",
+    references: ["Acts 2:1-13", "Acts 2:42-47", "Acts 7:54-60", "Acts 8:1-8"],
+    scene: "pentecost",
+    artPrompt:
+      "An original editorial illustration of a diverse first-century gathering sharing bread in a sunlit courtyard, small flame-like lights suggested above the group, lively yet gentle and historically grounded, no text.",
   },
   {
     id: "the-story-in-our-hands",
-    title: "The Story in Our Hands",
+    title: "The Good News Crosses the World",
     overview:
-      "The journey ends by sending readers outward: to serve, to make peace, and to carry the story's hope into the life of the world.",
-    references: ["Matthew 28:16-20", "Philippians 2:1-11"],
+      "Peter recognizes God's welcome among Gentiles, and the church sends Paul and Barnabas on mission. The message travels through cities and across the sea to Rome; Acts ends with the good news still being proclaimed, and the church's mission continuing.",
+    references: ["Acts 10:34-48", "Acts 13:1-5", "Acts 15:6-11", "Acts 28:23-31"],
+    scene: "mission",
+    artPrompt:
+      "An original editorial illustration of an ancient Mediterranean harbor with a small sailing vessel setting out toward distant coastal cities, a winding road leading from the shore, bright open sky, expansive and unfinished, no text.",
   },
 ];
