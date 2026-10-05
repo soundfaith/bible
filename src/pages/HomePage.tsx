@@ -1,7 +1,7 @@
-import { ArrowRight, BookOpen, Bookmark, Compass, Layers3 } from "lucide-react";
+import { ArrowRight, BookOpen, Bookmark, Compass, Layers3, Milestone } from "lucide-react";
 import type { ReadingPosition } from "./ChapterPage";
 
-export function HomePage({ lastReading, onResume, onChoose, onMass, onExplore }: { lastReading: ReadingPosition; onResume: () => void; onChoose: () => void; onMass: () => void; onExplore: () => void }) {
+export function HomePage({ lastReading, onResume, onChoose, onMass, onExplore, onJourney }: { lastReading: ReadingPosition; onResume: () => void; onChoose: () => void; onMass: () => void; onExplore: () => void; onJourney: () => void }) {
   const card = (icon: React.ReactNode, title: string, copy: string, action: string, onClick: () => void) => <article className="landing-card" onClick={onClick} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onClick(); }} role="button" tabIndex={0}>{icon}<h3>{title}</h3><p>{copy}</p><button className="text-link" onClick={(event) => { event.stopPropagation(); onClick(); }}>{action} <ArrowRight size={14} /></button></article>;
   const isBeginning = lastReading.bookId === "genesis" && lastReading.chapter === 1;
   return <main className="landing-page">
@@ -11,6 +11,17 @@ export function HomePage({ lastReading, onResume, onChoose, onMass, onExplore }:
       {card(<BookOpen size={21} />, "Pray with today’s readings", "Enter the Scriptures appointed for today’s Mass and carry their words into your day.", "Open today’s readings", onMass)}
       {card(<Bookmark size={21} />, "Return to your place", "Pick up the thread where you last read, and let the next chapter meet you there.", "Continue reading", onResume)}
       {card(<Compass size={21} />, "Seek a word", "Bring a question, a hope, or a feeling. Find a passage to sit with.", "Explore Scripture", onExplore)}
+    </section>
+    <section className="landing-journey-wrap section-wrap" aria-label="Explore the Bible Journey">
+      <article className="landing-journey-card">
+        <div className="landing-journey-mark" aria-hidden="true"><Milestone size={22} /></div>
+        <div className="landing-journey-copy">
+          <p className="eyebrow">A story to follow</p>
+          <h2>Meet the Bible, one turning point at a time.</h2>
+          <p>Twelve original reflections pair the larger story with passages you can open in the reader and return to whenever you like.</p>
+        </div>
+        <button className="button button-dark" onClick={onJourney}>Explore Bible Journey <ArrowRight size={15} /></button>
+      </article>
     </section>
     <section className="landing-invitation section-wrap"><Layers3 size={20} /><p className="eyebrow">Your next quiet moment</p><h2>{isBeginning ? "Begin at the beginning." : "Your place is still here."}</h2><button className="button button-dark" onClick={onResume}>Open {isBeginning ? "Genesis 1" : "your last chapter"} <ArrowRight size={15} /></button></section>
   </main>;

@@ -9,6 +9,7 @@ import {
   Home,
   Headphones,
   LibraryBig,
+  Milestone,
   Pause,
   Play,
   Menu,
@@ -23,6 +24,7 @@ import { BibleMark } from "./components/BibleMark";
 import { ModalLayer, type Modal } from "./components/ModalLayer";
 import { SearchModal, type SearchResult } from "./components/SearchModal";
 import { HomePage } from "./pages/HomePage";
+import { BibleJourneyPage } from "./pages/BibleJourneyPage";
 import { AboutPage } from "./pages/AboutPage";
 import {
   ChapterPage,
@@ -34,6 +36,7 @@ import { MassReadingPage } from "./pages/MassReadingPage";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
+import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress";
 import { narrationAudioUrlsFor } from "./lib/narrationAudio";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
@@ -47,10 +50,10 @@ import {
   subscribeNarration,
 } from "./components/NarratorButton";
 
-type Route = "home" | "read" | "mass" | "bookmarks" | "library" | "about";
+type Route = "home" | "read" | "mass" | "bookmarks" | "library" | "about" | "journey";
 function readRoute(): Route {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0];
-  return path === "read" || path === "mass" || path === "bookmarks" || path === "library" || path === "about"
+  return path === "read" || path === "mass" || path === "bookmarks" || path === "library" || path === "about" || path === "journey"
     ? path
     : "home";
 }
@@ -75,6 +78,7 @@ export default function App() {
   const [narration, setNarration] = useState(getNarrationSnapshot);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(getBookmarks);
   const [bookmarkCategories, setBookmarkCategories] = useState<string[]>(getBookmarkCategories);
+  const [journeyProgress, setJourneyProgress] = useState(loadJourneyProgress);
   const menuRef = useRef<HTMLElement | null>(null);
   const searchSheetStartY = useRef<number | null>(null);
   const advanceNarration = () => {
@@ -95,6 +99,9 @@ export default function App() {
     window.addEventListener("hashchange", change);
     return () => window.removeEventListener("hashchange", change);
   }, []);
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [route]);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem("template-theme", theme);
@@ -144,6 +151,13 @@ export default function App() {
     setReadingPosition(position);
     setHighlightVerse(verse);
     window.location.hash = "#/read";
+  };
+  const toggleJourneyPeriod = (periodId: string) => {
+    const completedIds = journeyProgress.completedIds.includes(periodId)
+      ? journeyProgress.completedIds.filter((id) => id !== periodId)
+      : [...journeyProgress.completedIds, periodId];
+    const saved = saveJourneyProgress(completedIds);
+    setJourneyProgress({ completedIds, storageError: !saved });
   };
   const isChapterBookmarked =
     route === "read" &&
@@ -293,6 +307,13 @@ export default function App() {
         onRemove={removeBookmark}
         onRemoveCategory={removeBookmarkCategory}
       />
+    ) : route === "journey" ? (
+      <BibleJourneyPage
+        completedIds={journeyProgress.completedIds}
+        storageError={journeyProgress.storageError}
+        onToggleComplete={toggleJourneyPeriod}
+        onOpenPassage={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)}
+      />
     ) : route === "library" ? (
       <ReferencePage eyebrow="Component library" title={<>A practical<br /><em>design library.</em></>} copy="A reference for the components and patterns used across the template." />
     ) : route === "about" ? (
@@ -302,6 +323,7 @@ export default function App() {
         lastReading={readingPosition}
         onResume={() => openReader()}
         onChoose={openPicker}
+        onJourney={() => { window.location.hash = "#/journey"; }}
         onMass={() => {
           setMassDate(getTodaysMassReading().date);
           window.location.hash = "#/mass";
@@ -317,6 +339,7 @@ export default function App() {
           <a href="#/" className={route === "home" ? "active" : ""}>Home</a>
           <a href="#/read" className={route === "read" ? "active" : ""}>Read Scripture</a>
           <a href="#/mass" className={route === "mass" ? "active" : ""}>Daily Mass</a>
+          <a href="#/journey" className={route === "journey" ? "active" : ""}>Bible Journey</a>
         </nav>
         <nav
           className={menuOpen ? "main-nav nav-open" : "main-nav"}
@@ -331,11 +354,12 @@ export default function App() {
               <X size={18} />
             </button>
           </div>
-          <a href="#/" className="mobile-drawer-link"><House size={17} />Home</a>
-          <a href="#/read" className="mobile-drawer-link"><BookOpen size={17} />Read Scripture</a>
-          <a href="#/mass" className="mobile-drawer-link"><CalendarDays size={17} />Daily Mass</a>
-          <a href="#/bookmarks"><BookmarkMenuIcon size={17} />Saved Passages</a>
-          <a href="#/about"><CircleHelp size={17} />About</a>
+          <a href="#/" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><House size={17} />Home</a>
+          <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Read Scripture</a>
+          <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily Mass</a>
+          <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Milestone size={17} />Bible Journey</a>
+          <a href="#/bookmarks" onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
+          <a href="#/about" onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>
           <section className="font-size-control" aria-label="Reading font size">
             <div className="font-size-heading"><span>Text size</span><span>{fontSize}px</span></div>
             <div className="font-size-preview">The Lord is my shepherd; I shall not want.</div>
@@ -373,7 +397,7 @@ export default function App() {
         />
       )}
       {page}
-      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+      <nav className={route === "journey" ? "mobile-bottom-nav journey-mobile-bottom-nav" : "mobile-bottom-nav"} aria-label="Mobile navigation">
         {route === "read" && <NarrationProgress className="narration-progress-mobile" enabled={narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter).length > 0} />}
         <a href="#/" className={route === "home" ? "active" : ""}>
           <Home size={17} />
