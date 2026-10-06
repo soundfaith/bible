@@ -2,13 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import {
   BookOpen,
   Bookmark as BookmarkMenuIcon,
-  Bookmark as BookmarkIcon,
   CalendarDays,
   House,
   CircleHelp,
   Home,
   Headphones,
-  LibraryBig,
   Milestone,
   Pause,
   Play,
@@ -25,6 +23,7 @@ import { ModalLayer, type Modal } from "./components/ModalLayer";
 import { SearchModal, type SearchResult } from "./components/SearchModal";
 import { HomePage } from "./pages/HomePage";
 import { BibleJourneyLibrary, BibleJourneyPage } from "./pages/BibleJourneyPage";
+import { BibleBooksPage } from "./pages/BibleBooksPage";
 import { AboutPage } from "./pages/AboutPage";
 import {
   ChapterPage,
@@ -36,6 +35,7 @@ import { MassReadingPage } from "./pages/MassReadingPage";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
+import { bibleJourney } from "./data/bibleJourney";
 import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress";
 import { narrationAudioUrlsFor } from "./lib/narrationAudio";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
@@ -50,11 +50,12 @@ import {
   subscribeNarration,
 } from "./components/NarratorButton";
 
-type Route = "home" | "read" | "mass" | "bookmarks" | "library" | "about" | "journey";
+type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey";
+type PendingNarration = "start" | "pause" | "resume" | null;
 function readRoute(): Route {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
   return path.startsWith("journey/") ? "journey"
-    : path === "read" || path === "mass" || path === "bookmarks" || path === "library" || path === "about" || path === "journey"
+    : path === "read" || path === "bible" || path === "mass" || path === "bookmarks" || path === "library" || path === "about" || path === "journey"
       ? path
     : "home";
 }
@@ -86,13 +87,14 @@ export default function App() {
     useState<ReadingPosition>(getLastReading);
   const [massDate, setMassDate] = useState(() => getTodaysMassReading().date);
   const [highlightVerse, setHighlightVerse] = useState<number | null>(null);
-  const [pendingNarration, setPendingNarration] = useState(false);
+  const [pendingNarration, setPendingNarration] = useState<PendingNarration>(null);
   const [narration, setNarration] = useState(getNarrationSnapshot);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(getBookmarks);
   const [bookmarkCategories, setBookmarkCategories] = useState<string[]>(getBookmarkCategories);
   const [journeyProgress, setJourneyProgress] = useState(loadJourneyProgress);
   const menuRef = useRef<HTMLElement | null>(null);
   const searchSheetStartY = useRef<number | null>(null);
+  const preserveNarrationOnNavigation = useRef(false);
   const advanceNarration = () => {
     if (route !== "read") return;
     if (readingPosition.chapter >= getChapterCount(readingPosition.bookId)) {
@@ -100,7 +102,7 @@ export default function App() {
       return;
     }
     setReadingPosition({ ...readingPosition, chapter: readingPosition.chapter + 1 });
-    setPendingNarration(true);
+    setPendingNarration("start");
   };
   useEffect(() => {
     const change = () => {
@@ -138,17 +140,21 @@ export default function App() {
   useEffect(() => {
     if (!pendingNarration || route !== "read") return;
     const audioUrls = narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter);
-    startSpeaking(
-      getChapter(readingPosition.bookId, readingPosition.chapter)
-        .map((verse) => verse.text)
-        .join(" "),
-      audioUrls[0],
-      audioUrls[1],
-      advanceNarration,
-    );
-    setPendingNarration(false);
+    const text = getChapter(readingPosition.bookId, readingPosition.chapter)
+      .map((verse) => verse.text)
+      .join(" ");
+    if (pendingNarration === "pause") pauseSpeaking();
+    else if (pendingNarration === "resume") resumeSpeaking(text, audioUrls[0], audioUrls[1], advanceNarration);
+    else startSpeaking(text, audioUrls[0], audioUrls[1], advanceNarration);
+    setPendingNarration(null);
   }, [pendingNarration, readingPosition, route]);
-  useEffect(() => () => stopSpeaking(), [route, readingPosition]);
+  useEffect(() => () => {
+    if (preserveNarrationOnNavigation.current) {
+      preserveNarrationOnNavigation.current = false;
+      return;
+    }
+    stopSpeaking();
+  }, [route, readingPosition]);
   useEffect(() => {
     if (!menuOpen) return;
     const close = (event: PointerEvent) => {
@@ -232,34 +238,71 @@ export default function App() {
       await navigator.clipboard?.writeText(window.location.href);
     }
   };
-  const currentNarration = () =>
-    route === "read"
-      ? getChapter(readingPosition.bookId, readingPosition.chapter)
-          .map((verse) => verse.text)
-          .join(" ")
-      : Object.values((getMassReadingForDate(massDate) || getTodaysMassReading()).readings)
-          .map((reading) => reading.text)
-          .join("\n\n");
-  const currentNarrationAudioUrl = () => {
-    if (route !== "read") return [] as string[];
-    return narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter);
+  const chapterNarration = (position: ReadingPosition) => getChapter(position.bookId, position.chapter)
+    .map((verse) => verse.text)
+    .join(" ");
+  const narrationForCurrentPage = (): { text: string; audioUrls: string[]; onEnded?: () => void } | null => {
+    if (route === "read") {
+      const audioUrls = narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter);
+      return { text: chapterNarration(readingPosition), audioUrls, onEnded: advanceNarration };
+    }
+    if (route === "mass") {
+      const entry = getMassReadingForDate(massDate) || getTodaysMassReading();
+      return {
+        text: Object.values(entry.readings).map((reading) => reading.text).join("\n\n"),
+        audioUrls: [] as string[],
+      };
+    }
+    if (route === "journey" && journeyPeriodId) {
+      const period = bibleJourney.find((item) => item.id === journeyPeriodId);
+      if (period) {
+        return {
+          text: period.stories.map((story) => [
+            story.title,
+            ...story.references.map((reference) => resolveReference(reference).map((verse) => verse.text).join(" ")),
+          ].filter(Boolean).join(". ")).join("\n\n"),
+          audioUrls: [] as string[],
+        };
+      }
+    }
+    return null;
   };
-  const startNarration = () => {
+  const toggleNarration = () => {
     const current = getNarrationSnapshot();
-    const text = currentNarration();
-    const audioUrl = currentNarrationAudioUrl();
-    if (current.text === text && current.status === "playing") {
-      pauseSpeaking();
+    const readingText = chapterNarration(readingPosition);
+    if (route !== "read") {
+      const narrationForPage = narrationForCurrentPage();
+      if (narrationForPage) {
+        if (current.text === narrationForPage.text && current.status === "playing") pauseSpeaking();
+        else if (current.text === narrationForPage.text && current.status === "paused") {
+          resumeSpeaking(narrationForPage.text);
+        } else startSpeaking(narrationForPage.text);
+        return;
+      }
+      const action = current.text === readingText && current.status === "playing"
+        ? "pause"
+        : current.text === readingText && current.status === "paused" ? "resume" : "start";
+      if (current.text === readingText && current.status !== "idle") preserveNarrationOnNavigation.current = true;
+      setPendingNarration(action);
+      openReader(readingPosition);
       return;
     }
-    if (current.text === text && current.status === "paused") {
-      resumeSpeaking(text, audioUrl[0], audioUrl[1], advanceNarration);
-      return;
-    }
-    if (route === "home") {
-      setPendingNarration(true);
-      openReader();
-    } else startSpeaking(text, audioUrl[0], audioUrl[1], advanceNarration);
+    const narrationForPage = narrationForCurrentPage();
+    if (!narrationForPage) return;
+    const [audioUrl, fallbackAudioUrl] = narrationForPage.audioUrls;
+    if (current.text === narrationForPage.text && current.status === "playing") pauseSpeaking();
+    else if (current.text === narrationForPage.text && current.status === "paused") {
+      resumeSpeaking(narrationForPage.text, audioUrl, fallbackAudioUrl, narrationForPage.onEnded);
+    } else startSpeaking(narrationForPage.text, audioUrl, fallbackAudioUrl, narrationForPage.onEnded);
+  };
+  const goToLastReading = () => openReader(readingPosition);
+  const openNextJourneyPeriod = () => {
+    const nextPeriod = bibleJourney.find((period) => !journeyProgress.completedIds.includes(period.id));
+    window.location.hash = nextPeriod ? `#/journey/${nextPeriod.id}` : "#/journey";
+  };
+  const openTodaysReading = () => {
+    setMassDate(getTodaysMassReading().date);
+    window.location.hash = "#/mass";
   };
   const openPicker = () =>
     setModal({
@@ -267,6 +310,9 @@ export default function App() {
       current: readingPosition,
       onChoose: (position) => openReader(position),
     });
+  const openBibleBooks = () => {
+    window.location.hash = "#/bible";
+  };
   const openSearch = () => {
     setSearchInteracted(false);
     setModal({
@@ -303,12 +349,17 @@ export default function App() {
       <ChapterPage
         position={readingPosition}
         onPositionChange={setReadingPosition}
-        onSelectChapter={openPicker}
+        onSelectChapter={openBibleBooks}
         highlightVerse={highlightVerse}
         isBookmarked={isBookmarked}
         isChapterBookmarked={isChapterBookmarked}
         onToggleBookmark={toggleBookmark}
         onNarrationEnded={advanceNarration}
+      />
+    ) : route === "bible" ? (
+      <BibleBooksPage
+        current={readingPosition}
+        onChoose={(position) => openReader(position)}
       />
     ) : route === "mass" ? (
       <MassReadingPage onOpenReference={openMassReference} selectedDate={massDate} onSelectedDateChange={setMassDate} />
@@ -341,7 +392,7 @@ export default function App() {
       <HomePage
         lastReading={readingPosition}
         onResume={() => openReader()}
-        onChoose={openPicker}
+        onChoose={() => { window.location.hash = "#/bible"; }}
         onJourney={() => { window.location.hash = "#/journey"; }}
         onMass={() => {
           setMassDate(getTodaysMassReading().date);
@@ -375,6 +426,7 @@ export default function App() {
           </div>
           <a href="#/" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><House size={17} />Home</a>
           <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Read Scripture</a>
+          <a href="#/bible" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible books</a>
           <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily Mass</a>
           <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Milestone size={17} />Bible Journey</a>
           <a href="#/bookmarks" onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
@@ -416,37 +468,35 @@ export default function App() {
         />
       )}
       {page}
-      <nav className={route === "journey" ? "mobile-bottom-nav journey-mobile-bottom-nav" : "mobile-bottom-nav"} aria-label="Mobile navigation">
+      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
         {route === "read" && <NarrationProgress className="narration-progress-mobile" enabled={narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter).length > 0} />}
-        <a href="#/" className={route === "home" ? "active" : ""}>
+        <a href="#/" className={route === "home" ? "active" : ""} aria-current={route === "home" ? "page" : undefined}>
           <Home size={17} />
           <span>Home</span>
         </a>
-        <button className={route === "read" ? "active" : ""} onClick={openPicker}>
-          <LibraryBig size={17} />
-          <span>Books</span>
+        <a
+          href="#/read"
+          className={route === "read" || route === "bible" ? "active" : ""}
+          aria-current={route === "read" || route === "bible" ? "page" : undefined}
+          onClick={(event) => { event.preventDefault(); goToLastReading(); }}
+        >
+          <BookOpen size={17} />
+          <span>Bible</span>
+        </a>
+        <button
+          className="mobile-donate mobile-center-playback mobile-listen-button"
+          onClick={toggleNarration}
+          aria-label={narration.status === "playing" ? "Pause narration" : narration.status === "paused" ? "Resume narration" : "Listen to this reading"}
+        >
+          {narration.status === "playing" ? <><span className="audio-equalizer" aria-hidden="true"><i /><i /><i /><i /></span><span>Listen</span></> : narration.status === "paused" ? <><Play size={17} /><span>Listen</span></> : <><Headphones size={19} /><span>Listen</span></>}
         </button>
-        {route === "read" ? (
-          <button
-            className="mobile-donate mobile-center-playback"
-            onClick={startNarration}
-            aria-label={narration.status === "playing" ? "Pause narration" : narration.status === "paused" ? "Resume narration" : "Listen to this chapter"}
-          >
-            {narration.status === "playing" ? <><span className="audio-equalizer" aria-hidden="true"><i /><i /><i /><i /></span><span>Playing</span></> : narration.status === "paused" ? <><Pause size={18} /><span>Resume</span></> : <><Headphones size={20} /><span>Listen</span></>}
-          </button>
-        ) : (
-          <a href="#/read" className="mobile-donate">
-            <BookOpen size={20} />
-            <span>Resume</span>
-          </a>
-        )}
-        <button onClick={openSearch}>
-          <Search size={17} />
-          <span>Explore</span>
-        </button>
-        <a href="#/bookmarks" className={route === "bookmarks" ? "mobile-listen active" : "mobile-listen"}>
-          <BookmarkIcon size={17} />
-          <span>Bookmarks</span>
+        <a href="#/journey" className={route === "journey" ? "mobile-listen active" : "mobile-listen"} aria-current={route === "journey" ? "page" : undefined} onClick={(event) => { event.preventDefault(); openNextJourneyPeriod(); }}>
+          <Milestone size={17} />
+          <span>Journey</span>
+        </a>
+        <a href="#/mass" className={route === "mass" ? "active" : ""} aria-current={route === "mass" ? "page" : undefined} onClick={openTodaysReading}>
+          <CalendarDays size={17} />
+          <span>Reading</span>
         </a>
       </nav>
       <footer className="site-footer">
