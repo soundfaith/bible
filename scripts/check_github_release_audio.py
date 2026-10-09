@@ -21,13 +21,6 @@ PREFIX_BYTES = 256 * 1024
 RETRIES = 3
 RETRY_DELAY_SECONDS = 1
 USER_AGENT = "bible-narration-github-audio-check/1.0"
-SKIP_BOOK_IDS = {
-    "esther_greek",
-    "1_esdras",
-    "prayer_of_manasseh",
-    "4_esdras",
-    "daniel_greek",
-}
 
 BITRATES = {
     (3, 3): (0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320),
@@ -157,11 +150,7 @@ def main() -> int:
 
     tasks: list[tuple[str, int, str]] = []
     books_checked = 0
-    books_skipped = 0
     for book in books:
-        if book.get("id") in SKIP_BOOK_IDS:
-            books_skipped += 1
-            continue
         base_url = book.get("narrationAudioBaseUrl")
         if not base_url:
             continue
@@ -191,7 +180,7 @@ def main() -> int:
         print("No GitHub Release narration URLs were found in index.json.", file=sys.stderr)
         return 2
 
-    print(f"Checking {len(tasks)} GitHub Release chapter URLs across {books_checked} books; skipped {books_skipped} books not generated yet.")
+    print(f"Checking {len(tasks)} GitHub Release chapter URLs across {books_checked} books.")
     print("Each URL is fetched with an HTTP Range request and checked for consecutive MP3 frames.\n")
     outcomes: dict[tuple[str, int, str], bool] = {}
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as executor:

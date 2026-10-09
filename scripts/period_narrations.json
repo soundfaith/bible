@@ -1,0 +1,164 @@
+{
+  "periods": [
+    {
+      "id": "a-world-awakened",
+      "title": "Beginnings",
+      "stories": [
+        {"title":"Creation","references":["Genesis 1:1-31","Genesis 2:1-3"]},
+        {"title":"Adam and Eve","references":["Genesis 2:4-25"]},
+        {"title":"The Fall and Promise of Hope","references":["Genesis 3:1-15"]},
+        {"title":"Leaving the Garden","references":["Genesis 3:16-24"]},
+        {"title":"Cain and Abel","references":["Genesis 4:1-16"]},
+        {"title":"Noah and the Flood","references":["Genesis 6:13-22","Genesis 7:17-24","Genesis 8:1-5","Genesis 8:15-22","Genesis 9:8-17"]},
+        {"title":"The Tower of Babel","references":["Genesis 11:1-9"]}
+      ]
+    },
+    {
+      "id": "a-promise-takes-root",
+      "title": "Family of the Promise",
+      "stories": [
+        {"title":"Abraham's Call","references":["Genesis 12:1-9"]},
+        {"title":"Abraham and Sarah Trust the Promise","references":["Genesis 17:15-19","Genesis 18:9-15","Genesis 21:1-7"]},
+        {"title":"The Binding of Isaac","references":["Genesis 22:1-14"]},
+        {"title":"Isaac and Rebekah","references":["Genesis 24:10-27","Genesis 24:58-67"]},
+        {"title":"Jacob and Esau","references":["Genesis 25:27-34","Genesis 27:1-29","Genesis 27:41-45"]},
+        {"title":"Jacob Becomes Israel","references":["Genesis 32:22-32","Genesis 33:1-11"]},
+        {"title":"Joseph Is Sold by His Brothers","references":["Genesis 37:3-11","Genesis 37:18-36"]},
+        {"title":"Joseph Rises in Egypt","references":["Genesis 39:19-23","Genesis 41:14-40","Genesis 41:46-49"]},
+        {"title":"Jacob's Family Goes to Egypt","references":["Genesis 45:1-15","Genesis 46:1-7"]}
+      ]
+    },
+    {
+      "id": "freedom-and-belonging",
+      "title": "Freedom and Covenant",
+      "stories": [
+        {"title":"Israel Oppressed","references":["Exodus 1:8-14","Exodus 2:23-25"]},
+        {"title":"Moses Is Called","references":["Exodus 3:1-15"]},
+        {"title":"Passover and Deliverance","references":["Exodus 12:1-14","Exodus 12:21-32"]},
+        {"title":"The Sea Crossing","references":["Exodus 14:10-31"]},
+        {"title":"The Covenant at Sinai","references":["Exodus 19:3-8","Exodus 20:1-17"]},
+        {"title":"The Golden Calf","references":["Exodus 32:1-14","Exodus 33:12-17","Exodus 34:4-10"]}
+      ]
+    },
+    {
+      "id": "a-kingdom-under-question",
+      "title": "Desert Formation",
+      "stories": [
+        {"title":"Manna and Quail","references":["Exodus 16:2-18"]},
+        {"title":"The Spies and the People's Fear","references":["Numbers 13:25-33","Numbers 14:1-10","Numbers 14:20-24","Numbers 14:26-35"]},
+        {"title":"Water from the Rock","references":["Numbers 20:1-13"]},
+        {"title":"The Bronze Serpent","references":["Numbers 21:4-9"]},
+        {"title":"Moses' Final Words and Death","references":["Deuteronomy 30:15-20","Deuteronomy 34:1-8"]}
+      ]
+    },
+    {
+      "id": "voices-for-the-road-home",
+      "title": "Life in the Land",
+      "stories": [
+        {"title":"Crossing the Jordan","references":["Joshua 3:14-17","Joshua 4:1-9"]},
+        {"title":"Jericho's Walls","references":["Joshua 6:12-20","Joshua 6:22-25"]},
+        {"title":"Joshua's Farewell","references":["Joshua 24:14-24"]},
+        {"title":"The Judges and the Cycle","references":["Judges 2:6-19","Judges 6:11-24","Judges 7:19-22"]},
+        {"title":"Ruth's Loyalty","references":["Ruth 1:6-18","Ruth 2:8-13","Ruth 4:9-17"]},
+        {"title":"Samuel Hears God","references":["1 Samuel 3:1-20"]}
+      ]
+    },
+    {
+      "id": "good-news-in-a-small-town",
+      "title": "The House of David",
+      "stories": [
+        {"title":"Saul Becomes King","references":["1 Samuel 8:4-22","1 Samuel 10:17-24"]},
+        {"title":"David and Goliath","references":["1 Samuel 16:1-13","1 Samuel 17:32-51"]},
+        {"title":"David, Jerusalem, and God's Promise","references":["2 Samuel 5:1-10","2 Samuel 6:12-19","2 Samuel 7:8-16"]},
+        {"title":"Solomon Asks for Wisdom","references":["1 Kings 3:5-14"]},
+        {"title":"Solomon Builds the Temple","references":["1 Kings 6:1-14"]},
+        {"title":"Solomon Dedicates the Temple","references":["1 Kings 8:22-30","1 Kings 8:41-43"]},
+        {"title":"Solomon Turns from the Covenant","references":["1 Kings 11:1-13"]}
+      ]
+    },
+    {
+      "id": "love-given-to-the-end",
+      "title": "Two Kingdoms",
+      "stories": [
+        {"title":"The Kingdom Divides","references":["1 Kings 12:12-24"]},
+        {"title":"Elijah on Mount Carmel","references":["1 Kings 18:17-40"]},
+        {"title":"Prophets Call Israel Back","references":["Amos 5:10-15","Hosea 11:1-9"]},
+        {"title":"Israel Falls to Assyria","references":["2 Kings 17:5-18"]},
+        {"title":"Hezekiah Prays for Jerusalem","references":["2 Kings 18:28-35","2 Kings 19:1-7","2 Kings 19:14-19","2 Kings 19:32-37"]},
+        {"title":"Josiah Renews the Covenant","references":["2 Kings 22:8-20","2 Kings 23:1-3","2 Kings 23:21-25"]},
+        {"title":"Jeremiah Warns Judah","references":["Jeremiah 7:1-15"]},
+        {"title":"Jerusalem Falls to Babylon","references":["2 Kings 25:1-12"]}
+      ]
+    },
+    {
+      "id": "morning-beyond-the-stone",
+      "title": "Exile and Faithfulness",
+      "stories": [
+        {"title":"Tobit and Sarah in the Assyrian Diaspora","references":["Tobit 3:7-17","Tobit 6:1-9","Tobit 8:4-9","Tobit 11:7-15"]},
+        {"title":"Daniel Remains Faithful","references":["Daniel 1:8-20","Daniel 6:10-23"]},
+        {"title":"A Song beside Babylon's Rivers","references":["Psalms 137:1-6"]},
+        {"title":"Ezekiel's Valley of Bones","references":["Ezekiel 37:1-14"]}
+      ]
+    },
+    {
+      "id": "a-welcome-without-borders",
+      "title": "Homecoming and Renewal",
+      "stories": [
+        {"title":"The Return Begins","references":["Ezra 1:1-8"]},
+        {"title":"The Temple Is Rebuilt","references":["Ezra 3:1-13","Haggai 1:1-15","Ezra 6:14-16"]},
+        {"title":"Esther Risks Her Life for Her People","references":["Esther (Greek) 4:1-5,7-17","Esther (Greek) 7:1-10","Esther (Greek) 8:3-17","Esther (Greek) 9:20-22"]},
+        {"title":"Ezra Returns Devoted to the Law","references":["Ezra 7:6-10","Ezra 7:25-26"]},
+        {"title":"Nehemiah Rebuilds Jerusalem","references":["Nehemiah 2:11-18","Nehemiah 6:15-16"]},
+        {"title":"Ezra Reads the Law Aloud","references":["Nehemiah 8:1-12"]},
+        {"title":"Hope for God's Messenger","references":["Malachi 3:1-4"]}
+      ]
+    },
+    {
+      "id": "the-maccabean-resistance",
+      "title": "Resistance and Hope",
+      "stories": [
+        {"title":"A Crisis of Faith","references":["1 Maccabees 1:10-15","1 Maccabees 1:41-64"]},
+        {"title":"Mattathias and the Revolt","references":["1 Maccabees 2:1-28"]},
+        {"title":"The Seven Brothers Choose Faith","references":["2 Maccabees 7:1-14","2 Maccabees 7:20-23"]},
+        {"title":"The Temple Is Rededicated","references":["1 Maccabees 4:36-59"]}
+      ]
+    },
+    {
+      "id": "learning-to-be-one-body",
+      "title": "Jesus: Life, Death, and Resurrection",
+      "stories": [
+        {"title":"The Annunciation","references":["Luke 1:26-38"]},
+        {"title":"The Birth and Presentation of Jesus","references":["Luke 2:1-20","Luke 2:22-35"]},
+        {"title":"Jesus Is Baptized","references":["Luke 3:15-22"]},
+        {"title":"Good News for the Poor","references":["Luke 4:14-30"]},
+        {"title":"The First Disciples","references":["Luke 5:1-11"]},
+        {"title":"A Paralytic Is Healed","references":["Luke 5:17-26"]},
+        {"title":"The Transfiguration","references":["Luke 9:28-36"]},
+        {"title":"The Parable of the Lost Son","references":["Luke 15:11-32"]},
+        {"title":"Jesus Enters Jerusalem","references":["Luke 19:28-40"]},
+        {"title":"The Last Supper","references":["Luke 22:14-23"]},
+        {"title":"Gethsemane","references":["Luke 22:39-46"]},
+        {"title":"Trial and Crucifixion","references":["Luke 22:66-71","Luke 23:1-25","Luke 23:32-49"]},
+        {"title":"Burial and the Empty Tomb","references":["Luke 23:50-56","Luke 24:1-12"]},
+        {"title":"The Road to Emmaus","references":["Luke 24:13-35"]},
+        {"title":"Jesus Appears and Ascends","references":["Luke 24:36-53"]}
+      ]
+    },
+    {
+      "id": "the-story-in-our-hands",
+      "title": "The Church in Mission",
+      "stories": [
+        {"title":"Pentecost","references":["Acts 2:1-13","Acts 2:36-41"]},
+        {"title":"A Shared Life","references":["Acts 2:42-47"]},
+        {"title":"Stephen's Witness","references":["Acts 7:54-60"]},
+        {"title":"The Witness Spreads through Judea and Samaria","references":["Acts 8:1-4","Acts 8:5-8","Acts 8:26-36,38-40"]},
+        {"title":"Saul Becomes a Witness","references":["Acts 9:1-22"]},
+        {"title":"Peter and the Gentiles","references":["Acts 10:1-23","Acts 10:34-48"]},
+        {"title":"The Council at Jerusalem","references":["Acts 15:6-29"]},
+        {"title":"Paul's Mission Spreads West","references":["Acts 13:1-12","Acts 14:8-23"]},
+        {"title":"Paul Proclaims Christ in Athens","references":["Acts 17:16-34"]},
+        {"title":"The Good News Reaches Rome","references":["Acts 16:6-15","Acts 28:23-31"]}
+      ]
+    }
+  ]
+}

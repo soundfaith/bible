@@ -23,6 +23,7 @@ import { ModalLayer, type Modal } from "./components/ModalLayer";
 import { SearchModal, type SearchResult } from "./components/SearchModal";
 import { HomePage } from "./pages/HomePage";
 import { BibleJourneyLibrary, BibleJourneyPage } from "./pages/BibleJourneyPage";
+import { JourneyArtworkPage } from "./pages/JourneyArtworkPage";
 import { BibleBooksPage } from "./pages/BibleBooksPage";
 import { AboutPage } from "./pages/AboutPage";
 import {
@@ -36,6 +37,7 @@ import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
 import { bibleJourney } from "./data/bibleJourney";
+import { resolveJourneyPeriodId, loadJourneyArtworkSelections, saveJourneyArtworkSelections } from "./data/journeyArtwork";
 import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress";
 import { narrationAudioUrlsFor } from "./lib/narrationAudio";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
@@ -50,11 +52,23 @@ import {
   subscribeNarration,
 } from "./components/NarratorButton";
 
-type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey";
+type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork";
 type PendingNarration = "start" | "pause" | "resume" | null;
+const LAST_JOURNEY_PERIOD_KEY = "soundfaith-bible-journey-last-period-v1";
+
+function getLastJourneyPeriodId() {
+  try {
+    const saved = window.localStorage.getItem(LAST_JOURNEY_PERIOD_KEY);
+    return saved && bibleJourney.some((period) => period.id === saved) ? saved : null;
+  } catch {
+    return null;
+  }
+}
+
 function readRoute(): Route {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
-  return path.startsWith("journey/") ? "journey"
+  return path === "journey-artwork" ? "journey-artwork"
+    : path.startsWith("journey/") ? "journey"
     : path === "read" || path === "bible" || path === "mass" || path === "bookmarks" || path === "library" || path === "about" || path === "journey"
       ? path
     : "home";
@@ -64,15 +78,22 @@ function readJourneyPeriodId() {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
   if (!path.startsWith("journey/")) return null;
   try {
-    return decodeURIComponent(path.slice("journey/".length));
+    return resolveJourneyPeriodId(decodeURIComponent(path.slice("journey/".length)));
   } catch {
-    return path.slice("journey/".length);
+    return resolveJourneyPeriodId(path.slice("journey/".length));
   }
+}
+
+function readJourneyStoryAnchor() {
+  const query = window.location.hash.split("?")[1] ?? "";
+  return new URLSearchParams(query).get("story");
 }
 
 export default function App() {
   const [route, setRoute] = useState<Route>(readRoute);
   const [journeyPeriodId, setJourneyPeriodId] = useState<string | null>(readJourneyPeriodId);
+  const [lastJourneyPeriodId, setLastJourneyPeriodId] = useState<string | null>(getLastJourneyPeriodId);
+  const [journeyStoryAnchor, setJourneyStoryAnchor] = useState<string | null>(readJourneyStoryAnchor);
   const [menuOpen, setMenuOpen] = useState(false);
   const [fontSize, setFontSize] = useState(() => {
     const saved = Number(window.localStorage.getItem("reader-font-size"));
@@ -92,6 +113,7 @@ export default function App() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(getBookmarks);
   const [bookmarkCategories, setBookmarkCategories] = useState<string[]>(getBookmarkCategories);
   const [journeyProgress, setJourneyProgress] = useState(loadJourneyProgress);
+  const [journeyArtwork, setJourneyArtwork] = useState(loadJourneyArtworkSelections);
   const menuRef = useRef<HTMLElement | null>(null);
   const searchSheetStartY = useRef<number | null>(null);
   const preserveNarrationOnNavigation = useRef(false);
@@ -108,12 +130,29 @@ export default function App() {
     const change = () => {
       setRoute(readRoute());
       setJourneyPeriodId(readJourneyPeriodId());
+      setJourneyStoryAnchor(readJourneyStoryAnchor());
       setMenuOpen(false);
-      window.scrollTo(0, 0);
+      if (!readJourneyStoryAnchor()) window.scrollTo(0, 0);
     };
     window.addEventListener("hashchange", change);
     return () => window.removeEventListener("hashchange", change);
   }, []);
+  useEffect(() => {
+    if (route !== "journey" || !journeyStoryAnchor) return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(journeyStoryAnchor)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [route, journeyPeriodId, journeyStoryAnchor]);
+  useEffect(() => {
+    if (route !== "journey" || !journeyPeriodId) return;
+    setLastJourneyPeriodId(journeyPeriodId);
+    try {
+      window.localStorage.setItem(LAST_JOURNEY_PERIOD_KEY, journeyPeriodId);
+    } catch {
+      // Keep the current period available for this visit if storage is unavailable.
+    }
+  }, [route, journeyPeriodId]);
   useEffect(() => {
     setMenuOpen(false);
   }, [route]);
@@ -177,6 +216,10 @@ export default function App() {
       : [...journeyProgress.completedIds, periodId];
     const saved = saveJourneyProgress(completedIds);
     setJourneyProgress({ completedIds, storageError: !saved });
+  };
+  const selectJourneyArtwork = (periodId: string, optionId: string) => {
+    const selections = { ...journeyArtwork.selections, [periodId]: optionId };
+    setJourneyArtwork({ selections, storageError: !saveJourneyArtworkSelections(selections) });
   };
   const isChapterBookmarked =
     route === "read" &&
@@ -295,10 +338,9 @@ export default function App() {
       resumeSpeaking(narrationForPage.text, audioUrl, fallbackAudioUrl, narrationForPage.onEnded);
     } else startSpeaking(narrationForPage.text, audioUrl, fallbackAudioUrl, narrationForPage.onEnded);
   };
-  const goToLastReading = () => openReader(readingPosition);
-  const openNextJourneyPeriod = () => {
-    const nextPeriod = bibleJourney.find((period) => !journeyProgress.completedIds.includes(period.id));
-    window.location.hash = nextPeriod ? `#/journey/${nextPeriod.id}` : "#/journey";
+  const resumeJourney = () => {
+    const periodId = lastJourneyPeriodId ?? bibleJourney[0].id;
+    window.location.hash = `#/journey/${periodId}`;
   };
   const openTodaysReading = () => {
     setMassDate(getTodaysMassReading().date);
@@ -359,6 +401,7 @@ export default function App() {
     ) : route === "bible" ? (
       <BibleBooksPage
         current={readingPosition}
+        onResume={() => openReader(readingPosition)}
         onChoose={(position) => openReader(position)}
       />
     ) : route === "mass" ? (
@@ -371,11 +414,18 @@ export default function App() {
         onRemove={removeBookmark}
         onRemoveCategory={removeBookmarkCategory}
       />
+    ) : route === "journey-artwork" ? (
+      <JourneyArtworkPage
+        selections={journeyArtwork.selections}
+        storageError={journeyArtwork.storageError}
+        onSelect={selectJourneyArtwork}
+      />
     ) : route === "journey" ? journeyPeriodId ? (
       <BibleJourneyPage
         periodId={journeyPeriodId}
         completedIds={journeyProgress.completedIds}
         storageError={journeyProgress.storageError}
+        artworkSelections={journeyArtwork.selections}
         onToggleComplete={toggleJourneyPeriod}
         onOpenPassage={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)}
       />
@@ -383,6 +433,9 @@ export default function App() {
       <BibleJourneyLibrary
         completedIds={journeyProgress.completedIds}
         storageError={journeyProgress.storageError}
+        artworkSelections={journeyArtwork.selections}
+        lastVisitedPeriodId={lastJourneyPeriodId}
+        onResume={resumeJourney}
       />
     ) : route === "library" ? (
       <ReferencePage eyebrow="Component library" title={<>A practical<br /><em>design library.</em></>} copy="A reference for the components and patterns used across the template." />
@@ -407,9 +460,9 @@ export default function App() {
         <Brand />
         <nav className="desktop-nav" aria-label="Primary navigation">
           <a href="#/" className={route === "home" ? "active" : ""}>Home</a>
-          <a href="#/read" className={route === "read" ? "active" : ""}>Read Scripture</a>
+          <a href="#/bible" className={route === "read" || route === "bible" ? "active" : ""}>Bible</a>
           <a href="#/mass" className={route === "mass" ? "active" : ""}>Daily Mass</a>
-          <a href="#/journey" className={route === "journey" ? "active" : ""}>Bible Journey</a>
+          <a href="#/journey" className={route === "journey" || route === "journey-artwork" ? "active" : ""}>Bible Journey</a>
         </nav>
         <nav
           className={menuOpen ? "main-nav nav-open" : "main-nav"}
@@ -428,7 +481,7 @@ export default function App() {
           <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Read Scripture</a>
           <a href="#/bible" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible books</a>
           <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily Mass</a>
-          <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Milestone size={17} />Bible Journey</a>
+          <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Milestone size={17} />Bible Journey</a>
           <a href="#/bookmarks" onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
           <a href="#/about" onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>
           <section className="font-size-control" aria-label="Reading font size">
@@ -475,10 +528,9 @@ export default function App() {
           <span>Home</span>
         </a>
         <a
-          href="#/read"
+          href="#/bible"
           className={route === "read" || route === "bible" ? "active" : ""}
           aria-current={route === "read" || route === "bible" ? "page" : undefined}
-          onClick={(event) => { event.preventDefault(); goToLastReading(); }}
         >
           <BookOpen size={17} />
           <span>Bible</span>
@@ -490,7 +542,7 @@ export default function App() {
         >
           {narration.status === "playing" ? <><span className="audio-equalizer" aria-hidden="true"><i /><i /><i /><i /></span><span>Listen</span></> : narration.status === "paused" ? <><Play size={17} /><span>Listen</span></> : <><Headphones size={19} /><span>Listen</span></>}
         </button>
-        <a href="#/journey" className={route === "journey" ? "mobile-listen active" : "mobile-listen"} aria-current={route === "journey" ? "page" : undefined} onClick={(event) => { event.preventDefault(); openNextJourneyPeriod(); }}>
+        <a href="#/journey" className={route === "journey" || route === "journey-artwork" ? "mobile-listen active" : "mobile-listen"} aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined}>
           <Milestone size={17} />
           <span>Journey</span>
         </a>

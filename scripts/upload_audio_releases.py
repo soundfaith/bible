@@ -57,7 +57,12 @@ def load_plan() -> list[dict[str, object]]:
         raise RuntimeError(f"Found MP3 files outside book folders: {loose_mp3s[0]}")
 
     plan = []
-    for folder in sorted((path for path in AUDIO_ROOT.iterdir() if path.is_dir()), key=lambda p: p.name.casefold()):
+    # Build the upload plan from the app's book index so generated books such as
+    # the Greek additions and other deuterocanonical books are included consistently.
+    for book_id, book_name in sorted(names.items(), key=lambda item: item[0].casefold()):
+        folder = AUDIO_ROOT / book_id
+        if not folder.is_dir():
+            continue
         files = sorted(
             (path for path in folder.rglob("*") if path.is_file() and path.suffix.casefold() == ".mp3"),
             key=lambda p: (p.name.casefold(), str(p).casefold()),
@@ -80,11 +85,10 @@ def load_plan() -> list[dict[str, object]]:
             )
         if len(files) > MAX_ASSETS:
             raise RuntimeError(f"{folder.name} has more than {MAX_ASSETS} MP3 assets for one release.")
-        book_name = names.get(folder.name, folder.name.replace("_", " ").title())
         plan.append({
-            "book_id": folder.name,
+            "book_id": book_id,
             "book_name": book_name,
-            "tag": TAG_PREFIX + folder.name,
+            "tag": TAG_PREFIX + book_id,
             "files": files,
         })
     return plan

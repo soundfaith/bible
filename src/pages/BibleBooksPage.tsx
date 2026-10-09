@@ -5,7 +5,7 @@ import type { ReadingPosition } from "./ChapterPage";
 
 type Testament = { title: string; books: typeof bibleBooks };
 
-export function BibleBooksPage({ current, onChoose }: { current: ReadingPosition; onChoose: (position: ReadingPosition) => void }) {
+export function BibleBooksPage({ current, onChoose, onResume }: { current: ReadingPosition; onChoose: (position: ReadingPosition) => void; onResume: () => void }) {
   const [selectedBookId, setSelectedBookId] = useState<string | null>(current.bookId);
   const currentBookName = bibleBooks.find((book) => book.id === current.bookId)?.name ?? current.bookId;
   const newTestamentStart = bibleBooks.findIndex((book) => book.id === "matthew");
@@ -22,7 +22,12 @@ export function BibleBooksPage({ current, onChoose }: { current: ReadingPosition
           <p className="eyebrow"><span className="eyebrow-dot" /> World English Bible</p>
           <h1>Find your place<br /><em>in the Word.</em></h1>
         </div>
-        <p className="bible-library-intro">Choose a book, then a chapter. Your reading place is saved as you go.</p>
+        <div className="bible-library-hero-actions">
+          <p className="bible-library-intro">Choose a book, then a chapter. Your reading place is saved as you go.</p>
+          <button className="button button-coral" type="button" onClick={onResume}>
+            Resume {currentBookName} {current.chapter} <ArrowRight size={15} aria-hidden="true" />
+          </button>
+        </div>
       </header>
 
       <div className="bible-library-testaments">

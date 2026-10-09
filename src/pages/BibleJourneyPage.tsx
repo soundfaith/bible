@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, Check, Circle } from "lucide-react";
 import { bibleJourney } from "../data/bibleJourney";
+import { JourneyArtwork } from "../components/JourneyArtwork";
 import { bibleBooks, getParagraphs } from "../lib/bible";
 import { resolveReference, referenceLabel } from "../lib/readings";
 
@@ -7,6 +8,7 @@ type JourneyPageProps = {
   periodId: string | null;
   completedIds: string[];
   storageError: boolean;
+  artworkSelections: Record<string, string>;
   onToggleComplete: (periodId: string) => void;
   onOpenPassage: (bookId: string, chapter: number, verse: number) => void;
 };
@@ -35,31 +37,11 @@ function groupReferences(references: string[]) {
   return groups;
 }
 
-function Artwork({ period, index, hero = false }: { period: typeof bibleJourney[number]; index: number; hero?: boolean }) {
-  return (
-    <figure
-      className={`journey-artwork journey-artwork--${period.scene}${hero ? " journey-artwork--hero" : ""}`}
-      role="img"
-      aria-label={`${period.title}: ${period.artPrompt}`}
-    >
-      <span className="journey-artwork-sky" aria-hidden="true" />
-      <span className="journey-artwork-orbit" aria-hidden="true" />
-      <span className="journey-artwork-land journey-artwork-land-back" aria-hidden="true" />
-      <span className="journey-artwork-land journey-artwork-land-front" aria-hidden="true" />
-      <span className="journey-artwork-motif" aria-hidden="true" />
-      <span className="journey-artwork-object journey-artwork-object-one" aria-hidden="true" />
-      <span className="journey-artwork-object journey-artwork-object-two" aria-hidden="true" />
-      <span className="journey-artwork-object journey-artwork-object-three" aria-hidden="true" />
-      <span className="journey-artwork-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-      {hero && <figcaption className="journey-artwork-caption">{period.title}</figcaption>}
-    </figure>
-  );
-}
-
 export function BibleJourneyPage({
   periodId,
   completedIds,
   storageError,
+  artworkSelections,
   onToggleComplete,
   onOpenPassage,
 }: JourneyPageProps) {
@@ -104,15 +86,18 @@ export function BibleJourneyPage({
         <p className="journey-detail-overview">{period.overview}</p>
       </header>
 
-      <Artwork period={period} index={periodIndex} hero />
+      <JourneyArtwork periodId={period.id} optionId={artworkSelections[period.id]} index={periodIndex} hero />
 
       <nav className="journey-toc" aria-label={`Stories in ${period.title}`}>
         <p className="eyebrow">In this period</p>
         <ol>{period.stories.map((story, storyIndex) => (
-          <li key={`${period.id}-toc-${storyIndex}`}><a href={`#/journey/${period.id}`} onClick={(event) => {
-            event.preventDefault();
-            document.getElementById(`story-${period.id}-${storyIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}>{story.title}</a></li>
+          <li key={`${period.id}-toc-${storyIndex}`}><a
+            href={`#/journey/${period.id}`}
+            onClick={(event) => {
+              event.preventDefault();
+              document.getElementById(`story-${period.id}-${storyIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >{story.title}</a></li>
         ))}</ol>
       </nav>
 
@@ -180,8 +165,15 @@ export function BibleJourneyPage({
 export function BibleJourneyLibrary({
   completedIds,
   storageError,
-}: Pick<JourneyPageProps, "completedIds" | "storageError">) {
+  artworkSelections,
+  lastVisitedPeriodId,
+  onResume,
+}: Pick<JourneyPageProps, "completedIds" | "storageError" | "artworkSelections"> & {
+  lastVisitedPeriodId: string | null;
+  onResume: () => void;
+}) {
   const nextPeriod = bibleJourney.find((period) => !completedIds.includes(period.id));
+  const lastVisitedPeriod = bibleJourney.find((period) => period.id === lastVisitedPeriodId);
   return (
     <main className="journey-page section-wrap">
       <header className="journey-heading">
@@ -193,6 +185,9 @@ export function BibleJourneyLibrary({
             continuing mission of the Church. These {bibleJourney.length} stops offer representative readings, not an
             exhaustive account; take them at your own pace.
           </p>
+          <button className="button button-coral journey-resume-button" type="button" onClick={onResume}>
+            {lastVisitedPeriod ? `Resume ${lastVisitedPeriod.title}` : "Begin the journey"} <ArrowRight size={15} aria-hidden="true" />
+          </button>
         </div>
       </header>
 
@@ -206,9 +201,9 @@ export function BibleJourneyLibrary({
         <div className="journey-library-heading">
           <div>
             <p className="eyebrow">The unfolding story</p>
-            <h2 id="journey-library-title">Thirteen places to pause.</h2>
+            <h2 id="journey-library-title">Twelve places to pause.</h2>
           </div>
-          <p>Move through the biblical story one illustrated chapter at a time.</p>
+          <a className="journey-artwork-link" href="#/journey-artwork">Choose your period artwork <ArrowRight size={14} /></a>
         </div>
         <ol className="journey-library-list">
           {bibleJourney.map((period, index) => {
@@ -217,7 +212,7 @@ export function BibleJourneyLibrary({
             return (
               <li className={`journey-library-item${done ? " is-complete" : ""}${isNext ? " is-current" : ""}`} key={period.id}>
                 <a className="journey-library-card" href={`#/journey/${period.id}`} aria-label={`Period ${index + 1}, ${period.title}: ${period.teaser}`}>
-                  <Artwork period={period} index={index} />
+                  <JourneyArtwork periodId={period.id} optionId={artworkSelections[period.id]} index={index} />
                   <span className="journey-library-copy">
                     <span className="journey-period-label">
                       <span>Period {String(index + 1).padStart(2, "0")}</span>
