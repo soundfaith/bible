@@ -2,7 +2,8 @@
 """Generate, convert, publish, and validate female Bible chapter narration.
 
 The script resumes from existing WAV/MP3 files and publishes each completed
-book to a separate af_heart GitHub Release, leaving the existing releases alone.
+chapter immediately to its separate af_heart GitHub Release, leaving the
+existing male releases alone.
 
 Example:
   python scripts/generate_bible_narration.py --upload-github --execute
@@ -217,7 +218,7 @@ def upload_book(book: dict[str, Any], mp3_paths: list[Path]) -> None:
         raise RuntimeError(f"GitHub asset-size verification failed for {book['name']}: {', '.join(mismatches)}")
     if refreshed.get("isDraft"):
         gh(["release", "edit", tag, "--draft=false", "--repo", REPOSITORY])
-    print(f"Uploaded {len(mp3_paths)} MP3s to GitHub Release {tag}.")
+    print(f"GitHub Release {tag} contains {len(mp3_paths)} verified chapter MP3 asset(s).")
 
 
 def check_remote_asset(url: str) -> tuple[bool, str]:
@@ -280,7 +281,7 @@ def main() -> int:
     parser.add_argument("--speed", type=float, default=0.94, help="Kokoro speech speed (0.5 to 1.5)")
     parser.add_argument("--overwrite", action="store_true", help="regenerate WAVs and replace MP3s")
     parser.add_argument("--plan", action="store_true", help="list the work without loading Kokoro")
-    parser.add_argument("--upload-github", action="store_true", help="publish completed books to separate GitHub Releases")
+    parser.add_argument("--upload-github", action="store_true", help="publish each completed chapter to its book's GitHub Release")
     parser.add_argument("--execute", action="store_true", help="confirm GitHub publishing after typing the confirmation phrase")
     args = parser.parse_args()
     if not 0.5 <= args.speed <= 1.5:
@@ -323,7 +324,6 @@ def main() -> int:
         completed = 0
         for book, chapters in work:
             print(f"\n{book['name']}: processing {len(chapters)} chapters.")
-            mp3_paths: list[Path] = []
             for chapter in chapters:
                 wav_path, mp3_path = chapter_paths(book["id"], chapter)
                 if not mp3_path.is_file() or args.overwrite:
@@ -332,13 +332,12 @@ def main() -> int:
                         pipeline, numpy, soundfile, args.speed, args.overwrite,
                     )
                 convert_chapter(wav_path, mp3_path, ffmpeg, args.overwrite)
-                mp3_paths.append(mp3_path)
+                if args.upload_github:
+                    upload_book(book, [mp3_path])
+                    validate_remote(book, [chapter])
                 completed += 1
                 if completed % 25 == 0:
                     print(f"Progress: {completed}/{sum(len(chs) for _item, chs in work)} chapters converted and validated.")
-            if args.upload_github:
-                upload_book(book, mp3_paths)
-                validate_remote(book, chapters)
         print(f"\nComplete: {completed} chapters generated/converted/validated.")
         return 0
     except (RuntimeError, OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, ImportError) as exc:

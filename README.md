@@ -25,9 +25,11 @@ python scripts/generate_bible_narration.py --plan
 python scripts/generate_bible_narration.py --upload-github --execute
 ```
 
-The runner resumes from completed local WAV/MP3 files. It asks for the phrase
-`UPLOAD BIBLE AF_HEART` before generation and publishing, validates local MP3
-frames, verifies uploaded asset sizes, and checks every remote chapter MP3.
+The runner resumes from completed local WAV/MP3 files. With `--upload-github`,
+each chapter is uploaded and remotely checked as soon as its MP3 is locally
+validated, so chapters become available while the rest of the Bible is being
+generated. It asks for the phrase `UPLOAD BIBLE AF_HEART` before generation
+and publishing, validates local MP3 frames, and verifies each uploaded asset.
 
 List the periods, available voices, and validate all citations without creating
 audio:
