@@ -1,29 +1,152 @@
-import { ArrowRight, BookOpen, Bookmark, Compass, Layers3, Milestone } from "lucide-react";
-import type { ReadingPosition } from "./ChapterPage";
-import { bibleJourney } from "../data/bibleJourney";
+import { ArrowRight, Layers3 } from "lucide-react";
+import { JourneyArtwork } from "../components/JourneyArtwork";
 
-export function HomePage({ lastReading, onResume, onChoose, onMass, onExplore, onJourney }: { lastReading: ReadingPosition; onResume: () => void; onChoose: () => void; onMass: () => void; onExplore: () => void; onJourney: () => void }) {
-  const card = (icon: React.ReactNode, title: string, copy: string, action: string, onClick: () => void) => <article className="landing-card" onClick={onClick} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onClick(); }} role="button" tabIndex={0}>{icon}<h3>{title}</h3><p>{copy}</p><button className="text-link" onClick={(event) => { event.stopPropagation(); onClick(); }}>{action} <ArrowRight size={14} /></button></article>;
-  const isBeginning = lastReading.bookId === "genesis" && lastReading.chapter === 1;
-  return <main className="landing-page">
-    <section className="landing-hero section-wrap" aria-label="Soundfaith Bible landing hero"><div className="landing-hero-copy reveal"><p className="eyebrow"><span className="eyebrow-dot" /> Soundfaith Bible</p><h1>A little more<br /><em>room to read.</em></h1><p className="hero-description">A quiet place to return to the Scriptures, one chapter at a time. Pick up where you left off or find a new passage to sit with.</p><div className="hero-actions"><button className="button button-coral" onClick={onResume}>Resume reading <ArrowRight size={16} /></button><button className="text-link" onClick={onChoose}>Choose a passage <ArrowRight size={14} /></button></div></div></section>
-    <section className="landing-intro section-wrap"><div><p className="eyebrow">A simple rhythm</p><h2>Find the words<br /><em>you need today.</em></h2></div></section>
-    <section className="landing-principles section-wrap">
-      {card(<BookOpen size={21} />, "Pray with today’s readings", "Enter the Scriptures appointed for today’s Mass and carry their words into your day.", "Open today’s readings", onMass)}
-      {card(<Bookmark size={21} />, "Return to your place", "Pick up the thread where you last read, and let the next chapter meet you there.", "Continue reading", onResume)}
-      {card(<Compass size={21} />, "Seek a word", "Bring a question, a hope, or a feeling. Find a passage to sit with.", "Explore Scripture", onExplore)}
-    </section>
-    <section className="landing-journey-wrap section-wrap" aria-label="Explore the Bible Journey">
-      <article className="landing-journey-card">
-        <div className="landing-journey-mark" aria-hidden="true"><Milestone size={22} /></div>
-        <div className="landing-journey-copy">
-          <p className="eyebrow"><span className="landing-journey-featured">Featured</span> A story to follow</p>
-          <h2>Meet the Bible, one turning point at a time.</h2>
-          <p>{bibleJourney.length} periods trace the larger story through passages you can open in the reader and return to whenever you like.</p>
+type HomePageProps = {
+  onResume: () => void;
+  onChoose: () => void;
+  onMass: () => void;
+  onJourney: () => void;
+};
+
+const primaryCards = [
+  {
+    art: "bible",
+    title: "Bible",
+    description: "Return to the Scriptures, one chapter at a time.",
+    action: "Open Bible",
+    onClick: "onChoose",
+  },
+  {
+    art: "journey",
+    title: "Bible Journey",
+    description: "Follow the story of salvation through 12 periods.",
+    action: "Continue Journey",
+    onClick: "onJourney",
+  },
+  {
+    art: "readings",
+    title: "Mass Readings",
+    description: "Pray with today’s liturgy.",
+    action: "Today’s Readings",
+    onClick: "onMass",
+  },
+] as const;
+
+export function HomePage({ onResume, onChoose, onMass, onJourney }: HomePageProps) {
+  const actions = { onChoose, onMass, onJourney };
+
+  return (
+    <main className="landing-page">
+      <section className="landing-hero section-wrap" aria-labelledby="landing-title">
+        <div className="landing-hero-copy">
+          <p className="eyebrow"><span className="eyebrow-dot" /> A quieter way to meet the Word</p>
+          <h1 id="landing-title">Find your <em>quiet rhythm.</em></h1>
+          <p className="hero-description">Scripture, prayer, and reflection — one step at a time.</p>
+          <div className="hero-actions">
+            <button className="button button-coral" onClick={onResume}>
+              Resume reading <ArrowRight size={16} />
+            </button>
+            <button className="button button-outline" onClick={onMass}>
+              Begin today’s prayer <ArrowRight size={16} />
+            </button>
+          </div>
         </div>
-        <button className="button button-dark" onClick={onJourney}>Explore Bible Journey <ArrowRight size={15} /></button>
-      </article>
-    </section>
-    <section className="landing-invitation section-wrap"><Layers3 size={20} /><p className="eyebrow">Your next quiet moment</p><h2>{isBeginning ? "Begin at the beginning." : "Your place is still here."}</h2><button className="button button-dark" onClick={onResume}>Open {isBeginning ? "Genesis 1" : "your last chapter"} <ArrowRight size={15} /></button></section>
-  </main>;
+      </section>
+
+      <section className="landing-actions section-wrap" aria-label="Explore">
+        <div className="landing-section-heading">
+          <p className="eyebrow">Make room for what matters</p>
+          <h2>A rhythm for every day.</h2>
+        </div>
+        <div className="landing-card-grid">
+          {primaryCards.map(({ art, title, description, action, onClick }) => (
+            <button
+              className="landing-card"
+              key={title}
+              type="button"
+              aria-label={`${title}: ${action}`}
+              onClick={actions[onClick]}
+            >
+              <div className={`landing-card-art landing-card-art--${art}`} aria-hidden="true">
+                {art === "bible" ? (
+                  <svg className="landing-card-artwork" viewBox="0 0 400 200">
+                    <path className="landing-bible-book-shadow" d="M71 56q68-24 127 15 59-39 131-15v101q-69-20-131 17-62-37-127-17z" />
+                    <path className="landing-bible-page landing-bible-page--left" d="M78 62q61-18 120 17v86q-58-31-120-17z" />
+                    <path className="landing-bible-page landing-bible-page--right" d="M202 79q58-35 120-17v86q-62-14-120 17z" />
+                    <path className="landing-bible-spine" d="M198 78v87" />
+                    <path className="landing-bible-text-lines" d="M99 86q37-9 72 6m-71 10q32-7 65 7m-63 10q30-6 57 7m59-40q31-17 65-16m-65 27q34-16 67-13m-66 25q31-12 66-10" />
+                  </svg>
+                ) : art === "journey" ? (
+                  <JourneyArtwork periodId="a-world-awakened" index={0} />
+                ) : art === "readings" ? (
+                  <svg className="landing-card-artwork" viewBox="0 0 400 200">
+                    <path className="landing-church-ground" d="M0 166q100-19 200 0t200 0v34H0z" />
+                    <path className="landing-church-building" d="M118 97h164v71H118z" />
+                    <path className="landing-church-roof" d="m99 99 101-55 101 55z" />
+                    <path className="landing-church-tower" d="M169 62h62v-27h-62z" />
+                    <path className="landing-church-spire" d="m160 36 40-27 40 27z" />
+                    <path className="landing-church-cross" d="M197 10h6v20h-6zm-7 7h20v5h-20z" />
+                    <path className="landing-church-door" d="M180 168v-36q0-20 20-20t20 20v36z" />
+                    <path className="landing-church-window" d="M139 117q0-12 10-12t10 12v17h-20zm102 0q0-12 10-12t10 12v17h-20z" />
+                  </svg>
+                ) : (
+                  <>
+                    <svg className="landing-card-artwork" viewBox="0 0 400 200">
+                      <path className="landing-prayer-table" d="M95 157h210v9H95z" />
+                      <path className="landing-prayer-book" d="M128 135q36-16 72 0 36-16 72 0v31q-36-14-72 0-36-14-72 0z" />
+                      <path className="landing-prayer-book-lines" d="M140 145q27-9 48 0m-47 8q24-8 46 0m30-8q24-9 45 0m-44 8q22-8 44 0" />
+                      <path className="landing-prayer-candle" d="M286 90h25l-3 48h-19z" />
+                      <path className="landing-prayer-candle-top" d="M286 90q12-7 25 0-12 7-25 0" />
+                      <path className="landing-prayer-flame" d="M299 84q-13-12 0-30 13 18 0 30" />
+                      <path className="landing-prayer-wick" d="M299 86v5" />
+                    </svg>
+                  </>
+                )}
+              </div>
+              <div className="landing-card-copy">
+                <h3>{title}</h3>
+                <p>{description}</p>
+                <span className="text-link">
+                  {action} <ArrowRight size={15} />
+                </span>
+              </div>
+            </button>
+          ))}
+          <article className="landing-card landing-card--coming-soon">
+            <div className="landing-card-art landing-card-art--prayer" aria-hidden="true">
+              <svg className="landing-card-artwork" viewBox="0 0 400 200">
+                <path className="landing-prayer-table" d="M95 157h210v9H95z" />
+                <path className="landing-prayer-book" d="M128 135q36-16 72 0 36-16 72 0v31q-36-14-72 0-36-14-72 0z" />
+                <path className="landing-prayer-book-lines" d="M140 145q27-9 48 0m-47 8q24-8 46 0m30-8q24-9 45 0m-44 8q22-8 44 0" />
+                <path className="landing-prayer-candle" d="M286 90h25l-3 48h-19z" />
+                <path className="landing-prayer-candle-top" d="M286 90q12-7 25 0-12 7-25 0" />
+                <path className="landing-prayer-flame" d="M299 84q-13-12 0-30 13 18 0 30" />
+                <path className="landing-prayer-wick" d="M299 86v5" />
+              </svg>
+            </div>
+            <div className="landing-card-copy">
+              <h3>Daily Prayer</h3>
+              <p>Pray the psalms in a simple daily rhythm.</p>
+              <span className="text-link is-disabled">Coming Soon</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className="landing-continuation section-wrap" aria-labelledby="landing-continuation-title">
+        <Layers3 size={20} aria-hidden="true" />
+        <p className="eyebrow">A place to return to</p>
+        <h2 id="landing-continuation-title">Continue your journey.</h2>
+        <p className="landing-continuation-description">Your place is still here. Pick up where you left off.</p>
+        <div className="landing-continuation-actions">
+          <button className="button landing-continuation-button" onClick={onResume}>
+            Continue reading <ArrowRight size={16} />
+          </button>
+          <button className="button landing-continuation-button" onClick={onJourney}>
+            Explore Bible Journey <ArrowRight size={16} />
+          </button>
+        </div>
+      </section>
+    </main>
+  );
 }

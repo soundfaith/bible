@@ -277,12 +277,14 @@ export function JourneyNarrationProgress({
   className,
   storyCount,
   activeStoryIndex,
+  activeStoryProgress,
   status,
   onSelectStory,
 }: {
   className: string;
   storyCount: number;
   activeStoryIndex: number;
+  activeStoryProgress: number;
   status: NarrationStatus;
   onSelectStory: (storyIndex: number) => void;
 }) {
@@ -290,8 +292,10 @@ export function JourneyNarrationProgress({
   const isDragging = useRef(false);
 
   useEffect(() => {
-    if (!isDragging.current) setSliderPosition(activeStoryIndex);
-  }, [activeStoryIndex]);
+    if (!isDragging.current) {
+      setSliderPosition(activeStoryIndex + Math.max(0, Math.min(activeStoryProgress, 1)));
+    }
+  }, [activeStoryIndex, activeStoryProgress]);
 
   if (storyCount < 1 || (status !== "playing" && status !== "paused")) return null;
 

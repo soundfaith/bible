@@ -144,8 +144,6 @@ The app uses hash routes so each screen can be opened directly while remaining e
 
 
 
-To upload and validate all twelve periods:
-python scripts/period_narration.py --voice af_heart --upload-github --validate-remote github --execute
-
-For an independent check of existing uploads without generating audio:
-python scripts/period_narration.py --voice am_michael --validate-only --validate-remote all
+$env:PATH = 'C:\Program Files\GitHub CLI;C:\Users\rmosi\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-full_build\bin;' + $env:PATH
+$env:HF_HUB_OFFLINE = '1'
+'UPLOAD BIBLE AF_HEART' | & 'C:\Users\rmosi\AppData\Local\bible-narration-venv\Scripts\python.exe' -u 'D:\projects\bible\scripts\generate_bible_narration.py' --upload-github --execute

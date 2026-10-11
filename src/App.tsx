@@ -490,6 +490,9 @@ export default function App() {
     );
   const journeyAudioForPage =
     journeyPeriodId && journeyAudio.periodId === journeyPeriodId ? journeyAudio : INITIAL_JOURNEY_AUDIO;
+  const journeyStoryProgress = narration.duration > 0
+    ? narration.position / narration.duration
+    : narration.text.length > 0 ? narration.position / narration.text.length : 0;
   const isJourneyDetail = route === "journey" && Boolean(journeyPeriodId);
   const mobileListenStatus = isJourneyDetail ? journeyAudioForPage.status : narration.status;
   const mobileListenLabel = mobileListenStatus === "playing"
@@ -568,7 +571,6 @@ export default function App() {
       <AboutPage />
     ) : (
       <HomePage
-        lastReading={readingPosition}
         onResume={() => openReader()}
         onChoose={() => { window.location.hash = "#/bible"; }}
         onJourney={() => { window.location.hash = "#/journey"; }}
@@ -576,7 +578,6 @@ export default function App() {
           setMassDate(getTodaysMassReading().date);
           window.location.hash = "#/mass";
         }}
-        onExplore={openSearch}
       />
     );
   return (
@@ -667,6 +668,7 @@ export default function App() {
           className="narration-progress-mobile"
           storyCount={bibleJourney.find((period) => period.id === journeyPeriodId)?.stories.length ?? 0}
           activeStoryIndex={journeyAudioForPage.storyIndex}
+          activeStoryProgress={journeyStoryProgress}
           status={journeyAudioForPage.status}
           onSelectStory={selectJourneyAudioStory}
         />}
