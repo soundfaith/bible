@@ -599,8 +599,7 @@ export default function App() {
             </button>
           </div>
           <a href="#/" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><House size={17} />Home</a>
-          <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Read Scripture</a>
-          <a href="#/bible" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible books</a>
+          <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Read Scriptures</a>
           <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily Mass</a>
           <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Milestone size={17} />Bible Journey</a>
           <a href="#/bookmarks" onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
@@ -613,24 +612,22 @@ export default function App() {
               <button className="icon-button" aria-label="Increase font size" disabled={fontSize >= 30} onClick={() => setFontSize((size) => Math.min(30, size + 2))}><Plus size={16} /></button>
             </div>
           </section>
-          <fieldset className="voice-preference-control">
-            <legend>Narration voice</legend>
+          <section className="voice-preference-control" aria-label="Narration voice">
+            <span className="voice-preference-label">Narration voice</span>
             <div className="voice-preference-options">
               {(["male", "female"] as const).map((gender) => (
-                <label key={gender}>
-                  <input
-                    type="radio"
-                    name="narration-voice"
-                    value={gender}
-                    checked={voicePreference === gender}
-                    onChange={() => changeVoicePreference(gender)}
-                  />
-                  <span>{gender === "male" ? "Male" : "Female"}</span>
-                </label>
+                <button
+                  key={gender}
+                  type="button"
+                  aria-pressed={voicePreference === gender}
+                  onClick={() => changeVoicePreference(gender)}
+                >
+                  {gender === "male" ? "Male" : "Female"}
+                </button>
               ))}
             </div>
             {voicePreferenceError && <p role="status">Could not save this preference. It will apply until you close the app.</p>}
-          </fieldset>
+          </section>
           <div className="mobile-menu-theme">
             <span>Theme</span>
             <ThemeToggle
