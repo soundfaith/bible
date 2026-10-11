@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { bibleBooks, getBook, getChapter, getChapterCount, getParagraphs, type BibleBookSummary } from "../lib/bible";
 import { NarrationProgress, NarratorButton } from "../components/NarratorButton";
 import { narrationAudioUrlsFor } from "../lib/narrationAudio";
+import type { NarrationGender } from "../lib/narrationVoice";
 
 const READING_KEY = "bible-last-reading";
 export type ReadingPosition = { bookId: string; chapter: number };
@@ -16,7 +17,7 @@ export function getLastReading(): ReadingPosition {
   return { bookId: "genesis", chapter: 1 };
 }
 
-export function ChapterPage({ position, onPositionChange, onSelectChapter, highlightVerse, isBookmarked, isChapterBookmarked, onToggleBookmark, onNarrationEnded }: { position: ReadingPosition; onPositionChange: (position: ReadingPosition) => void; onSelectChapter: () => void; highlightVerse?: number | null; isBookmarked: boolean; isChapterBookmarked: boolean; onToggleBookmark: (range?: SelectedVerseRange) => void; onNarrationEnded: () => void }) {
+export function ChapterPage({ position, voicePreference, onPositionChange, onSelectChapter, highlightVerse, isBookmarked, isChapterBookmarked, onToggleBookmark, onNarrationEnded }: { position: ReadingPosition; voicePreference: NarrationGender; onPositionChange: (position: ReadingPosition) => void; onSelectChapter: () => void; highlightVerse?: number | null; isBookmarked: boolean; isChapterBookmarked: boolean; onToggleBookmark: (range?: SelectedVerseRange) => void; onNarrationEnded: () => void }) {
   const touchStart = useRef<number | null>(null);
   const readingCopyRef = useRef<HTMLDivElement | null>(null);
   const [selectedVerseRange, setSelectedVerseRange] = useState<(SelectedVerseRange & { top: number; left: number }) | null>(null);
@@ -24,7 +25,7 @@ export function ChapterPage({ position, onPositionChange, onSelectChapter, highl
   const verses = getChapter(position.bookId, position.chapter);
   const paragraphs = getParagraphs(verses);
   const narrationText = verses.map((verse) => verse.text).join(" ");
-  const narrationAudioUrls = narrationAudioUrlsFor(position.bookId, position.chapter);
+  const narrationAudioUrls = narrationAudioUrlsFor(position.bookId, position.chapter, voicePreference);
   const bookIndex = bibleBooks.findIndex((item) => item.id === position.bookId);
   const isFirst = bookIndex === 0 && position.chapter === 1;
   const isLast = bookIndex === bibleBooks.length - 1 && position.chapter === getChapterCount(position.bookId);
@@ -66,7 +67,7 @@ export function ChapterPage({ position, onPositionChange, onSelectChapter, highl
 
   return <main className="bible-page section-wrap" onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }} onTouchEnd={(event) => { if (touchStart.current === null) return; const distance = event.changedTouches[0].clientX - touchStart.current; if (!window.getSelection()?.toString() && Math.abs(distance) > 55) move(distance > 0 ? -1 : 1); touchStart.current = null; }}>
     <header className="bible-reader-heading"><div><p className="eyebrow"><span className="eyebrow-dot" /> Soundfaith Bible</p><h1>{book.name}<br /><em>chapter {position.chapter}.</em></h1></div><a className="button button-outline" href="#/bible"><ArrowLeft size={15} /> Bible books</a></header>
-    <div className="bible-toolbar"><button className="bible-reference-button" onClick={onSelectChapter}><span>{book.name}</span><strong>{position.chapter}</strong><ChevronDown size={16} /></button><span className="bible-progress">Chapter {position.chapter} of {getChapterCount(position.bookId)}</span><div className="bible-toolbar-actions"><NarratorButton text={narrationText} audioUrl={narrationAudioUrls[0]} fallbackAudioUrl={narrationAudioUrls[1]} onEnded={onNarrationEnded} /><button className={isBookmarked ? "icon-button bible-bookmark-button active" : "icon-button bible-bookmark-button"} onClick={() => onToggleBookmark()} aria-label={isChapterBookmarked ? "Remove chapter bookmark" : "Bookmark chapter"}><Bookmark size={17} fill={isBookmarked ? "currentColor" : "none"} /></button></div></div>
+    <div className="bible-toolbar"><button className="bible-reference-button" onClick={onSelectChapter}><span>{book.name}</span><strong>{position.chapter}</strong><ChevronDown size={16} /></button><span className="bible-progress">Chapter {position.chapter} of {getChapterCount(position.bookId)}</span><div className="bible-toolbar-actions"><NarratorButton text={narrationText} audioUrls={narrationAudioUrls} voicePreference={voicePreference} onEnded={onNarrationEnded} /><button className={isBookmarked ? "icon-button bible-bookmark-button active" : "icon-button bible-bookmark-button"} onClick={() => onToggleBookmark()} aria-label={isChapterBookmarked ? "Remove chapter bookmark" : "Bookmark chapter"}><Bookmark size={17} fill={isBookmarked ? "currentColor" : "none"} /></button></div></div>
     <a className="bible-mobile-library-link" href="#/bible"><ArrowLeft size={14} /> Bible books</a>
     <NarrationProgress className="narration-progress-desktop" enabled={narrationAudioUrls.length > 0} />
     <article className="bible-reading-panel"><div className="bible-reading-copy" ref={readingCopyRef}>{paragraphs.map((paragraph) => <p key={paragraph.id}>{paragraph.verses.map((verse) => <span key={verse.verse} data-verse={verse.verse} className={highlightVerse === verse.verse ? "verse-highlight" : ""}><sup>{verse.verse}</sup>{verse.text} </span>)}</p>)}</div></article>

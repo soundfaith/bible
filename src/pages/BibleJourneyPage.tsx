@@ -1,15 +1,22 @@
-import { ArrowLeft, ArrowRight, Check, Circle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Circle, Headphones, Pause, Play } from "lucide-react";
 import { bibleJourney } from "../data/bibleJourney";
 import { JourneyArtwork } from "../components/JourneyArtwork";
 import { bibleBooks, getParagraphs } from "../lib/bible";
 import { resolveReference, referenceLabel } from "../lib/readings";
+
+type JourneyAudioStatus = "idle" | "playing" | "paused";
 
 type JourneyPageProps = {
   periodId: string | null;
   completedIds: string[];
   storageError: boolean;
   artworkSelections: Record<string, string>;
+  audioStatus: JourneyAudioStatus;
+  activeStoryIndex: number;
+  audioError: string | null;
   onToggleComplete: (periodId: string) => void;
+  onToggleAudio: () => void;
+  onSelectAudioStory: (storyIndex: number) => void;
   onOpenPassage: (bookId: string, chapter: number, verse: number) => void;
 };
 
@@ -42,7 +49,12 @@ export function BibleJourneyPage({
   completedIds,
   storageError,
   artworkSelections,
+  audioStatus,
+  activeStoryIndex,
+  audioError,
   onToggleComplete,
+  onToggleAudio,
+  onSelectAudioStory,
   onOpenPassage,
 }: JourneyPageProps) {
   const currentPeriod = bibleJourney.find((period) => period.id === periodId);
@@ -84,7 +96,42 @@ export function BibleJourneyPage({
         <p className="eyebrow"><span className="eyebrow-dot" /> Period {String(periodIndex + 1).padStart(2, "0")} <span aria-hidden="true">/</span> {bibleJourney.length}</p>
         <h1>{period.title}</h1>
         <p className="journey-detail-overview">{period.overview}</p>
+        <div className="journey-audio-controls">
+          <button
+            className="button button-coral journey-audio-listen"
+            type="button"
+            onClick={onToggleAudio}
+            aria-label={audioStatus === "playing" ? "Pause period audio" : audioStatus === "paused" ? "Resume period audio" : `Listen to all stories in ${period.title}`}
+            aria-pressed={audioStatus === "playing"}
+          >
+            {audioStatus === "playing" ? <Pause size={16} /> : audioStatus === "paused" ? <Play size={16} /> : <Headphones size={17} />}
+            {audioStatus === "playing" ? "Pause audio" : audioStatus === "paused" ? "Resume audio" : "Listen to period"}
+          </button>
+        </div>
+        {audioError && <p className="journey-audio-error" role="status">{audioError}</p>}
+        {(audioStatus === "playing" || audioStatus === "paused") && (
+          <p className="journey-audio-status" aria-live="polite">
+            {audioStatus === "playing" ? "Playing" : "Paused"}: {period.stories[activeStoryIndex]?.title}
+          </p>
+        )}
       </header>
+
+      {audioStatus === "playing" && (
+        <nav className="journey-story-dots" aria-label={`Playing stories in ${period.title}`}>
+          {period.stories.map((story, storyIndex) => (
+            <button
+              type="button"
+              key={`${period.id}-mobile-audio-${storyIndex}`}
+              aria-label={`Play story ${storyIndex + 1}: ${story.title}`}
+              aria-current={activeStoryIndex === storyIndex ? "step" : undefined}
+              onClick={() => {
+                onSelectAudioStory(storyIndex);
+                document.getElementById(`story-${period.id}-${storyIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            ><span aria-hidden="true" /></button>
+          ))}
+        </nav>
+      )}
 
       <JourneyArtwork periodId={period.id} optionId={artworkSelections[period.id]} index={periodIndex} hero />
 
@@ -108,7 +155,7 @@ export function BibleJourneyPage({
               <h2 id={`story-heading-${period.id}-${storyIndex}`}>{story.title}</h2>
               <p className="journey-story-summary">{story.summary}</p>
               <div className="journey-story-passages">
-                {groupReferences(story.references).map((group) => {
+                {groupReferences(story.references).map((group, groupIndex) => {
                   const firstReference = group.references[0];
                   const firstVerses = resolveReference(firstReference);
                   const firstBookId = referenceBookId(firstReference);
@@ -116,14 +163,26 @@ export function BibleJourneyPage({
                     <section className="journey-scripture" key={group.key} aria-label={group.label}>
                       <header className="journey-scripture-heading">
                         <h3>{group.references.length > 1 ? group.label : referenceLabel(firstReference)}</h3>
-                        <button
-                          className="journey-open-passage"
-                          disabled={!firstVerses[0] || !firstBookId}
-                          onClick={() => firstVerses[0] && firstBookId && onOpenPassage(firstBookId, firstVerses[0].chapter, firstVerses[0].verse)}
-                          aria-label={`Open ${group.label} in the Bible reader`}
-                        >
-                          Open in Bible <ArrowRight size={14} aria-hidden="true" />
-                        </button>
+                        <div className="journey-scripture-actions">
+                          {groupIndex === 0 && <button
+                            className={audioStatus !== "idle" && activeStoryIndex === storyIndex ? "journey-story-play active" : "journey-story-play"}
+                            type="button"
+                            onClick={() => {
+                              onSelectAudioStory(storyIndex);
+                              document.getElementById(`story-${period.id}-${storyIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }}
+                            aria-label={`Play ${story.title} and following stories`}
+                            aria-current={audioStatus !== "idle" && activeStoryIndex === storyIndex ? "true" : undefined}
+                          ><Play size={14} aria-hidden="true" /></button>}
+                          <button
+                            className="journey-open-passage"
+                            disabled={!firstVerses[0] || !firstBookId}
+                            onClick={() => firstVerses[0] && firstBookId && onOpenPassage(firstBookId, firstVerses[0].chapter, firstVerses[0].verse)}
+                            aria-label={`Open ${group.label} in the Bible reader`}
+                          >
+                            Open in Bible <ArrowRight size={14} aria-hidden="true" />
+                          </button>
+                        </div>
                       </header>
                       {group.references.map((reference) => {
                         const verses = resolveReference(reference);

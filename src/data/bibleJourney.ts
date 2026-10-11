@@ -25,11 +25,10 @@ export const bibleJourney: JourneyPeriod[] = [
     stories: [
       { title: "Creation", summary: "God brings the heavens, earth, and every living thing into being, blessing creation and entrusting it to humankind.", references: ["Genesis 1:1-31", "Genesis 2:1-3"] },
       { title: "Adam and Eve", summary: "God forms the first humans, gives them a garden home, and creates them for life together in his presence.", references: ["Genesis 2:4-25"] },
-      { title: "The Fall", summary: "Distrust leads the humans to cross a boundary, and shame and estrangement enter their lives.", references: ["Genesis 3:1-13"] },
-      { title: "A Promise of Hope", summary: "In the midst of judgment, God speaks of lasting conflict between the serpent and the woman and her offspring.", references: ["Genesis 3:14-15"] },
+      { title: "The Fall and Promise of Hope", summary: "Distrust leads the humans to cross a boundary, and shame and estrangement enter their lives; in the midst of judgment, God speaks of lasting conflict between the serpent and the woman and her offspring.", references: ["Genesis 3:1-15"] },
       { title: "Leaving the Garden", summary: "The first humans leave Eden, carrying the consequences of their choice into a world of toil and separation.", references: ["Genesis 3:16-24"] },
       { title: "Cain and Abel", summary: "Jealousy turns into violence between brothers; God confronts Cain and marks him for protection.", references: ["Genesis 4:1-16"] },
-      { title: "Noah and the Ark", summary: "Noah and his family pass through the flood, and God makes a covenant never again to destroy all life by flood.", references: ["Genesis 6:13-22", "Genesis 7:17-24", "Genesis 8:1-5", "Genesis 8:15-22", "Genesis 9:8-17"] },
+      { title: "Noah and the Flood", summary: "Noah and his family pass through the flood, and God makes a covenant never again to destroy all life by flood.", references: ["Genesis 6:13-22", "Genesis 7:17-24", "Genesis 8:1-5", "Genesis 8:15-22", "Genesis 9:8-17"] },
       { title: "The Tower of Babel", summary: "Humanity seeks a name and a city reaching the heavens; God confuses their language and scatters them across the earth.", references: ["Genesis 11:1-9"] },
     ],
   },

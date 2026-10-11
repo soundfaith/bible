@@ -39,7 +39,8 @@ import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
 import { bibleJourney } from "./data/bibleJourney";
 import { resolveJourneyPeriodId, loadJourneyArtworkSelections, saveJourneyArtworkSelections } from "./data/journeyArtwork";
 import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress";
-import { narrationAudioUrlsFor } from "./lib/narrationAudio";
+import { journeyStoryAudioUrls, narrationAudioUrlsFor } from "./lib/narrationAudio";
+import { getNarrationGender, saveNarrationGender, type NarrationGender } from "./lib/narrationVoice";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
 import {
@@ -54,7 +55,15 @@ import {
 
 type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork";
 type PendingNarration = "start" | "pause" | "resume" | null;
+type JourneyAudioStatus = "idle" | "playing" | "paused";
+type JourneyAudioState = {
+  periodId: string | null;
+  storyIndex: number;
+  status: JourneyAudioStatus;
+  error: string | null;
+};
 const LAST_JOURNEY_PERIOD_KEY = "soundfaith-bible-journey-last-period-v1";
+const INITIAL_JOURNEY_AUDIO: JourneyAudioState = { periodId: null, storyIndex: 0, status: "idle", error: null };
 
 function getLastJourneyPeriodId() {
   try {
@@ -104,19 +113,32 @@ export default function App() {
   const [theme, setTheme] = useState<"light" | "dark">(() =>
     window.localStorage.getItem("template-theme") === "dark" ? "dark" : "light",
   );
+  const [voicePreference, setVoicePreference] = useState<NarrationGender>(getNarrationGender);
+  const [voicePreferenceError, setVoicePreferenceError] = useState(false);
   const [readingPosition, setReadingPosition] =
     useState<ReadingPosition>(getLastReading);
   const [massDate, setMassDate] = useState(() => getTodaysMassReading().date);
   const [highlightVerse, setHighlightVerse] = useState<number | null>(null);
   const [pendingNarration, setPendingNarration] = useState<PendingNarration>(null);
   const [narration, setNarration] = useState(getNarrationSnapshot);
+  const [journeyAudio, setJourneyAudio] = useState<JourneyAudioState>(INITIAL_JOURNEY_AUDIO);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(getBookmarks);
   const [bookmarkCategories, setBookmarkCategories] = useState<string[]>(getBookmarkCategories);
   const [journeyProgress, setJourneyProgress] = useState(loadJourneyProgress);
   const [journeyArtwork, setJourneyArtwork] = useState(loadJourneyArtworkSelections);
   const menuRef = useRef<HTMLElement | null>(null);
+  const journeyAudioStateRef = useRef(journeyAudio);
   const searchSheetStartY = useRef<number | null>(null);
   const preserveNarrationOnNavigation = useRef(false);
+  const changeVoicePreference = (gender: NarrationGender) => {
+    setVoicePreference(gender);
+    try {
+      saveNarrationGender(gender);
+      setVoicePreferenceError(false);
+    } catch {
+      setVoicePreferenceError(true);
+    }
+  };
   const advanceNarration = () => {
     if (route !== "read") return;
     if (readingPosition.chapter >= getChapterCount(readingPosition.bookId)) {
@@ -125,6 +147,88 @@ export default function App() {
     }
     setReadingPosition({ ...readingPosition, chapter: readingPosition.chapter + 1 });
     setPendingNarration("start");
+  };
+  const updateJourneyAudio = (next: JourneyAudioState) => {
+    journeyAudioStateRef.current = next;
+    setJourneyAudio(next);
+  };
+  const failJourneyAudio = (periodId: string, storyIndex: number) => {
+    const current = journeyAudioStateRef.current;
+    if (current.periodId !== periodId || current.storyIndex !== storyIndex) return;
+    updateJourneyAudio({
+      ...current,
+      status: "idle",
+      error: "This story's GitHub MP3 and browser text-to-speech could not be played.",
+    });
+  };
+  const playJourneyStory = (periodId: string, storyIndex: number, shouldPlay: boolean) => {
+    const periodIndex = bibleJourney.findIndex((period) => period.id === periodId);
+    const period = bibleJourney[periodIndex];
+    if (!period || storyIndex < 0 || storyIndex >= period.stories.length) return;
+    const story = period.stories[storyIndex];
+    const text = story.references.flatMap((reference) => resolveReference(reference).map((verse) => verse.text)).join(" ");
+    const next: JourneyAudioState = {
+      periodId,
+      storyIndex,
+      status: shouldPlay ? "playing" : "paused",
+      error: null,
+    };
+    const audioUrls = journeyStoryAudioUrls(periodIndex, storyIndex, voicePreference);
+    updateJourneyAudio(next);
+    if (shouldPlay) {
+      const started = startSpeaking(
+        text,
+        audioUrls,
+        advanceJourneyAudio,
+        () => failJourneyAudio(periodId, storyIndex),
+        voicePreference,
+      );
+      if (!started) {
+        failJourneyAudio(periodId, storyIndex);
+      }
+    } else stopSpeaking();
+  };
+  const toggleJourneyAudio = () => {
+    if (!journeyPeriodId) return;
+    const current = journeyAudioStateRef.current;
+    if (current.periodId === journeyPeriodId && current.status === "playing") {
+      pauseSpeaking();
+      updateJourneyAudio({ ...current, status: "paused" });
+      return;
+    }
+    if (current.periodId === journeyPeriodId && current.status === "paused") {
+      const periodIndex = bibleJourney.findIndex((period) => period.id === journeyPeriodId);
+      const period = bibleJourney[periodIndex];
+      const story = period?.stories[current.storyIndex];
+      if (!story) return;
+      const text = story.references.flatMap((reference) => resolveReference(reference).map((verse) => verse.text)).join(" ");
+      const started = resumeSpeaking(
+        text,
+        journeyStoryAudioUrls(periodIndex, current.storyIndex, voicePreference),
+        advanceJourneyAudio,
+        () => failJourneyAudio(journeyPeriodId, current.storyIndex),
+        voicePreference,
+      );
+      updateJourneyAudio({ ...current, status: "playing", error: null });
+      if (!started) failJourneyAudio(journeyPeriodId, current.storyIndex);
+      return;
+    }
+    playJourneyStory(journeyPeriodId, 0, true);
+  };
+  const selectJourneyAudioStory = (storyIndex: number) => {
+    if (!journeyPeriodId) return;
+    playJourneyStory(journeyPeriodId, storyIndex, true);
+  };
+  const advanceJourneyAudio = () => {
+    const current = journeyAudioStateRef.current;
+    const period = bibleJourney.find((item) => item.id === current.periodId);
+    if (route !== "journey" || !period) return;
+    const nextStoryIndex = current.storyIndex + 1;
+    if (nextStoryIndex >= period.stories.length) {
+      updateJourneyAudio(INITIAL_JOURNEY_AUDIO);
+      return;
+    }
+    playJourneyStory(period.id, nextStoryIndex, true);
   };
   useEffect(() => {
     const change = () => {
@@ -154,6 +258,13 @@ export default function App() {
     }
   }, [route, journeyPeriodId]);
   useEffect(() => {
+    const current = journeyAudioStateRef.current;
+    if (route === "journey" && current.periodId === journeyPeriodId) return;
+    stopSpeaking();
+    journeyAudioStateRef.current = INITIAL_JOURNEY_AUDIO;
+    setJourneyAudio(INITIAL_JOURNEY_AUDIO);
+  }, [route, journeyPeriodId]);
+  useEffect(() => {
     setMenuOpen(false);
   }, [route]);
   useEffect(() => {
@@ -178,15 +289,15 @@ export default function App() {
   );
   useEffect(() => {
     if (!pendingNarration || route !== "read") return;
-    const audioUrls = narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter);
+    const audioUrls = narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter, voicePreference);
     const text = getChapter(readingPosition.bookId, readingPosition.chapter)
       .map((verse) => verse.text)
       .join(" ");
     if (pendingNarration === "pause") pauseSpeaking();
-    else if (pendingNarration === "resume") resumeSpeaking(text, audioUrls[0], audioUrls[1], advanceNarration);
-    else startSpeaking(text, audioUrls[0], audioUrls[1], advanceNarration);
+    else if (pendingNarration === "resume") resumeSpeaking(text, audioUrls, advanceNarration, undefined, voicePreference);
+    else startSpeaking(text, audioUrls, advanceNarration, undefined, voicePreference);
     setPendingNarration(null);
-  }, [pendingNarration, readingPosition, route]);
+  }, [pendingNarration, readingPosition, route, voicePreference]);
   useEffect(() => () => {
     if (preserveNarrationOnNavigation.current) {
       preserveNarrationOnNavigation.current = false;
@@ -286,27 +397,15 @@ export default function App() {
     .join(" ");
   const narrationForCurrentPage = (): { text: string; audioUrls: string[]; onEnded?: () => void } | null => {
     if (route === "read") {
-      const audioUrls = narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter);
+      const audioUrls = narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter, voicePreference);
       return { text: chapterNarration(readingPosition), audioUrls, onEnded: advanceNarration };
     }
     if (route === "mass") {
       const entry = getMassReadingForDate(massDate) || getTodaysMassReading();
       return {
         text: Object.values(entry.readings).map((reading) => reading.text).join("\n\n"),
-        audioUrls: [] as string[],
+        audioUrls: [],
       };
-    }
-    if (route === "journey" && journeyPeriodId) {
-      const period = bibleJourney.find((item) => item.id === journeyPeriodId);
-      if (period) {
-        return {
-          text: period.stories.map((story) => [
-            story.title,
-            ...story.references.map((reference) => resolveReference(reference).map((verse) => verse.text).join(" ")),
-          ].filter(Boolean).join(". ")).join("\n\n"),
-          audioUrls: [] as string[],
-        };
-      }
     }
     return null;
   };
@@ -318,8 +417,8 @@ export default function App() {
       if (narrationForPage) {
         if (current.text === narrationForPage.text && current.status === "playing") pauseSpeaking();
         else if (current.text === narrationForPage.text && current.status === "paused") {
-          resumeSpeaking(narrationForPage.text);
-        } else startSpeaking(narrationForPage.text);
+          resumeSpeaking(narrationForPage.text, narrationForPage.audioUrls, narrationForPage.onEnded, undefined, voicePreference);
+        } else startSpeaking(narrationForPage.text, narrationForPage.audioUrls, narrationForPage.onEnded, undefined, voicePreference);
         return;
       }
       const action = current.text === readingText && current.status === "playing"
@@ -332,11 +431,10 @@ export default function App() {
     }
     const narrationForPage = narrationForCurrentPage();
     if (!narrationForPage) return;
-    const [audioUrl, fallbackAudioUrl] = narrationForPage.audioUrls;
     if (current.text === narrationForPage.text && current.status === "playing") pauseSpeaking();
     else if (current.text === narrationForPage.text && current.status === "paused") {
-      resumeSpeaking(narrationForPage.text, audioUrl, fallbackAudioUrl, narrationForPage.onEnded);
-    } else startSpeaking(narrationForPage.text, audioUrl, fallbackAudioUrl, narrationForPage.onEnded);
+      resumeSpeaking(narrationForPage.text, narrationForPage.audioUrls, narrationForPage.onEnded, undefined, voicePreference);
+    } else startSpeaking(narrationForPage.text, narrationForPage.audioUrls, narrationForPage.onEnded, undefined, voicePreference);
   };
   const resumeJourney = () => {
     const periodId = lastJourneyPeriodId ?? bibleJourney[0].id;
@@ -386,10 +484,28 @@ export default function App() {
     ) : (
       <Play size={size} />
     );
+  const journeyAudioForPage =
+    journeyPeriodId && journeyAudio.periodId === journeyPeriodId ? journeyAudio : INITIAL_JOURNEY_AUDIO;
+  const isJourneyDetail = route === "journey" && Boolean(journeyPeriodId);
+  const mobileListenStatus = isJourneyDetail ? journeyAudioForPage.status : narration.status;
+  const mobileListenLabel = mobileListenStatus === "playing"
+    ? isJourneyDetail ? "Pause period audio" : "Pause narration"
+    : mobileListenStatus === "paused"
+      ? isJourneyDetail ? "Resume period audio" : "Resume narration"
+      : isJourneyDetail
+        ? `Listen to all stories in ${bibleJourney.find((period) => period.id === journeyPeriodId)?.title ?? "this period"}`
+        : "Listen to this reading";
+  const mobileListenIcon = mobileListenStatus === "playing"
+    ? <span className="audio-equalizer" aria-hidden="true"><i /><i /><i /><i /></span>
+    : mobileListenStatus === "paused" ? <Play size={17} /> : <Headphones size={19} />;
+  const mobileListenText = mobileListenStatus === "playing"
+    ? `${String(Math.floor(narration.elapsedSeconds / 60)).padStart(2, "0")}:${String(narration.elapsedSeconds % 60).padStart(2, "0")}`
+    : "Listen";
   const page =
     route === "read" ? (
       <ChapterPage
         position={readingPosition}
+        voicePreference={voicePreference}
         onPositionChange={setReadingPosition}
         onSelectChapter={openBibleBooks}
         highlightVerse={highlightVerse}
@@ -405,7 +521,7 @@ export default function App() {
         onChoose={(position) => openReader(position)}
       />
     ) : route === "mass" ? (
-      <MassReadingPage onOpenReference={openMassReference} selectedDate={massDate} onSelectedDateChange={setMassDate} />
+      <MassReadingPage onOpenReference={openMassReference} selectedDate={massDate} onSelectedDateChange={setMassDate} voicePreference={voicePreference} />
     ) : route === "bookmarks" ? (
       <BookmarksPage
         bookmarks={bookmarks}
@@ -426,7 +542,12 @@ export default function App() {
         completedIds={journeyProgress.completedIds}
         storageError={journeyProgress.storageError}
         artworkSelections={journeyArtwork.selections}
+        audioStatus={journeyAudioForPage.status}
+        activeStoryIndex={journeyAudioForPage.storyIndex}
+        audioError={journeyAudioForPage.error}
         onToggleComplete={toggleJourneyPeriod}
+        onToggleAudio={toggleJourneyAudio}
+        onSelectAudioStory={selectJourneyAudioStory}
         onOpenPassage={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)}
       />
     ) : (
@@ -492,6 +613,24 @@ export default function App() {
               <button className="icon-button" aria-label="Increase font size" disabled={fontSize >= 30} onClick={() => setFontSize((size) => Math.min(30, size + 2))}><Plus size={16} /></button>
             </div>
           </section>
+          <fieldset className="voice-preference-control">
+            <legend>Narration voice</legend>
+            <div className="voice-preference-options">
+              {(["male", "female"] as const).map((gender) => (
+                <label key={gender}>
+                  <input
+                    type="radio"
+                    name="narration-voice"
+                    value={gender}
+                    checked={voicePreference === gender}
+                    onChange={() => changeVoicePreference(gender)}
+                  />
+                  <span>{gender === "male" ? "Male" : "Female"}</span>
+                </label>
+              ))}
+            </div>
+            {voicePreferenceError && <p role="status">Could not save this preference. It will apply until you close the app.</p>}
+          </fieldset>
           <div className="mobile-menu-theme">
             <span>Theme</span>
             <ThemeToggle
@@ -522,7 +661,7 @@ export default function App() {
       )}
       {page}
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-        {route === "read" && <NarrationProgress className="narration-progress-mobile" enabled={narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter).length > 0} />}
+        {route === "read" && <NarrationProgress className="narration-progress-mobile" enabled={narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter, voicePreference).length > 0} />}
         <a href="#/" className={route === "home" ? "active" : ""} aria-current={route === "home" ? "page" : undefined}>
           <Home size={17} />
           <span>Home</span>
@@ -537,10 +676,10 @@ export default function App() {
         </a>
         <button
           className="mobile-donate mobile-center-playback mobile-listen-button"
-          onClick={toggleNarration}
-          aria-label={narration.status === "playing" ? "Pause narration" : narration.status === "paused" ? "Resume narration" : "Listen to this reading"}
+          onClick={isJourneyDetail ? toggleJourneyAudio : toggleNarration}
+          aria-label={mobileListenLabel}
         >
-          {narration.status === "playing" ? <><span className="audio-equalizer" aria-hidden="true"><i /><i /><i /><i /></span><span>Listen</span></> : narration.status === "paused" ? <><Play size={17} /><span>Listen</span></> : <><Headphones size={19} /><span>Listen</span></>}
+          {mobileListenIcon}<span>{mobileListenText}</span>
         </button>
         <a href="#/journey" className={route === "journey" || route === "journey-artwork" ? "mobile-listen active" : "mobile-listen"} aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined}>
           <Milestone size={17} />

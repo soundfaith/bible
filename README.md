@@ -4,9 +4,30 @@
 
 The 12 narration scripts live in `scripts/period_narrations.json`; their
 selected passages are resolved from the same local Bible text used by the app.
-One runner generates a period WAV with Kokoro, converts it to MP3 with FFmpeg,
-uploads it to GitHub Releases and/or Archive.org, and checks that remote MP3
-responses contain playable MPEG audio frames.
+One runner generates story WAV files with Kokoro, converts them to MP3 with
+FFmpeg, uploads them to GitHub Releases, and checks that remote MP3 responses
+contain playable MPEG audio frames. Playback uses GitHub MP3s when available,
+then falls back to browser text-to-speech. On a period page, Listen plays its
+story MP3s in order. Choose a story with its play button on desktop or the
+vertical story dots on mobile.
+
+## Bible chapter narrations
+
+Use the voice preference in the navigation menu to choose male or female
+narration. Playback tries the preferred voice's GitHub MP3 first, then the
+other available voice, and finally browser text-to-speech. Existing
+`narration-<book>` releases remain the male recordings. The
+`generate_bible_narration.py` runner writes `af_heart` MP3s to separate
+`narration-<book>-af_heart` releases, so those male releases are not replaced:
+
+```powershell
+python scripts/generate_bible_narration.py --plan
+python scripts/generate_bible_narration.py --upload-github --execute
+```
+
+The runner resumes from completed local WAV/MP3 files. It asks for the phrase
+`UPLOAD BIBLE AF_HEART` before generation and publishing, validates local MP3
+frames, verifies uploaded asset sizes, and checks every remote chapter MP3.
 
 List the periods, available voices, and validate all citations without creating
 audio:
@@ -18,7 +39,7 @@ python scripts/period_narration.py --plan
 
 Install Kokoro and SoundFile for generation, and make FFmpeg available on PATH
 (or place `ffmpeg.exe` in the project root). Generate and convert all periods
-with the default voice, or choose any voice listed by `generate_narration.py`:
+with the selected voice, or choose any voice listed by `generate_narration.py`:
 
 ```powershell
 python -m pip install kokoro soundfile
@@ -26,31 +47,29 @@ python scripts/period_narration.py --voice am_michael
 python scripts/period_narration.py --voice af_heart --period love-given-to-the-end
 ```
 
-Audio is stored at `narration/periods/<voice>/<period-id>.wav` and `.mp3`.
-Existing files are skipped unless `--overwrite` is supplied. To upload selected
-MP3s, install `requirements-upload.txt`, authenticate GitHub CLI with
-`gh auth login`, and provide Archive.org credentials through `IA_ACCESS_KEY`
-and `IA_SECRET_KEY` or the hidden prompts. Remote upload requires `--execute`
-and a second typed confirmation:
+Audio is stored at `narration/periods/<voice>/period-NN-story-NN.wav` and
+`.mp3`. Existing files are skipped unless `--overwrite` is supplied. To upload
+selected MP3s to GitHub Releases, install `requirements-upload.txt`, authenticate
+GitHub CLI with `gh auth login`, and use:
 
 ```powershell
 python -m pip install -r requirements-upload.txt
-python scripts/period_narration.py --voice am_michael --upload-github --upload-archive --validate-remote all --execute
+python scripts/period_narration.py --voice af_heart --upload-github --validate-remote github --execute
 ```
 
-The runner creates or updates one GitHub Release per voice and one Archive.org
-item per voice. A remote validation failure returns a non-zero exit code. Use
-`--skip-generate --skip-convert` to upload already prepared MP3s. Check existing
-uploads without generating audio or requiring local files with:
+The runner creates or updates one GitHub Release per voice. A remote validation
+failure returns a non-zero exit code. Use `--skip-generate --skip-convert` to
+upload already prepared MP3s. Check existing GitHub uploads without generating
+audio or requiring local files with:
 
 ```powershell
-python scripts/period_narration.py --voice am_michael --validate-only --validate-remote all
+python scripts/period_narration.py --voice af_heart --validate-only --validate-remote github
 ```
 
 ## Upload narration to Internet Archive
 
-The upload script creates one Archive.org item per book folder under
-`narration/male`. It uses each book's `narrationAudioBaseUrl` identifier from
+The backup upload script creates one Archive.org item per book folder under
+`narration/male`. It uses each book's `archiveItemId` from
 `src/data/index.json` (for example, `sf_ezra`). Every book with a local folder
 of MP3 files is considered for upload. Books without local MP3 files are
 skipped automatically.
@@ -124,7 +143,7 @@ The app uses hash routes so each screen can be opened directly while remaining e
 
 
 To upload and validate all twelve periods:
-python scripts/period_narration.py --voice am_michael --upload-github --upload-archive --validate-remote all --execute
+python scripts/period_narration.py --voice af_heart --upload-github --validate-remote github --execute
 
 For an independent check of existing uploads without generating audio:
 python scripts/period_narration.py --voice am_michael --validate-only --validate-remote all

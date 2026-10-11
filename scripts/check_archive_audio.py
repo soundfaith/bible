@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that each app-linked Archive.org chapter URL can start MP3 playback."""
+"""Check that backup Archive.org chapter MP3s are available."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ import json
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -137,7 +138,7 @@ def check_url(book_name: str, chapter: int, url: str, timeout: float) -> tuple[s
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Check app-configured Archive.org narration URLs for every app chapter."
+        description="Check backup Archive.org narration URLs for every app chapter."
     )
     parser.add_argument("--jobs", type=int, default=6, help="parallel requests (default: 6)")
     parser.add_argument("--timeout", type=float, default=30, help="per-request timeout in seconds")
@@ -154,8 +155,8 @@ def main() -> int:
     tasks: list[tuple[str, int, str]] = []
     books_checked = 0
     for book in books:
-        base_url = book.get("narrationAudioFallbackBaseUrl")
-        if not base_url:
+        identifier = book.get("archiveItemId")
+        if not identifier:
             continue
         try:
             count = chapter_count(book["id"])
@@ -163,14 +164,13 @@ def main() -> int:
             print(f"Cannot determine app chapters for {book.get('name', book['id'])}: {exc}", file=sys.stderr)
             return 2
         books_checked += 1
-        normalized_base = base_url.rstrip("/")
+        normalized_base = f"https://archive.org/download/{urllib.parse.quote(identifier, safe='')}"
         for chapter in range(1, count + 1):
-            # Match ChapterPage.tsx: `${baseUrl.replace(/\/$/, "")}/${chapter}.mp3`
             url = f"{normalized_base}/{chapter}.mp3"
             tasks.append((book["name"], chapter, url))
 
     if not tasks:
-        print("No books with narrationAudioFallbackBaseUrl were found in index.json.", file=sys.stderr)
+        print("No books with archiveItemId values were found in index.json.", file=sys.stderr)
         return 2
 
     print(f"Checking {len(tasks)} Archive.org chapter URLs across {books_checked} app books.")

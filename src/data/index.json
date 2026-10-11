@@ -8,7 +8,8 @@
       "abbreviation": "GEN",
       "verseCount": 1533,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-genesis",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sfb_genesis"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-genesis-af_heart",
+      "archiveItemId": "sfb_genesis"
     },
     {
       "id": "exodus",
@@ -16,7 +17,8 @@
       "abbreviation": "EXO",
       "verseCount": 1213,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-exodus",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sfb_exodus"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-exodus-af_heart",
+      "archiveItemId": "sfb_exodus"
     },
     {
       "id": "leviticus",
@@ -24,7 +26,8 @@
       "abbreviation": "LEV",
       "verseCount": 859,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-leviticus",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_leviticus"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-leviticus-af_heart",
+      "archiveItemId": "sf_leviticus"
     },
     {
       "id": "numbers",
@@ -32,7 +35,8 @@
       "abbreviation": "NUM",
       "verseCount": 1288,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-numbers",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_numbers"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-numbers-af_heart",
+      "archiveItemId": "sf_numbers"
     },
     {
       "id": "deuteronomy",
@@ -40,7 +44,8 @@
       "abbreviation": "DEU",
       "verseCount": 959,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-deuteronomy",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_deuteronomy"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-deuteronomy-af_heart",
+      "archiveItemId": "sf_deuteronomy"
     },
     {
       "id": "joshua",
@@ -48,7 +53,8 @@
       "abbreviation": "JOS",
       "verseCount": 658,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-joshua",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_joshua"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-joshua-af_heart",
+      "archiveItemId": "sf_joshua"
     },
     {
       "id": "judges",
@@ -56,7 +62,8 @@
       "abbreviation": "JDG",
       "verseCount": 618,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-judges",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_judges"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-judges-af_heart",
+      "archiveItemId": "sf_judges"
     },
     {
       "id": "ruth",
@@ -64,7 +71,8 @@
       "abbreviation": "RUT",
       "verseCount": 85,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ruth",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_ruth"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ruth-af_heart",
+      "archiveItemId": "sf_ruth"
     },
     {
       "id": "1_samuel",
@@ -72,7 +80,8 @@
       "abbreviation": "1SA",
       "verseCount": 810,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_samuel",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_samuel"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_samuel-af_heart",
+      "archiveItemId": "sf_1_samuel"
     },
     {
       "id": "2_samuel",
@@ -80,7 +89,8 @@
       "abbreviation": "2SA",
       "verseCount": 695,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_samuel",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_2_samuel"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_samuel-af_heart",
+      "archiveItemId": "sf_2_samuel"
     },
     {
       "id": "1_kings",
@@ -88,7 +98,8 @@
       "abbreviation": "1KI",
       "verseCount": 816,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_kings",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_kings"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_kings-af_heart",
+      "archiveItemId": "sf_1_kings"
     },
     {
       "id": "2_kings",
@@ -96,7 +107,8 @@
       "abbreviation": "2KI",
       "verseCount": 719,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_kings",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_2_kings"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_kings-af_heart",
+      "archiveItemId": "sf_2_kings"
     },
     {
       "id": "1_chronicles",
@@ -104,7 +116,8 @@
       "abbreviation": "1CH",
       "verseCount": 942,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_chronicles",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_chronicles"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_chronicles-af_heart",
+      "archiveItemId": "sf_1_chronicles"
     },
     {
       "id": "2_chronicles",
@@ -112,7 +125,8 @@
       "abbreviation": "2CH",
       "verseCount": 822,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_chronicles",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sfb_2_chronicles"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_chronicles-af_heart",
+      "archiveItemId": "sfb_2_chronicles"
     },
     {
       "id": "ezra",
@@ -120,7 +134,8 @@
       "abbreviation": "EZR",
       "verseCount": 280,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ezra",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_ezra"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ezra-af_heart",
+      "archiveItemId": "sf_ezra"
     },
     {
       "id": "nehemiah",
@@ -128,7 +143,8 @@
       "abbreviation": "NEH",
       "verseCount": 406,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-nehemiah",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_nehemiah"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-nehemiah-af_heart",
+      "archiveItemId": "sf_nehemiah"
     },
     {
       "id": "esther",
@@ -136,7 +152,8 @@
       "abbreviation": "EST",
       "verseCount": 167,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-esther",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_esther"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-esther-af_heart",
+      "archiveItemId": "sf_esther"
     },
     {
       "id": "job",
@@ -144,7 +161,8 @@
       "abbreviation": "JOB",
       "verseCount": 1070,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-job",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_job"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-job-af_heart",
+      "archiveItemId": "sf_job"
     },
     {
       "id": "psalms",
@@ -152,7 +170,8 @@
       "abbreviation": "PSA",
       "verseCount": 2461,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-psalms",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_psalms"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-psalms-af_heart",
+      "archiveItemId": "sf_psalms"
     },
     {
       "id": "proverbs",
@@ -160,7 +179,8 @@
       "abbreviation": "PRO",
       "verseCount": 915,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-proverbs",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_proverbs"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-proverbs-af_heart",
+      "archiveItemId": "sf_proverbs"
     },
     {
       "id": "ecclesiastes",
@@ -168,7 +188,8 @@
       "abbreviation": "ECC",
       "verseCount": 222,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ecclesiastes",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sfb_ecclesiastes"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ecclesiastes-af_heart",
+      "archiveItemId": "sfb_ecclesiastes"
     },
     {
       "id": "song_of_solomon",
@@ -176,7 +197,8 @@
       "abbreviation": "SNG",
       "verseCount": 117,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-song_of_solomon",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_song_of_solomon"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-song_of_solomon-af_heart",
+      "archiveItemId": "sf_song_of_solomon"
     },
     {
       "id": "isaiah",
@@ -184,7 +206,8 @@
       "abbreviation": "ISA",
       "verseCount": 1292,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-isaiah",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_isaiah"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-isaiah-af_heart",
+      "archiveItemId": "sf_isaiah"
     },
     {
       "id": "jeremiah",
@@ -192,7 +215,8 @@
       "abbreviation": "JER",
       "verseCount": 1364,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-jeremiah",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_jeremiah"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-jeremiah-af_heart",
+      "archiveItemId": "sf_jeremiah"
     },
     {
       "id": "lamentations",
@@ -200,7 +224,8 @@
       "abbreviation": "LAM",
       "verseCount": 154,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-lamentations",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_lamentations"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-lamentations-af_heart",
+      "archiveItemId": "sf_lamentations"
     },
     {
       "id": "ezekiel",
@@ -208,7 +233,8 @@
       "abbreviation": "EZE",
       "verseCount": 1273,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ezekiel",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_ezekiel"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ezekiel-af_heart",
+      "archiveItemId": "sf_ezekiel"
     },
     {
       "id": "daniel",
@@ -216,7 +242,8 @@
       "abbreviation": "DAN",
       "verseCount": 357,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-daniel",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_daniel"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-daniel-af_heart",
+      "archiveItemId": "sf_daniel"
     },
     {
       "id": "hosea",
@@ -224,7 +251,8 @@
       "abbreviation": "HOS",
       "verseCount": 197,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-hosea",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_hosea"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-hosea-af_heart",
+      "archiveItemId": "sf_hosea"
     },
     {
       "id": "joel",
@@ -232,7 +260,8 @@
       "abbreviation": "JOL",
       "verseCount": 73,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-joel",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_joel"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-joel-af_heart",
+      "archiveItemId": "sf_joel"
     },
     {
       "id": "amos",
@@ -240,7 +269,8 @@
       "abbreviation": "AMO",
       "verseCount": 146,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-amos",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_amos"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-amos-af_heart",
+      "archiveItemId": "sf_amos"
     },
     {
       "id": "obadiah",
@@ -248,7 +278,8 @@
       "abbreviation": "OBA",
       "verseCount": 21,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-obadiah",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_obadiah"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-obadiah-af_heart",
+      "archiveItemId": "sf_obadiah"
     },
     {
       "id": "jonah",
@@ -256,7 +287,8 @@
       "abbreviation": "JON",
       "verseCount": 48,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-jonah",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_jonah"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-jonah-af_heart",
+      "archiveItemId": "sf_jonah"
     },
     {
       "id": "micah",
@@ -264,7 +296,8 @@
       "abbreviation": "MIC",
       "verseCount": 105,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-micah",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_micah"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-micah-af_heart",
+      "archiveItemId": "sf_micah"
     },
     {
       "id": "nahum",
@@ -272,7 +305,8 @@
       "abbreviation": "NAH",
       "verseCount": 47,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-nahum",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_nahum"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-nahum-af_heart",
+      "archiveItemId": "sf_nahum"
     },
     {
       "id": "habakkuk",
@@ -280,7 +314,8 @@
       "abbreviation": "HAB",
       "verseCount": 56,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-habakkuk",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_habakkuk"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-habakkuk-af_heart",
+      "archiveItemId": "sf_habakkuk"
     },
     {
       "id": "zephaniah",
@@ -288,7 +323,8 @@
       "abbreviation": "ZEP",
       "verseCount": 53,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-zephaniah",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_zephaniah"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-zephaniah-af_heart",
+      "archiveItemId": "sf_zephaniah"
     },
     {
       "id": "haggai",
@@ -296,7 +332,8 @@
       "abbreviation": "HAG",
       "verseCount": 38,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-haggai",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_haggai"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-haggai-af_heart",
+      "archiveItemId": "sf_haggai"
     },
     {
       "id": "zechariah",
@@ -304,7 +341,8 @@
       "abbreviation": "ZEC",
       "verseCount": 211,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-zechariah",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_zechariah"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-zechariah-af_heart",
+      "archiveItemId": "sf_zechariah"
     },
     {
       "id": "malachi",
@@ -312,7 +350,8 @@
       "abbreviation": "MAL",
       "verseCount": 55,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-malachi",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_malachi"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-malachi-af_heart",
+      "archiveItemId": "sf_malachi"
     },
     {
       "id": "tobit",
@@ -320,7 +359,8 @@
       "abbreviation": "TOB",
       "verseCount": 244,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-tobit",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_tobit"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-tobit-af_heart",
+      "archiveItemId": "sf_tobit"
     },
     {
       "id": "judith",
@@ -328,7 +368,8 @@
       "abbreviation": "JDT",
       "verseCount": 339,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-judith",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_judith"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-judith-af_heart",
+      "archiveItemId": "sf_judith"
     },
     {
       "id": "esther_greek",
@@ -336,7 +377,8 @@
       "abbreviation": "ESG",
       "verseCount": 205,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-esther_greek",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_esther_greek"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-esther_greek-af_heart",
+      "archiveItemId": "sf_esther_greek"
     },
     {
       "id": "wisdom",
@@ -344,7 +386,8 @@
       "abbreviation": "WIS",
       "verseCount": 436,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-wisdom",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_wisdom"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-wisdom-af_heart",
+      "archiveItemId": "sf_wisdom"
     },
     {
       "id": "sirach",
@@ -352,7 +395,8 @@
       "abbreviation": "SIR",
       "verseCount": 1383,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-sirach",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_sirach"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-sirach-af_heart",
+      "archiveItemId": "sf_sirach"
     },
     {
       "id": "baruch",
@@ -360,7 +404,8 @@
       "abbreviation": "BAR",
       "verseCount": 213,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-baruch",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_baruch"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-baruch-af_heart",
+      "archiveItemId": "sf_baruch"
     },
     {
       "id": "1_maccabees",
@@ -368,7 +413,8 @@
       "abbreviation": "1MA",
       "verseCount": 924,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_maccabees",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_maccabees"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_maccabees-af_heart",
+      "archiveItemId": "sf_1_maccabees"
     },
     {
       "id": "2_maccabees",
@@ -376,7 +422,8 @@
       "abbreviation": "2MA",
       "verseCount": 555,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_maccabees",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_2_maccabees"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_maccabees-af_heart",
+      "archiveItemId": "sf_2_maccabees"
     },
     {
       "id": "1_esdras",
@@ -384,7 +431,8 @@
       "abbreviation": "1ES",
       "verseCount": 448,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_esdras",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_esdras"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_esdras-af_heart",
+      "archiveItemId": "sf_1_esdras"
     },
     {
       "id": "prayer_of_manasseh",
@@ -392,7 +440,8 @@
       "abbreviation": "PRM",
       "verseCount": 15,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-prayer_of_manasseh",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_prayer_of_manasseh"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-prayer_of_manasseh-af_heart",
+      "archiveItemId": "sf_prayer_of_manasseh"
     },
     {
       "id": "3_maccabees",
@@ -400,7 +449,8 @@
       "abbreviation": "3MA",
       "verseCount": 228,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-3_maccabees",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_3_maccabees"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-3_maccabees-af_heart",
+      "archiveItemId": "sf_3_maccabees"
     },
     {
       "id": "4_esdras",
@@ -408,7 +458,8 @@
       "abbreviation": "4ES",
       "verseCount": 944,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-4_esdras",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_4_esdras"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-4_esdras-af_heart",
+      "archiveItemId": "sf_4_esdras"
     },
     {
       "id": "4_maccabees",
@@ -416,7 +467,8 @@
       "abbreviation": "4MA",
       "verseCount": 484,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-4_maccabees",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_4_maccabees"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-4_maccabees-af_heart",
+      "archiveItemId": "sf_4_maccabees"
     },
     {
       "id": "daniel_greek",
@@ -424,7 +476,8 @@
       "abbreviation": "DNG",
       "verseCount": 530,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-daniel_greek",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_daniel_greek"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-daniel_greek-af_heart",
+      "archiveItemId": "sf_daniel_greek"
     },
     {
       "id": "matthew",
@@ -432,7 +485,8 @@
       "abbreviation": "MAT",
       "verseCount": 1071,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-matthew",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_matthew"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-matthew-af_heart",
+      "archiveItemId": "sf_matthew"
     },
     {
       "id": "mark",
@@ -440,7 +494,8 @@
       "abbreviation": "MRK",
       "verseCount": 678,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-mark",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_mark"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-mark-af_heart",
+      "archiveItemId": "sf_mark"
     },
     {
       "id": "luke",
@@ -448,7 +503,8 @@
       "abbreviation": "LUK",
       "verseCount": 1150,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-luke",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_luke"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-luke-af_heart",
+      "archiveItemId": "sf_luke"
     },
     {
       "id": "john",
@@ -456,7 +512,8 @@
       "abbreviation": "JHN",
       "verseCount": 879,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-john",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_john"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-john-af_heart",
+      "archiveItemId": "sf_john"
     },
     {
       "id": "acts",
@@ -464,7 +521,8 @@
       "abbreviation": "ACT",
       "verseCount": 1004,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-acts",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_acts"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-acts-af_heart",
+      "archiveItemId": "sf_acts"
     },
     {
       "id": "romans",
@@ -472,7 +530,8 @@
       "abbreviation": "ROM",
       "verseCount": 433,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-romans",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_romans"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-romans-af_heart",
+      "archiveItemId": "sf_romans"
     },
     {
       "id": "1_corinthians",
@@ -480,7 +539,8 @@
       "abbreviation": "1CO",
       "verseCount": 437,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_corinthians",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_corinthians"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_corinthians-af_heart",
+      "archiveItemId": "sf_1_corinthians"
     },
     {
       "id": "2_corinthians",
@@ -488,7 +548,8 @@
       "abbreviation": "2CO",
       "verseCount": 257,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_corinthians",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_2_corinthians"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_corinthians-af_heart",
+      "archiveItemId": "sf_2_corinthians"
     },
     {
       "id": "galatians",
@@ -496,7 +557,8 @@
       "abbreviation": "GAL",
       "verseCount": 149,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-galatians",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_galatians"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-galatians-af_heart",
+      "archiveItemId": "sf_galatians"
     },
     {
       "id": "ephesians",
@@ -504,7 +566,8 @@
       "abbreviation": "EPH",
       "verseCount": 155,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ephesians",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_ephesians"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-ephesians-af_heart",
+      "archiveItemId": "sf_ephesians"
     },
     {
       "id": "philippians",
@@ -512,7 +575,8 @@
       "abbreviation": "PHP",
       "verseCount": 104,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-philippians",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_philippians"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-philippians-af_heart",
+      "archiveItemId": "sf_philippians"
     },
     {
       "id": "colossians",
@@ -520,7 +584,8 @@
       "abbreviation": "COL",
       "verseCount": 95,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-colossians",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_colossians"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-colossians-af_heart",
+      "archiveItemId": "sf_colossians"
     },
     {
       "id": "1_thessalonians",
@@ -528,7 +593,8 @@
       "abbreviation": "1TH",
       "verseCount": 89,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_thessalonians",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_thessalonians"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_thessalonians-af_heart",
+      "archiveItemId": "sf_1_thessalonians"
     },
     {
       "id": "2_thessalonians",
@@ -536,7 +602,8 @@
       "abbreviation": "2TH",
       "verseCount": 47,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_thessalonians",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_2_thessalonians"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_thessalonians-af_heart",
+      "archiveItemId": "sf_2_thessalonians"
     },
     {
       "id": "1_timothy",
@@ -544,7 +611,8 @@
       "abbreviation": "1TI",
       "verseCount": 113,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_timothy",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_timothy"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_timothy-af_heart",
+      "archiveItemId": "sf_1_timothy"
     },
     {
       "id": "2_timothy",
@@ -552,7 +620,8 @@
       "abbreviation": "2TI",
       "verseCount": 83,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_timothy",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_2_timothy"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_timothy-af_heart",
+      "archiveItemId": "sf_2_timothy"
     },
     {
       "id": "titus",
@@ -560,7 +629,8 @@
       "abbreviation": "TIT",
       "verseCount": 46,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-titus",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_titus"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-titus-af_heart",
+      "archiveItemId": "sf_titus"
     },
     {
       "id": "philemon",
@@ -568,7 +638,8 @@
       "abbreviation": "PHM",
       "verseCount": 25,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-philemon",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_philemon"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-philemon-af_heart",
+      "archiveItemId": "sf_philemon"
     },
     {
       "id": "hebrews",
@@ -576,7 +647,8 @@
       "abbreviation": "HEB",
       "verseCount": 303,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-hebrews",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_hebrews"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-hebrews-af_heart",
+      "archiveItemId": "sf_hebrews"
     },
     {
       "id": "james",
@@ -584,7 +656,8 @@
       "abbreviation": "JAS",
       "verseCount": 108,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-james",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_james"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-james-af_heart",
+      "archiveItemId": "sf_james"
     },
     {
       "id": "1_peter",
@@ -592,7 +665,8 @@
       "abbreviation": "1PE",
       "verseCount": 105,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_peter",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_peter"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_peter-af_heart",
+      "archiveItemId": "sf_1_peter"
     },
     {
       "id": "2_peter",
@@ -600,7 +674,8 @@
       "abbreviation": "2PE",
       "verseCount": 61,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_peter",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_2_peter"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_peter-af_heart",
+      "archiveItemId": "sf_2_peter"
     },
     {
       "id": "1_john",
@@ -608,7 +683,8 @@
       "abbreviation": "1JN",
       "verseCount": 105,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_john",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_1_john"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-1_john-af_heart",
+      "archiveItemId": "sf_1_john"
     },
     {
       "id": "2_john",
@@ -616,7 +692,8 @@
       "abbreviation": "2JN",
       "verseCount": 13,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_john",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_2_john"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-2_john-af_heart",
+      "archiveItemId": "sf_2_john"
     },
     {
       "id": "3_john",
@@ -624,7 +701,8 @@
       "abbreviation": "3JN",
       "verseCount": 14,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-3_john",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_3_john"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-3_john-af_heart",
+      "archiveItemId": "sf_3_john"
     },
     {
       "id": "jude",
@@ -632,7 +710,8 @@
       "abbreviation": "JUD",
       "verseCount": 25,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-jude",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_jude"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-jude-af_heart",
+      "archiveItemId": "sf_jude"
     },
     {
       "id": "revelation",
@@ -640,7 +719,8 @@
       "abbreviation": "REV",
       "verseCount": 404,
       "narrationAudioBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-revelation",
-      "narrationAudioFallbackBaseUrl": "https://archive.org/download/sf_revelation"
+      "narrationAudioFemaleBaseUrl": "https://github.com/soundfaith/bible/releases/download/narration-revelation-af_heart",
+      "archiveItemId": "sf_revelation"
     }
   ]
 }

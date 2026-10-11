@@ -54,7 +54,7 @@ def main() -> int:
             no_audio.append(book)
             continue
         # The item IDs follow the existing index convention, e.g. sf_ezra.
-        identifier = book.get("narrationAudioFallbackBaseUrl", "").rstrip("/").rsplit("/", 1)[-1]
+        identifier = book.get("archiveItemId", "")
         if not identifier:
             identifier = "sf_" + book_id
         plan.append((book, identifier, files))

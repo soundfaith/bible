@@ -5,9 +5,9 @@ Examples:
   python scripts/period_narration.py --list
   python scripts/period_narration.py --voice af_heart
   python scripts/period_narration.py --voice bm_george --period love-given-to-the-end
-  python scripts/period_narration.py --voice am_michael --upload-github --upload-archive --execute
+  python scripts/period_narration.py --voice af_heart --upload-github --execute
 
-Local files are written to narration/periods/<voice>/period-01.wav and .mp3, then period-02, period-03, and so on.
+Local story files are written to narration/periods/<voice>/period-01-story-01.wav and .mp3, and so on.
 Remote uploads are never performed without --execute and an interactive confirmation.
 """
 
@@ -62,15 +62,15 @@ def read_json(path: Path) -> Any:
         raise RuntimeError(f"Could not read {path}: {exc}") from exc
 
 
-def extract_timeline_periods() -> list[tuple[str, str]]:
-    """Read period IDs and titles from the app source to detect manifest drift."""
+def extract_timeline_periods() -> list[tuple[str, str, list[str]]]:
+    """Read period IDs, titles, and story titles from the app to detect manifest drift."""
     source = TIMELINE_PATH.read_text(encoding="utf-8")
     marker = "export const bibleJourney: JourneyPeriod[] = ["
     start = source.find(marker)
     if start < 0:
         raise RuntimeError(f"Could not find bibleJourney array in {TIMELINE_PATH}")
     source = source[start + len(marker):]
-    periods: list[tuple[str, str]] = []
+    periods: list[tuple[str, str, list[str]]] = []
     depth = 0
     quote: str | None = None
     escaped = False
@@ -97,7 +97,8 @@ def extract_timeline_periods() -> list[tuple[str, str]]:
                 id_match = re.search(r'\bid:\s*"([^"]+)"', block)
                 title_match = re.search(r'\btitle:\s*"([^"]+)"', block)
                 if id_match and title_match:
-                    periods.append((id_match.group(1), title_match.group(1)))
+                    story_titles = re.findall(r'\btitle:\s*"([^"]+)"\s*,\s*summary:', block)
+                    periods.append((id_match.group(1), title_match.group(1), story_titles))
                 object_start = None
         elif char == "]" and depth == 0:
             break
@@ -125,9 +126,17 @@ def load_periods() -> list[dict[str, Any]]:
             if not story["references"] or not all(isinstance(ref, str) for ref in story["references"]):
                 raise RuntimeError(f"Story {story['title']!r} needs one or more references")
     source_periods = extract_timeline_periods()
-    if [(p["id"], p["title"]) for p in periods] != source_periods:
+    if [(period["id"], period["title"]) for period in periods] != [
+        (period_id, title) for period_id, title, _story_titles in source_periods
+    ]:
         raise RuntimeError(
             "Narration manifest period IDs/titles do not match src/data/bibleJourney.ts. "
+            "Update scripts/period_narrations.json to match the app timeline."
+        )
+    manifest_story_titles = [[story["title"] for story in period["stories"]] for period in periods]
+    if manifest_story_titles != [story_titles for _period_id, _title, story_titles in source_periods]:
+        raise RuntimeError(
+            "Narration manifest story titles/order do not match src/data/bibleJourney.ts. "
             "Update scripts/period_narrations.json to match the app timeline."
         )
     return periods
