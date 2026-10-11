@@ -1,4 +1,3 @@
-import { Moon, Sun } from "lucide-react";
 import { BibleMark } from "./BibleMark";
 
 export function Brand() {
@@ -11,19 +10,23 @@ export function Brand() {
 }
 export function ThemeToggle({
   theme,
-  onToggle,
+  onChange,
 }: {
   theme: "light" | "dark";
-  onToggle: () => void;
+  onChange: (theme: "light" | "dark") => void;
 }) {
   return (
-    <button
-      className="icon-button theme-toggle"
-      onClick={onToggle}
-      aria-label={`Use ${theme === "light" ? "dark" : "light"} theme`}
-      title={`Use ${theme === "light" ? "dark" : "light"} theme`}
-    >
-      {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
-    </button>
+    <div className="theme-toggle" role="group" aria-label="Theme">
+      {(["light", "dark"] as const).map((option) => (
+        <button
+          key={option}
+          type="button"
+          aria-pressed={theme === option}
+          onClick={() => onChange(option)}
+        >
+          {option === "light" ? "Light" : "Dark"}
+        </button>
+      ))}
+    </div>
   );
 }

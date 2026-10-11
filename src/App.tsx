@@ -500,7 +500,7 @@ export default function App() {
     : mobileListenStatus === "paused" ? <Play size={17} /> : <Headphones size={19} />;
   const mobileListenText = mobileListenStatus === "playing"
     ? `${String(Math.floor(narration.elapsedSeconds / 60)).padStart(2, "0")}:${String(narration.elapsedSeconds % 60).padStart(2, "0")}`
-    : "Listen";
+    : mobileListenStatus === "paused" ? "Resume" : "Listen";
   const page =
     route === "read" ? (
       <ChapterPage
@@ -632,7 +632,7 @@ export default function App() {
             <span>Theme</span>
             <ThemeToggle
               theme={theme}
-              onToggle={() => setTheme(theme === "light" ? "dark" : "light")}
+              onChange={setTheme}
             />
           </div>
         </nav>

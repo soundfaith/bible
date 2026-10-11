@@ -255,7 +255,7 @@ function formatTime(seconds: number) {
 export function NarrationProgress({ className, enabled = true }: { className: string; enabled?: boolean }) {
   const [current, setCurrent] = useState(getNarrationSnapshot);
   useEffect(() => subscribeNarration(() => setCurrent(getNarrationSnapshot())), []);
-  if (!enabled || current.status !== "playing" || !current.usesAudioFile) return null;
+  if (!enabled || (current.status !== "playing" && current.status !== "paused") || !current.usesAudioFile) return null;
   return <div className={`narration-progress ${className}`}>
     <span className="narration-time">{formatTime(current.position)}</span>
     <input
