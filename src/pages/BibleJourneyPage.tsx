@@ -116,23 +116,6 @@ export function BibleJourneyPage({
         )}
       </header>
 
-      {audioStatus === "playing" && (
-        <nav className="journey-story-dots" aria-label={`Playing stories in ${period.title}`}>
-          {period.stories.map((story, storyIndex) => (
-            <button
-              type="button"
-              key={`${period.id}-mobile-audio-${storyIndex}`}
-              aria-label={`Play story ${storyIndex + 1}: ${story.title}`}
-              aria-current={activeStoryIndex === storyIndex ? "step" : undefined}
-              onClick={() => {
-                onSelectAudioStory(storyIndex);
-                document.getElementById(`story-${period.id}-${storyIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-            ><span aria-hidden="true" /></button>
-          ))}
-        </nav>
-      )}
-
       <JourneyArtwork periodId={period.id} optionId={artworkSelections[period.id]} index={periodIndex} hero />
 
       <nav className="journey-toc" aria-label={`Stories in ${period.title}`}>

@@ -1,5 +1,5 @@
 import { Pause, Volume2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { NarrationGender } from "../lib/narrationVoice";
 
 type NarrationStatus = "idle" | "playing" | "paused";
@@ -271,6 +271,62 @@ export function NarrationProgress({ className, enabled = true }: { className: st
     />
     <span className="narration-time">{formatTime(current.duration)}</span>
   </div>;
+}
+
+export function JourneyNarrationProgress({
+  className,
+  storyCount,
+  activeStoryIndex,
+  status,
+  onSelectStory,
+}: {
+  className: string;
+  storyCount: number;
+  activeStoryIndex: number;
+  status: NarrationStatus;
+  onSelectStory: (storyIndex: number) => void;
+}) {
+  const [sliderPosition, setSliderPosition] = useState(activeStoryIndex);
+  const isDragging = useRef(false);
+
+  useEffect(() => {
+    if (!isDragging.current) setSliderPosition(activeStoryIndex);
+  }, [activeStoryIndex]);
+
+  if (storyCount < 1 || (status !== "playing" && status !== "paused")) return null;
+
+  const selectStory = () => {
+    isDragging.current = false;
+    const storyIndex = Math.max(0, Math.min(Math.round(sliderPosition), storyCount - 1));
+    setSliderPosition(storyIndex);
+    onSelectStory(storyIndex);
+  };
+
+  return (
+    <div
+      className={`narration-progress ${className} journey-narration-progress`}
+      style={{ "--story-segment-width": `${100 / storyCount}%` } as CSSProperties}
+    >
+      <input
+        className="narration-seek"
+        type="range"
+        min={0}
+        max={storyCount}
+        step={0.01}
+        value={Math.max(0, Math.min(sliderPosition, storyCount))}
+        aria-label="Story position in period"
+        aria-valuetext={`Story ${Math.max(1, Math.min(Math.round(sliderPosition) + 1, storyCount))} of ${storyCount}`}
+        onPointerDown={() => { isDragging.current = true; }}
+        onChange={(event) => setSliderPosition(Number(event.currentTarget.value))}
+        onPointerUp={selectStory}
+        onPointerCancel={selectStory}
+        onKeyUp={selectStory}
+        onBlur={() => {
+          if (isDragging.current) selectStory();
+        }}
+      />
+    </div>
+  );
 }
 
 export function NarratorButton({

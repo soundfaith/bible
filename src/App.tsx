@@ -45,6 +45,7 @@ import { getMassReadingForDate, getTodaysMassReading, resolveReference } from ".
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
 import {
   getNarrationSnapshot,
+  JourneyNarrationProgress,
   NarrationProgress,
   pauseSpeaking,
   resumeSpeaking,
@@ -218,6 +219,9 @@ export default function App() {
   const selectJourneyAudioStory = (storyIndex: number) => {
     if (!journeyPeriodId) return;
     playJourneyStory(journeyPeriodId, storyIndex, true);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`story-${journeyPeriodId}-${storyIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
   const advanceJourneyAudio = () => {
     const current = journeyAudioStateRef.current;
@@ -659,6 +663,13 @@ export default function App() {
       {page}
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
         {route === "read" && <NarrationProgress className="narration-progress-mobile" enabled={narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter, voicePreference).length > 0} />}
+        {isJourneyDetail && <JourneyNarrationProgress
+          className="narration-progress-mobile"
+          storyCount={bibleJourney.find((period) => period.id === journeyPeriodId)?.stories.length ?? 0}
+          activeStoryIndex={journeyAudioForPage.storyIndex}
+          status={journeyAudioForPage.status}
+          onSelectStory={selectJourneyAudioStory}
+        />}
         <a href="#/" className={route === "home" ? "active" : ""} aria-current={route === "home" ? "page" : undefined}>
           <Home size={17} />
           <span>Home</span>
