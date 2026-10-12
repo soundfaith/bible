@@ -1,5 +1,4 @@
 import { ArrowRight, Layers3 } from "lucide-react";
-import { JourneyArtwork } from "../components/JourneyArtwork";
 
 type HomePageProps = {
   onResume: () => void;
@@ -77,7 +76,31 @@ export function HomePage({ onResume, onChoose, onMass, onJourney }: HomePageProp
                     <path className="landing-bible-text-lines" d="M99 86q37-9 72 6m-71 10q32-7 65 7m-63 10q30-6 57 7m59-40q31-17 65-16m-65 27q34-16 67-13m-66 25q31-12 66-10" />
                   </svg>
                 ) : art === "journey" ? (
-                  <JourneyArtwork periodId="a-world-awakened" index={0} />
+                  <svg className="landing-card-artwork" viewBox="0 0 400 200">
+                    <ellipse className="landing-journey-sun" cx="200" cy="100" rx="60" ry="22" />
+                    <path
+                      className="landing-journey-mountains-distant"
+                      d="M0 138l48-18 68-30 64 24 20-6 20 6 64-24 68 30 48 18v62H0z"
+                    />
+                    <path className="landing-journey-mountains-mid-left" d="M0 156q88-30 178-14v58H0z" />
+                    <path className="landing-journey-mountains-mid-right" d="M400 150q-92-32-184-10v60h184z" />
+                    <path className="landing-journey-ground" d="M0 176q100-14 200-2t200 4v22H0z" />
+                    <path
+                      className="landing-journey-path"
+                      d="M197 108C206 118 223 125 223 136C223 148 174 152 174 165C174 178 164 188 164 200H236C236 188 200 178 200 165C200 152 239 148 239 136C239 125 203 118 203 108Z"
+                    />
+                    <path
+                      className="landing-journey-path-line"
+                      d="M200 110C209 119 231 126 231 136C231 148 187 152 187 165C187 178 200 188 200 200"
+                    />
+                    <ellipse className="landing-journey-cairn" cx="140" cy="182" rx="10" ry="4.5" />
+                    <ellipse className="landing-journey-cairn" cx="141" cy="175" rx="7.5" ry="3.5" />
+                    <ellipse className="landing-journey-cairn" cx="142" cy="169" rx="5" ry="2.5" />
+                    <circle className="landing-journey-star-glow" cx="200" cy="42" r="16" />
+                    <path className="landing-journey-star" d="M200 22q0 20 20 20q-20 0-20 20q0-20-20-20q20 0 20-20z" />
+                    <circle className="landing-journey-star-center" cx="200" cy="42" r="2.5" />
+                    <path className="landing-journey-star-rays" d="M200 14v6m0 44v6m-28-28h6m44 0h6" />
+                  </svg>
                 ) : art === "readings" ? (
                   <svg className="landing-card-artwork" viewBox="0 0 400 200">
                     <path className="landing-church-ground" d="M0 166q100-19 200 0t200 0v34H0z" />
@@ -142,7 +165,7 @@ export function HomePage({ onResume, onChoose, onMass, onJourney }: HomePageProp
           <button className="button landing-continuation-button" onClick={onResume}>
             Continue reading <ArrowRight size={16} />
           </button>
-          <button className="button landing-continuation-button" onClick={onJourney}>
+          <button className="button button-outline" onClick={onJourney}>
             Explore Bible Journey <ArrowRight size={16} />
           </button>
         </div>
