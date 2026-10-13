@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Generate, convert, publish, and validate female Bible chapter narration.
+"""Generate, convert, publish, and validate Bible chapter narration.
 
 The script resumes from existing WAV/MP3 files and publishes each completed
-chapter immediately to its separate af_heart GitHub Release, leaving the
-existing male releases alone.
+chapter immediately to the selected voice's GitHub Release.
 
 Example:
-  python scripts/generate_bible_narration.py --upload-github --execute
+  python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice am_michael --overwrite --upload-github --replace-existing --execute
 """
 
 from __future__ import annotations
@@ -64,6 +63,44 @@ def read_chapters(book_id: str) -> list[int]:
     if not chapters:
         raise RuntimeError(f"No chapters found for {book_id}")
     return chapters
+
+
+def read_chapter_plan(plan_path: Path, books: list[dict[str, Any]]) -> list[tuple[dict[str, Any], list[int]]]:
+    try:
+        plan = json.loads(plan_path.read_text(encoding="utf-8"))
+        planned_books = plan["bible_books"]
+    except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise RuntimeError(f"Could not read Bible chapter plan {plan_path}: {exc}") from exc
+    if not isinstance(planned_books, list) or not planned_books:
+        raise RuntimeError(f"No Bible chapter regeneration entries found in {plan_path}")
+
+    books_by_id = {book["id"]: book for book in books}
+    work: list[tuple[dict[str, Any], list[int]]] = []
+    seen: set[str] = set()
+    for entry in planned_books:
+        if not isinstance(entry, dict) or not isinstance(entry.get("id"), str):
+            raise RuntimeError(f"Invalid book entry in {plan_path}")
+        book_id = entry["id"]
+        book = books_by_id.get(book_id)
+        if book is None:
+            raise RuntimeError(f"Unknown book ID {book_id!r} in {plan_path}")
+        if book_id in seen:
+            raise RuntimeError(f"Duplicate book ID {book_id!r} in {plan_path}")
+        seen.add(book_id)
+        chapters = entry.get("chapters")
+        if not isinstance(chapters, list) or not chapters or any(
+            not isinstance(chapter, int) or isinstance(chapter, bool) or chapter < 1
+            for chapter in chapters
+        ):
+            raise RuntimeError(f"Invalid chapter list for {book_id} in {plan_path}")
+        if len(set(chapters)) != len(chapters):
+            raise RuntimeError(f"Duplicate chapter in {book_id} entry in {plan_path}")
+        available = set(read_chapters(book_id))
+        unavailable = sorted(set(chapters) - available)
+        if unavailable:
+            raise RuntimeError(f"{book_id} has no chapter(s) {unavailable} listed in {plan_path}")
+        work.append((book, sorted(chapters)))
+    return work
 
 
 def ffmpeg_path() -> str:
@@ -170,10 +207,11 @@ def convert_chapter(wav_path: Path, mp3_path: Path, executable: str, overwrite: 
 
 
 def gh_release_tag(book_id: str) -> str:
-    return f"narration-{book_id}-{VOICE}"
+    suffix = "" if VOICE == "am_michael" else f"-{VOICE}"
+    return f"narration-{book_id}{suffix}"
 
 
-def upload_book(book: dict[str, Any], mp3_paths: list[Path]) -> None:
+def upload_book(book: dict[str, Any], mp3_paths: list[Path], replace_existing: bool = False) -> None:
     tag = gh_release_tag(book["id"])
     result = gh([
         "release", "view", tag, "--repo", REPOSITORY, "--json",
@@ -196,14 +234,13 @@ def upload_book(book: dict[str, Any], mp3_paths: list[Path]) -> None:
     if release.get("isImmutable"):
         raise RuntimeError(f"GitHub Release {tag} is immutable and cannot be updated.")
     assets = {asset["name"]: int(asset.get("size", -1)) for asset in release.get("assets", [])}
-    to_upload = [
-        path for path in mp3_paths
-        if assets.get(path.name) != path.stat().st_size
+    to_upload = list(mp3_paths) if replace_existing else [
+        path for path in mp3_paths if assets.get(path.name) != path.stat().st_size
     ]
     for offset in range(0, len(to_upload), UPLOAD_BATCH_SIZE):
         batch = to_upload[offset:offset + UPLOAD_BATCH_SIZE]
         args = ["release", "upload", tag, *(str(path) for path in batch), "--repo", REPOSITORY]
-        if any(path.name in assets for path in batch):
+        if replace_existing or any(path.name in assets for path in batch):
             args.append("--clobber")
         gh(args)
     refreshed = json.loads(gh([
@@ -276,69 +313,101 @@ def validate_remote(book: dict[str, Any], chapters: list[int]) -> None:
 
 
 def main() -> int:
+    global OUTPUT_DIR, VOICE, VOICE_DESCRIPTION
+
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--book", action="append", help="limit to one or more book IDs; repeat to select several")
+    parser.add_argument("--chapter-plan", type=Path, help="JSON plan listing only the book chapters to regenerate")
+    parser.add_argument(
+        "--voice", action="append", choices=("am_michael", "af_heart"),
+        help="Kokoro voice; repeat to regenerate both supported voices (default: af_heart)",
+    )
     parser.add_argument("--speed", type=float, default=0.94, help="Kokoro speech speed (0.5 to 1.5)")
     parser.add_argument("--overwrite", action="store_true", help="regenerate WAVs and replace MP3s")
     parser.add_argument("--plan", action="store_true", help="list the work without loading Kokoro")
     parser.add_argument("--upload-github", action="store_true", help="publish each completed chapter to its book's GitHub Release")
+    parser.add_argument(
+        "--replace-existing", action="store_true",
+        help="clobber every selected GitHub asset, even when its size is unchanged",
+    )
     parser.add_argument("--execute", action="store_true", help="confirm GitHub publishing after typing the confirmation phrase")
     args = parser.parse_args()
     if not 0.5 <= args.speed <= 1.5:
         parser.error("--speed must be between 0.5 and 1.5")
     if args.upload_github != args.execute:
         parser.error("--upload-github and --execute must be supplied together")
-    if VOICES.get(VOICE) != VOICE_DESCRIPTION:
-        parser.error(f"{VOICE} is not registered as {VOICE_DESCRIPTION} in generate_narration.py")
+    if args.replace_existing and not args.upload_github:
+        parser.error("--replace-existing requires --upload-github")
+    if args.chapter_plan and args.book:
+        parser.error("--chapter-plan cannot be combined with --book")
+
+    voices = list(dict.fromkeys(args.voice or ["af_heart"]))
 
     try:
         books = read_books()
-        if args.book:
+        if args.chapter_plan:
+            work = read_chapter_plan(args.chapter_plan.resolve(), books)
+        elif args.book:
             wanted = {book_id.casefold() for book_id in args.book}
             known = {book["id"].casefold() for book in books}
             unknown = wanted - known
             if unknown:
                 parser.error("unknown book ID(s): " + ", ".join(sorted(unknown)))
-            books = [book for book in books if book["id"].casefold() in wanted]
-        work = [(book, read_chapters(book["id"])) for book in books]
-        print(f"Voice: {VOICE} ({VOICE_DESCRIPTION})")
-        print(f"Books: {len(work)}; chapters: {sum(len(chapters) for _book, chapters in work)}")
-        print(f"Output: {OUTPUT_DIR.relative_to(ROOT)}")
-        for book, chapters in work:
-            print(f"  {book['name']}: {len(chapters)} chapters -> {gh_release_tag(book['id'])}")
+            selected_books = [book for book in books if book["id"].casefold() in wanted]
+            work = [(book, read_chapters(book["id"])) for book in selected_books]
+        else:
+            work = [(book, read_chapters(book["id"])) for book in books]
+        chapter_count = sum(len(chapters) for _book, chapters in work)
+        for voice in voices:
+            VOICE = voice
+            VOICE_DESCRIPTION = VOICES[voice]
+            OUTPUT_DIR = ROOT / "narration" / ("female" if "female" in VOICE_DESCRIPTION else "male")
+            print(f"\nVoice: {VOICE} ({VOICE_DESCRIPTION})")
+            print(f"Books: {len(work)}; chapters: {chapter_count}")
+            print(f"Output: {OUTPUT_DIR.relative_to(ROOT)}")
+            for book, chapters in work:
+                print(f"  {book['name']}: {len(chapters)} chapters -> {gh_release_tag(book['id'])}")
         if args.plan:
             return 0
 
         ffmpeg = ffmpeg_path()
         if args.upload_github:
             gh(["auth", "status", "--hostname", "github.com"])
-            confirmation = input("Type UPLOAD BIBLE AF_HEART to generate and publish the female narrations: ").strip()
-            if confirmation != "UPLOAD BIBLE AF_HEART":
+            confirmation_phrase = "UPLOAD BIBLE " + " ".join(voice.upper() for voice in voices)
+            confirmation = input(
+                f"Type {confirmation_phrase} to generate and publish the selected Bible narrations: "
+            ).strip()
+            if confirmation != confirmation_phrase:
                 raise RuntimeError("Confirmation phrase did not match; no narration was generated or uploaded.")
 
         import numpy
         import soundfile
         from kokoro import KPipeline
 
-        pipeline: Any = KPipeline(lang_code=VOICE[0], device="cpu")
-        completed = 0
-        for book, chapters in work:
-            print(f"\n{book['name']}: processing {len(chapters)} chapters.")
-            for chapter in chapters:
-                wav_path, mp3_path = chapter_paths(book["id"], chapter)
-                if not mp3_path.is_file() or args.overwrite:
-                    wav_path = generate_chapter(
-                        book["id"], book["name"], chapter,
-                        pipeline, numpy, soundfile, args.speed, args.overwrite,
-                    )
-                convert_chapter(wav_path, mp3_path, ffmpeg, args.overwrite)
-                if args.upload_github:
-                    upload_book(book, [mp3_path])
-                    validate_remote(book, [chapter])
-                completed += 1
-                if completed % 25 == 0:
-                    print(f"Progress: {completed}/{sum(len(chs) for _item, chs in work)} chapters converted and validated.")
-        print(f"\nComplete: {completed} chapters generated/converted/validated.")
+        for voice in voices:
+            VOICE = voice
+            VOICE_DESCRIPTION = VOICES[voice]
+            OUTPUT_DIR = ROOT / "narration" / ("female" if "female" in VOICE_DESCRIPTION else "male")
+            pipeline: Any = KPipeline(lang_code=VOICE[0], device="cpu")
+            completed = 0
+            print(f"\nGenerating with {VOICE} ({VOICE_DESCRIPTION}).")
+            for book, chapters in work:
+                print(f"\n{book['name']}: processing {len(chapters)} chapters.")
+                for chapter in chapters:
+                    wav_path, mp3_path = chapter_paths(book["id"], chapter)
+                    if not mp3_path.is_file() or args.overwrite:
+                        wav_path = generate_chapter(
+                            book["id"], book["name"], chapter,
+                            pipeline, numpy, soundfile, args.speed, args.overwrite,
+                        )
+                    convert_chapter(wav_path, mp3_path, ffmpeg, args.overwrite)
+                    if args.upload_github:
+                        upload_book(book, [mp3_path], args.replace_existing)
+                        validate_remote(book, [chapter])
+                    completed += 1
+                    if completed % 25 == 0:
+                        print(f"Progress: {completed}/{chapter_count} chapters converted and validated.")
+            print(f"\nComplete: {completed} chapters generated/converted/validated with {VOICE}.")
         return 0
     except (RuntimeError, OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, ImportError) as exc:
         print(f"Error: {exc}", file=sys.stderr)

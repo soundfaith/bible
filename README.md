@@ -16,20 +16,41 @@ vertical story dots on mobile.
 Use the voice preference in the navigation menu to choose male or female
 narration. Playback tries the preferred voice's GitHub MP3 first, then the
 other available voice, and finally browser text-to-speech. Existing
-`narration-<book>` releases remain the male recordings. The
-`generate_bible_narration.py` runner writes `af_heart` MP3s to separate
-`narration-<book>-af_heart` releases, so those male releases are not replaced:
+`narration-<book>` releases contain the `am_michael` recordings.
+`generate_bible_narration.py` writes `af_heart` MP3s to separate
+`narration-<book>-af_heart` releases, so the male releases are not replaced.
+The generator can target specific chapters from
+`scripts/audio_regeneration_plan.json`, regenerate either voice, and replace
+same-named GitHub assets even when the new MP3 happens to have the same size:
 
 ```powershell
-python scripts/generate_bible_narration.py --plan
-python scripts/generate_bible_narration.py --upload-github --execute
+python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice am_michael --plan
+python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice am_michael --overwrite --upload-github --replace-existing --execute
+python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice af_heart --overwrite --upload-github --replace-existing --execute
 ```
 
-The runner resumes from completed local WAV/MP3 files. With `--upload-github`,
-each chapter is uploaded and remotely checked as soon as its MP3 is locally
-validated, so chapters become available while the rest of the Bible is being
-generated. It asks for the phrase `UPLOAD BIBLE AF_HEART` before generation
-and publishing, validates local MP3 frames, and verifies each uploaded asset.
+The checked-in plan lists all 437 affected book chapters and 35 affected
+Journey stories. `--overwrite` regenerates the selected WAV and MP3 files from
+the corrected JSON. With `--upload-github`, each chapter is uploaded to the
+selected voice's book release and remotely checked after local validation.
+The runner asks for a confirmation phrase before generation and publishing,
+validates local MP3 frames, and verifies each uploaded asset.
+
+Journey passage text is resolved from the same `src/data/<book>.json` files as
+the Bible reader; `src/data/bibleJourney.ts` stores story summaries and Bible
+references, not a second copy of the verses. Journey stories also have their
+own MP3s. Regenerate and replace the 35 affected story assets for both voices
+after the chapter audio upload is finished:
+
+```powershell
+python scripts/regenerate_journey_audio.py --plan
+python scripts/regenerate_journey_audio.py --execute
+```
+
+The Journey script rebuilds only affected stories from the updated verse JSON,
+replaces the selected assets in both `journey-narration-am_michael` and
+`journey-narration-af_heart`, and verifies each remote MP3. It prompts for
+`REGENERATE JOURNEY AUDIO AM_MICHAEL AF_HEART` before generating or uploading.
 
 List the periods, available voices, and validate all citations without creating
 audio:
@@ -147,3 +168,11 @@ The app uses hash routes so each screen can be opened directly while remaining e
 $env:PATH = 'C:\Program Files\GitHub CLI;C:\Users\rmosi\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-full_build\bin;' + $env:PATH
 $env:HF_HUB_OFFLINE = '1'
 'UPLOAD BIBLE AF_HEART' | & 'C:\Users\rmosi\AppData\Local\bible-narration-venv\Scripts\python.exe' -u 'D:\projects\bible\scripts\generate_bible_narration.py' --upload-github --execute
+
+
+
+
+
+python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice am_michael --plan
+python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice am_michael --overwrite --upload-github --replace-existing --execute
+python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice af_heart --overwrite --upload-github --replace-existing --execute
