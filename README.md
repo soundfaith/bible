@@ -176,3 +176,34 @@ $env:HF_HUB_OFFLINE = '1'
 python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice am_michael --plan
 python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice am_michael --overwrite --upload-github --replace-existing --execute
 python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice af_heart --overwrite --upload-github --replace-existing --execute
+
+
+python scripts/regenerate_journey_audio.py --plan
+python scripts/regenerate_journey_audio.py --execute
+
+## Breviary
+
+Lauds, Vespers and Compline are assembled in `src/lib/breviary.ts` from `src/data/breviary.json` (imported once from the breviary project with `python scripts/build_breviary_data.py`). Psalms use this app's own text and audio.
+
+Narration clips for the repeating prayers (460 per voice) are generated once and joined at playback:
+
+```powershell
+python scripts/breviary_narration.py --list
+python scripts/breviary_narration.py --voice am_michael
+python scripts/breviary_narration.py --voice af_heart
+python scripts/breviary_narration.py --voice am_michael --upload-github --execute
+python scripts/breviary_narration.py --voice af_heart --upload-github --execute
+```
+
+Clips upload to the `breviary-narration-<voice>` releases. Until they exist, playback falls back to browser speech.
+
+
+
+
+- complete bible m/f, and journey
+- regenerate fixed chapters
+- generate and upload breviary
+
+prompts
+- fix all mp3s for ios
+- fix artwork in pages, zoomed

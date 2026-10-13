@@ -1,7 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 
 const soundfaithApps = [
-  { name: "Breviary", description: "Pray the Liturgy of the Hours.", href: "https://breviary.soundfaith.app" },
+  { name: "Breviary", description: "Pray the Liturgy of the Hours.", href: "#/breviary" },
   { name: "Catechism", description: "Explore the teachings of the Catholic faith.", href: "https://catechism.soundfaith.app" },
   { name: "Catechist Corner", description: "Find support and resources for catechesis.", href: "https://catechistcorner.soundfaith.app" },
   { name: "Giving", description: "Support faith communities through digital giving.", href: "https://giving.soundfaith.app" },
@@ -22,7 +22,7 @@ export function AboutPage() {
 
     <section className="about-apps" aria-labelledby="about-apps-title">
       <div className="about-apps-heading"><div><p className="eyebrow">One family of faith apps</p><h2 id="about-apps-title">Explore Soundfaith</h2></div><p>Each app has its own purpose, brought together by a shared desire to serve the life of faith.</p></div>
-      <ul className="about-app-list">{soundfaithApps.map((app) => <li key={app.name}><a href={app.href} target="_blank" rel="noreferrer"><span><strong>{app.name}</strong><small>{app.description}</small></span><ArrowUpRight size={17} aria-hidden="true" /></a></li>)}</ul>
+      <ul className="about-app-list">{soundfaithApps.map((app) => <li key={app.name}><a href={app.href} target={app.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer"><span><strong>{app.name}</strong><small>{app.description}</small></span><ArrowUpRight size={17} aria-hidden="true" /></a></li>)}</ul>
     </section>
   </main>;
 }

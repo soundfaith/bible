@@ -2063,3 +2063,24 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
   justify-content: center;
 }
 
+/* Breviary */
+.breviary-artwork { width:100%; aspect-ratio:2/1; overflow:hidden; border:1px solid var(--line); border-radius:17px; background:var(--paper); }
+.breviary-artwork svg { display:block; width:100%; height:100%; }
+.breviary-artwork--hero { aspect-ratio:3/1; max-height:300px; border-radius:18px; margin-bottom:24px; }
+.journey-library-card .breviary-artwork { aspect-ratio:2/1; min-height:125px; max-height:175px; border:0; border-radius:17px 17px 0 0; }
+.breviary-library-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+.breviary-date-line { margin:6px 0 0; color:var(--muted); font-size:12px; }
+.breviary-heading-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.breviary-day-caption { margin:0 0 16px; color:var(--muted); font-size:12px; }
+.breviary-saint { padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:var(--white); color:var(--ink); font-size:13px; }
+.breviary-segment { scroll-margin-top:90px; }
+.breviary-reference { margin:0 0 8px; color:var(--accent-deep); font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+:root[data-theme='dark'] .breviary-artwork { border-color:var(--line); }
+:root[data-theme='dark'] .breviary-saint { background:transparent; }
+
+@media (max-width:900px) {
+	.breviary-library-list { grid-template-columns:1fr; gap:14px; }
+	.journey-library-card .breviary-artwork { height:100%; min-height:145px; max-height:none; aspect-ratio:auto; border-radius:17px 0 0 17px; }
+	.breviary-artwork--hero { aspect-ratio:2/1; border-radius:14px; margin-bottom:16px; }
+}
+

@@ -15,6 +15,7 @@ import {
   Plus,
   Search,
   Share2,
+  Sunrise,
   X,
 } from "lucide-react";
 import { Brand, ThemeToggle } from "./components/Brand";
@@ -33,6 +34,8 @@ import {
   type SelectedVerseRange,
 } from "./pages/ChapterPage";
 import { MassReadingPage } from "./pages/MassReadingPage";
+import { BreviaryLibrary, BreviaryPage } from "./pages/BreviaryPage";
+import { assembleBreviary, breviaryDayInfo, currentBreviaryHour, isBreviaryHour } from "./lib/breviary";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
@@ -54,7 +57,7 @@ import {
   subscribeNarration,
 } from "./components/NarratorButton";
 
-type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork";
+type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork" | "breviary";
 type PendingNarration = "start" | "pause" | "resume" | null;
 type JourneyAudioStatus = "idle" | "playing" | "paused";
 type JourneyAudioState = {
@@ -63,6 +66,8 @@ type JourneyAudioState = {
   status: JourneyAudioStatus;
   error: string | null;
 };
+type BreviaryAudioState = { segmentIndex: number; status: JourneyAudioStatus; error: string | null };
+const INITIAL_BREVIARY_AUDIO: BreviaryAudioState = { segmentIndex: 0, status: "idle", error: null };
 const LAST_JOURNEY_PERIOD_KEY = "soundfaith-bible-journey-last-period-v1";
 const INITIAL_JOURNEY_AUDIO: JourneyAudioState = { periodId: null, storyIndex: 0, status: "idle", error: null };
 
@@ -78,6 +83,7 @@ function getLastJourneyPeriodId() {
 function readRoute(): Route {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
   return path === "journey-artwork" ? "journey-artwork"
+    : path === "breviary" || path.startsWith("breviary/") ? "breviary"
     : path.startsWith("journey/") ? "journey"
     : path === "read" || path === "bible" || path === "mass" || path === "bookmarks" || path === "library" || path === "about" || path === "journey"
       ? path
@@ -92,6 +98,11 @@ function readJourneyPeriodId() {
   } catch {
     return resolveJourneyPeriodId(path.slice("journey/".length));
   }
+}
+
+function readBreviaryHour() {
+  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
+  return path.startsWith("breviary/") ? path.slice("breviary/".length) : null;
 }
 
 function readJourneyStoryAnchor() {
@@ -119,6 +130,9 @@ export default function App() {
   const [readingPosition, setReadingPosition] =
     useState<ReadingPosition>(getLastReading);
   const [massDate, setMassDate] = useState(() => getTodaysMassReading().date);
+  const [breviaryDate, setBreviaryDate] = useState(() => new Date());
+  const [breviaryHour, setBreviaryHour] = useState<string | null>(readBreviaryHour);
+  const [breviaryAudio, setBreviaryAudio] = useState<BreviaryAudioState>(INITIAL_BREVIARY_AUDIO);
   const [highlightVerse, setHighlightVerse] = useState<number | null>(null);
   const [pendingNarration, setPendingNarration] = useState<PendingNarration>(null);
   const [narration, setNarration] = useState(getNarrationSnapshot);
@@ -129,6 +143,12 @@ export default function App() {
   const [journeyArtwork, setJourneyArtwork] = useState(loadJourneyArtworkSelections);
   const menuRef = useRef<HTMLElement | null>(null);
   const journeyAudioStateRef = useRef(journeyAudio);
+  const breviaryAudioStateRef = useRef(breviaryAudio);
+  const breviaryDay = route === "breviary" && isBreviaryHour(breviaryHour)
+    ? assembleBreviary(breviaryDate, breviaryHour, voicePreference)
+    : null;
+  const breviaryDayRef = useRef(breviaryDay);
+  breviaryDayRef.current = breviaryDay;
   const searchSheetStartY = useRef<number | null>(null);
   const preserveNarrationOnNavigation = useRef(false);
   const changeVoicePreference = (gender: NarrationGender) => {
@@ -234,9 +254,55 @@ export default function App() {
     }
     playJourneyStory(period.id, nextStoryIndex, true);
   };
+  const updateBreviaryAudio = (next: BreviaryAudioState) => {
+    breviaryAudioStateRef.current = next;
+    setBreviaryAudio(next);
+  };
+  const failBreviaryAudio = (segmentIndex: number) => {
+    const current = breviaryAudioStateRef.current;
+    if (current.segmentIndex !== segmentIndex) return;
+    updateBreviaryAudio({ ...current, status: "idle", error: "This prayer's audio and browser text-to-speech could not be played." });
+  };
+  const playBreviarySegment = (segmentIndex: number) => {
+    const segment = breviaryDayRef.current?.segments[segmentIndex];
+    if (!segment) return;
+    updateBreviaryAudio({ segmentIndex, status: "playing", error: null });
+    const started = startSpeaking(segment.text, segment.audioUrls, advanceBreviaryAudio, () => failBreviaryAudio(segmentIndex), voicePreference);
+    if (!started) failBreviaryAudio(segmentIndex);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`breviary-${segment.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  };
+  const advanceBreviaryAudio = () => {
+    const day = breviaryDayRef.current;
+    if (!day) return;
+    const nextIndex = breviaryAudioStateRef.current.segmentIndex + 1;
+    if (nextIndex >= day.segments.length) {
+      updateBreviaryAudio(INITIAL_BREVIARY_AUDIO);
+      return;
+    }
+    playBreviarySegment(nextIndex);
+  };
+  const toggleBreviaryAudio = () => {
+    const current = breviaryAudioStateRef.current;
+    if (current.status === "playing") {
+      pauseSpeaking();
+      updateBreviaryAudio({ ...current, status: "paused" });
+      return;
+    }
+    const segment = breviaryDayRef.current?.segments[current.segmentIndex];
+    if (current.status === "paused" && segment) {
+      const started = resumeSpeaking(segment.text, segment.audioUrls, advanceBreviaryAudio, () => failBreviaryAudio(current.segmentIndex), voicePreference);
+      updateBreviaryAudio({ ...current, status: "playing", error: null });
+      if (!started) failBreviaryAudio(current.segmentIndex);
+      return;
+    }
+    playBreviarySegment(0);
+  };
   useEffect(() => {
     const change = () => {
       setRoute(readRoute());
+      setBreviaryHour(readBreviaryHour());
       setJourneyPeriodId(readJourneyPeriodId());
       setJourneyStoryAnchor(readJourneyStoryAnchor());
       setMenuOpen(false);
@@ -268,6 +334,11 @@ export default function App() {
     journeyAudioStateRef.current = INITIAL_JOURNEY_AUDIO;
     setJourneyAudio(INITIAL_JOURNEY_AUDIO);
   }, [route, journeyPeriodId]);
+  useEffect(() => {
+    if (breviaryAudioStateRef.current.status === "idle") return;
+    stopSpeaking();
+    updateBreviaryAudio(INITIAL_BREVIARY_AUDIO);
+  }, [route, breviaryHour, breviaryDate]);
   useEffect(() => {
     setMenuOpen(false);
   }, [route]);
@@ -444,9 +515,9 @@ export default function App() {
     const periodId = lastJourneyPeriodId ?? bibleJourney[0].id;
     window.location.hash = `#/journey/${periodId}`;
   };
-  const openTodaysReading = () => {
-    setMassDate(getTodaysMassReading().date);
-    window.location.hash = "#/mass";
+  const openCurrentBreviary = () => {
+    setBreviaryDate(new Date());
+    window.location.hash = `#/breviary/${currentBreviaryHour()}`;
   };
   const openPicker = () =>
     setModal({
@@ -494,11 +565,13 @@ export default function App() {
     ? narration.position / narration.duration
     : narration.text.length > 0 ? narration.position / narration.text.length : 0;
   const isJourneyDetail = route === "journey" && Boolean(journeyPeriodId);
-  const mobileListenStatus = isJourneyDetail ? journeyAudioForPage.status : narration.status;
+  const isBreviaryDetail = route === "breviary" && breviaryDay !== null;
+  const mobileListenStatus = isBreviaryDetail ? breviaryAudio.status : isJourneyDetail ? journeyAudioForPage.status : narration.status;
   const mobileListenLabel = mobileListenStatus === "playing"
-    ? isJourneyDetail ? "Pause period audio" : "Pause narration"
+    ? isJourneyDetail || isBreviaryDetail ? "Pause prayer audio" : "Pause narration"
     : mobileListenStatus === "paused"
-      ? isJourneyDetail ? "Resume period audio" : "Resume narration"
+      ? isJourneyDetail || isBreviaryDetail ? "Resume prayer audio" : "Resume narration"
+      : isBreviaryDetail ? "Listen to this hour of prayer"
       : isJourneyDetail
         ? `Listen to all stories in ${bibleJourney.find((period) => period.id === journeyPeriodId)?.title ?? "this period"}`
         : "Listen to this reading";
@@ -529,6 +602,20 @@ export default function App() {
       />
     ) : route === "mass" ? (
       <MassReadingPage onOpenReference={openMassReference} selectedDate={massDate} onSelectedDateChange={setMassDate} voicePreference={voicePreference} />
+    ) : route === "breviary" ? breviaryHour ? (
+      <BreviaryPage
+        hour={breviaryHour}
+        day={breviaryDay}
+        date={breviaryDate}
+        onDateChange={setBreviaryDate}
+        audioStatus={breviaryAudio.status}
+        activeSegmentIndex={breviaryAudio.segmentIndex}
+        audioError={breviaryAudio.error}
+        onToggleAudio={toggleBreviaryAudio}
+        onSelectSegment={playBreviarySegment}
+      />
+    ) : (
+      <BreviaryLibrary date={breviaryDate} onDateChange={setBreviaryDate} {...breviaryDayInfo(breviaryDate)} />
     ) : route === "bookmarks" ? (
       <BookmarksPage
         bookmarks={bookmarks}
@@ -574,6 +661,7 @@ export default function App() {
         onResume={() => openReader()}
         onChoose={() => { window.location.hash = "#/bible"; }}
         onJourney={() => { window.location.hash = "#/journey"; }}
+        onBreviary={() => { window.location.hash = "#/breviary"; }}
         onMass={() => {
           setMassDate(getTodaysMassReading().date);
           window.location.hash = "#/mass";
@@ -588,6 +676,7 @@ export default function App() {
           <a href="#/" className={route === "home" ? "active" : ""}>Home</a>
           <a href="#/bible" className={route === "read" || route === "bible" ? "active" : ""}>Bible</a>
           <a href="#/mass" className={route === "mass" ? "active" : ""}>Daily Mass</a>
+          <a href="#/breviary" className={route === "breviary" ? "active" : ""}>Breviary</a>
           <a href="#/journey" className={route === "journey" || route === "journey-artwork" ? "active" : ""}>Bible Journey</a>
         </nav>
         <nav
@@ -606,6 +695,7 @@ export default function App() {
           <a href="#/" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><House size={17} />Home</a>
           <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Read Scriptures</a>
           <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily Mass</a>
+          <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sunrise size={17} />Breviary</a>
           <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Milestone size={17} />Bible Journey</a>
           <a href="#/bookmarks" onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
           <a href="#/about" onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>
@@ -672,6 +762,14 @@ export default function App() {
           status={journeyAudioForPage.status}
           onSelectStory={selectJourneyAudioStory}
         />}
+        {isBreviaryDetail && breviaryDay && <JourneyNarrationProgress
+          className="narration-progress-mobile"
+          storyCount={breviaryDay.segments.length}
+          activeStoryIndex={breviaryAudio.segmentIndex}
+          activeStoryProgress={journeyStoryProgress}
+          status={breviaryAudio.status}
+          onSelectStory={playBreviarySegment}
+        />}
         <a href="#/" className={route === "home" ? "active" : ""} aria-current={route === "home" ? "page" : undefined}>
           <Home size={17} />
           <span>Home</span>
@@ -686,7 +784,7 @@ export default function App() {
         </a>
         <button
           className="mobile-donate mobile-center-playback mobile-listen-button"
-          onClick={isJourneyDetail ? toggleJourneyAudio : toggleNarration}
+          onClick={isBreviaryDetail ? toggleBreviaryAudio : isJourneyDetail ? toggleJourneyAudio : toggleNarration}
           aria-label={mobileListenLabel}
         >
           {mobileListenIcon}<span>{mobileListenText}</span>
@@ -695,9 +793,9 @@ export default function App() {
           <Milestone size={17} />
           <span>Journey</span>
         </a>
-        <a href="#/mass" className={route === "mass" ? "active" : ""} aria-current={route === "mass" ? "page" : undefined} onClick={openTodaysReading}>
-          <CalendarDays size={17} />
-          <span>Reading</span>
+        <a href="#/breviary" className={route === "breviary" ? "active" : ""} aria-current={route === "breviary" ? "page" : undefined} onClick={(event) => { event.preventDefault(); openCurrentBreviary(); }}>
+          <Sunrise size={17} />
+          <span>Breviary</span>
         </a>
       </nav>
       <footer className="site-footer">

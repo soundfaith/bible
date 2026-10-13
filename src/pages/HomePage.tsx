@@ -5,6 +5,7 @@ type HomePageProps = {
   onChoose: () => void;
   onMass: () => void;
   onJourney: () => void;
+  onBreviary: () => void;
 };
 
 const primaryCards = [
@@ -31,7 +32,7 @@ const primaryCards = [
   },
 ] as const;
 
-export function HomePage({ onResume, onChoose, onMass, onJourney }: HomePageProps) {
+export function HomePage({ onResume, onChoose, onMass, onJourney, onBreviary }: HomePageProps) {
   const actions = { onChoose, onMass, onJourney };
 
   return (
@@ -45,7 +46,7 @@ export function HomePage({ onResume, onChoose, onMass, onJourney }: HomePageProp
             <button className="button button-coral" onClick={onResume}>
               Resume reading <ArrowRight size={16} />
             </button>
-            <button className="button button-outline" onClick={onMass}>
+            <button className="button button-outline" onClick={onBreviary}>
               Begin today’s prayer <ArrowRight size={16} />
             </button>
           </div>
@@ -135,7 +136,7 @@ export function HomePage({ onResume, onChoose, onMass, onJourney }: HomePageProp
               </div>
             </button>
           ))}
-          <article className="landing-card landing-card--coming-soon">
+          <button className="landing-card" type="button" aria-label="Breviary: Pray the Hours" onClick={onBreviary}>
             <div className="landing-card-art landing-card-art--prayer" aria-hidden="true">
               <svg className="landing-card-artwork" viewBox="0 0 400 200">
                 <path className="landing-prayer-table" d="M95 157h210v9H95z" />
@@ -148,11 +149,13 @@ export function HomePage({ onResume, onChoose, onMass, onJourney }: HomePageProp
               </svg>
             </div>
             <div className="landing-card-copy">
-              <h3>Daily Prayer</h3>
-              <p>Pray the psalms in a simple daily rhythm.</p>
-              <span className="text-link is-disabled">Coming Soon</span>
+              <h3>Breviary</h3>
+              <p>Pray Lauds, Vespers, and Compline each day.</p>
+              <span className="text-link">
+                Pray the Hours <ArrowRight size={15} />
+              </span>
             </div>
-          </article>
+          </button>
         </div>
       </section>
 
