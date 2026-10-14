@@ -115,17 +115,30 @@ def gh(args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[st
     executable = shutil.which("gh")
     if not executable:
         raise RuntimeError("GitHub CLI was not found on PATH.")
-    result = subprocess.run(
-        [executable, *args],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        check=False,
-    )
-    if check and result.returncode:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"gh exited with {result.returncode}")
+    attempts = 5 if check else 1
+    for attempt in range(1, attempts + 1):
+        result = subprocess.run(
+            [executable, *args],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+        if not (check and result.returncode):
+            return result
+        message = result.stderr.strip() or result.stdout.strip() or f"gh exited with {result.returncode}"
+        # GitHub intermittently reports "release not found" or 5xx right after release changes.
+        transient = any(
+            marker in message.casefold()
+            for marker in ("not found", "http 5", "timeout", "timed out", "connection", "eof", "reset", "try again")
+        )
+        if not transient or attempt == attempts:
+            raise RuntimeError(f"gh {' '.join(args[:3])} failed: {message}")
+        wait = attempt * 5
+        print(f"  gh {' '.join(args[:3])} failed ({message}); retrying in {wait}s ({attempt}/{attempts - 1})...")
+        time.sleep(wait)
     return result
 
 

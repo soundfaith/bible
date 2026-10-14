@@ -15,6 +15,7 @@ import json
 import shutil
 import subprocess
 import sys
+import time
 import urllib.parse
 from pathlib import Path
 from typing import Any
@@ -146,20 +147,32 @@ def generate_and_convert(
 
 
 def gh(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
-    try:
-        result = subprocess.run(
-            ["gh", *args],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            check=False,
+    attempts = 5 if check else 1
+    for attempt in range(1, attempts + 1):
+        try:
+            result = subprocess.run(
+                ["gh", *args],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+            )
+        except OSError as exc:
+            raise RuntimeError(f"Could not start GitHub CLI (gh): {exc}") from exc
+        if not (check and result.returncode):
+            return result
+        message = result.stderr.strip() or result.stdout.strip() or f"gh exited {result.returncode}"
+        transient = any(
+            marker in message.casefold()
+            for marker in ("not found", "http 5", "timeout", "timed out", "connection", "eof", "reset", "try again")
         )
-    except OSError as exc:
-        raise RuntimeError(f"Could not start GitHub CLI (gh): {exc}") from exc
-    if check and result.returncode:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"gh exited {result.returncode}")
+        if not transient or attempt == attempts:
+            raise RuntimeError(f"gh {' '.join(args[:3])} failed: {message}")
+        wait = attempt * 5
+        print(f"  gh {' '.join(args[:3])} failed ({message}); retrying in {wait}s ({attempt}/{attempts - 1})...")
+        time.sleep(wait)
     return result
 
 

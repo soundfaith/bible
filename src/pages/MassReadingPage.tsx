@@ -15,9 +15,17 @@ export function MassReadingPage({ onOpenReference, selectedDate, onSelectedDateC
   const entry = getMassReadingForDate(selectedDate) || getTodaysMassReading();
   const narrationText = Object.values(entry.readings).map((reading) => reading.text).join("\n\n");
   const changeDate = (date: string) => { onSelectedDateChange(date); setCalendarOpen(false); };
-  return <main className="mass-page section-wrap">
-    <div className="mass-mobile-toolbar"><div><strong>{dateLabel(entry.date)}</strong><span>{entry.season}</span></div><button className="icon-button" onClick={() => setCalendarOpen(true)} aria-label="Choose Mass reading date"><CalendarDays size={18} /></button></div>
-    <header className="mass-heading"><div><p className="eyebrow"><span className="eyebrow-dot" /> Mass reading</p><h1>A daily table<br /><em>of the word.</em></h1><p className="mass-date"><strong>{dateLabel(entry.date)}</strong><span>{entry.season}</span></p></div><div className="mass-heading-actions"><NarratorButton text={narrationText} voicePreference={voicePreference} /><button className="mass-calendar-trigger" onClick={() => setCalendarOpen(true)}><CalendarDays size={17} /><span>Choose date</span></button></div></header>
+  return <main className="journey-page journey-detail-page mass-page section-wrap">
+    <nav className="journey-detail-nav mass-detail-nav" aria-label="Mass reading actions">
+      <button className="mass-calendar-trigger" onClick={() => setCalendarOpen(true)}><CalendarDays size={17} /><span>Choose date</span></button>
+    </nav>
+    <header className="journey-detail-heading">
+      <p className="eyebrow"><span className="eyebrow-dot" /> Mass reading <span aria-hidden="true">/</span> {dateLabel(entry.date, false)}</p>
+      <h1>Daily Mass</h1>
+      <p className="journey-detail-overview">A daily table of the word, with the readings of the Church for today.</p>
+      <p className="breviary-day-caption"><strong>{entry.season}</strong></p>
+      <div className="journey-audio-controls"><NarratorButton text={narrationText} voicePreference={voicePreference} /></div>
+    </header>
     <div className="mass-reading-list">{Object.entries(entry.readings).map(([key, reading]) => <article className="mass-reading-card" key={key}><div className="mass-reading-meta"><span>{labels[key] || key}</span><strong>{referenceLabel(reading.reference)}</strong></div><div className="mass-reading-text">{getParagraphs(resolveReference(reading.reference)).map((paragraph) => <p key={paragraph.id}>{paragraph.verses.map((verse) => <span key={verse.verse}><sup>{verse.verse}</sup>{verse.text} </span>)}</p>)}</div><button className="text-link" onClick={() => onOpenReference(reading.reference)}>Read in chapter <ArrowRight size={14} /></button></article>)}</div>
     <footer className="mass-source"><BookOpen size={15} /><span>World English Bible · Catholic lectionary references</span></footer>
     {calendarOpen && <MassCalendar selectedDate={entry.date} onSelect={changeDate} onClose={() => setCalendarOpen(false)} />}

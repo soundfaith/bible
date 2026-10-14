@@ -36,7 +36,6 @@ export function BreviaryLibrary({ date, seasonName, saintName, onDateChange }: D
   const currentHour = breviaryHourInfo[currentBreviaryHour()];
   return (
     <main className="journey-page breviary-page section-wrap">
-      <BreviaryDateBar date={date} caption={caption} onOpen={() => setCalendarOpen(true)} />
       <header className="journey-heading">
         <div className="journey-heading-copy">
           <p className="eyebrow"><span className="eyebrow-dot" /> The Liturgy of the Hours</p>
@@ -49,7 +48,7 @@ export function BreviaryLibrary({ date, seasonName, saintName, onDateChange }: D
             <a className="button button-coral journey-resume-button" href={`#/breviary/${currentBreviaryHour()}`}>
               Pray {currentHour.name} <ArrowRight size={15} aria-hidden="true" />
             </a>
-            <button className="mass-calendar-trigger" onClick={() => setCalendarOpen(true)}><CalendarDays size={17} /><span>Choose date</span></button>
+            <button className="button button-outline breviary-date-button" onClick={() => setCalendarOpen(true)}><CalendarDays size={17} /><span>Choose date</span></button>
           </div>
         </div>
       </header>
@@ -117,9 +116,7 @@ export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activ
   const caption = day.saint ? `${day.saint.name} · ${day.season.name}` : day.season.name;
   return (
     <main className="journey-page journey-detail-page breviary-page section-wrap">
-      <BreviaryDateBar date={date} caption={caption} onOpen={() => setCalendarOpen(true)} />
-      <nav className="journey-detail-nav" aria-label="Breviary navigation">
-        <a className="button button-outline" href="#/breviary"><ArrowLeft size={16} /> All hours</a>
+      <nav className="journey-detail-nav" aria-label="Breviary navigation">        <a className="button button-outline" href="#/breviary"><ArrowLeft size={16} /> All hours</a>
         <button className="mass-calendar-trigger" onClick={() => setCalendarOpen(true)}><CalendarDays size={17} /><span>Choose date</span></button>
       </nav>
 

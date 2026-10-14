@@ -245,7 +245,6 @@ export function BibleJourneyLibrary({
             <p className="eyebrow">The unfolding story</p>
             <h2 id="journey-library-title">Twelve places to pause.</h2>
           </div>
-          <a className="journey-artwork-link" href="#/journey-artwork">Choose your period artwork <ArrowRight size={14} /></a>
         </div>
         <ol className="journey-library-list">
           {bibleJourney.map((period, index) => {

@@ -17,14 +17,12 @@ export function BibleBooksPage({ current, onChoose, onResume }: { current: Readi
 
   return (
     <main className="bible-library-page section-wrap">
-      <header className="bible-library-heading">
-        <div>
+      <header className="journey-heading bible-library-heading">
+        <div className="journey-heading-copy">
           <p className="eyebrow"><span className="eyebrow-dot" /> World English Bible</p>
           <h1>Find your place<br /><em>in the Word.</em></h1>
-        </div>
-        <div className="bible-library-hero-actions">
-          <p className="bible-library-intro">Choose a book, then a chapter. Your reading place is saved as you go.</p>
-          <button className="button button-coral" type="button" onClick={onResume}>
+          <p className="journey-intro">Choose a book, then a chapter. Your reading place is saved as you go.</p>
+          <button className="button button-coral journey-resume-button" type="button" onClick={onResume}>
             Resume {currentBookName} {current.chapter} <ArrowRight size={15} aria-hidden="true" />
           </button>
         </div>

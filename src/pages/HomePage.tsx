@@ -1,4 +1,5 @@
 import { ArrowRight, Layers3 } from "lucide-react";
+import { LandingBibleArtwork, LandingBreviaryArtwork, LandingChurchArtwork } from "../components/LandingArtwork";
 
 type HomePageProps = {
   onResume: () => void;
@@ -69,13 +70,7 @@ export function HomePage({ onResume, onChoose, onMass, onJourney, onBreviary }: 
             >
               <div className={`landing-card-art landing-card-art--${art}`} aria-hidden="true">
                 {art === "bible" ? (
-                  <svg className="landing-card-artwork" viewBox="0 0 400 200">
-                    <path className="landing-bible-book-shadow" d="M71 56q68-24 127 15 59-39 131-15v101q-69-20-131 17-62-37-127-17z" />
-                    <path className="landing-bible-page landing-bible-page--left" d="M78 62q61-18 120 17v86q-58-31-120-17z" />
-                    <path className="landing-bible-page landing-bible-page--right" d="M202 79q58-35 120-17v86q-62-14-120 17z" />
-                    <path className="landing-bible-spine" d="M198 78v87" />
-                    <path className="landing-bible-text-lines" d="M99 86q37-9 72 6m-71 10q32-7 65 7m-63 10q30-6 57 7m59-40q31-17 65-16m-65 27q34-16 67-13m-66 25q31-12 66-10" />
-                  </svg>
+                  <LandingBibleArtwork />
                 ) : art === "journey" ? (
                   <svg className="landing-card-artwork" viewBox="0 0 400 200">
                     <ellipse className="landing-journey-sun" cx="200" cy="100" rx="60" ry="22" />
@@ -102,29 +97,8 @@ export function HomePage({ onResume, onChoose, onMass, onJourney, onBreviary }: 
                     <circle className="landing-journey-star-center" cx="200" cy="42" r="2.5" />
                     <path className="landing-journey-star-rays" d="M200 14v6m0 44v6m-28-28h6m44 0h6" />
                   </svg>
-                ) : art === "readings" ? (
-                  <svg className="landing-card-artwork" viewBox="0 0 400 200">
-                    <path className="landing-church-ground" d="M0 166q100-19 200 0t200 0v34H0z" />
-                    <path className="landing-church-building" d="M118 97h164v71H118z" />
-                    <path className="landing-church-roof" d="m99 99 101-55 101 55z" />
-                    <path className="landing-church-tower" d="M169 62h62v-27h-62z" />
-                    <path className="landing-church-spire" d="m160 36 40-27 40 27z" />
-                    <path className="landing-church-cross" d="M197 10h6v20h-6zm-7 7h20v5h-20z" />
-                    <path className="landing-church-door" d="M180 168v-36q0-20 20-20t20 20v36z" />
-                    <path className="landing-church-window" d="M139 117q0-12 10-12t10 12v17h-20zm102 0q0-12 10-12t10 12v17h-20z" />
-                  </svg>
                 ) : (
-                  <>
-                    <svg className="landing-card-artwork" viewBox="0 0 400 200">
-                      <path className="landing-prayer-table" d="M95 157h210v9H95z" />
-                      <path className="landing-prayer-book" d="M128 135q36-16 72 0 36-16 72 0v31q-36-14-72 0-36-14-72 0z" />
-                      <path className="landing-prayer-book-lines" d="M140 145q27-9 48 0m-47 8q24-8 46 0m30-8q24-9 45 0m-44 8q22-8 44 0" />
-                      <path className="landing-prayer-candle" d="M286 90h25l-3 48h-19z" />
-                      <path className="landing-prayer-candle-top" d="M286 90q12-7 25 0-12 7-25 0" />
-                      <path className="landing-prayer-flame" d="M299 84q-13-12 0-30 13 18 0 30" />
-                      <path className="landing-prayer-wick" d="M299 86v5" />
-                    </svg>
-                  </>
+                  <LandingChurchArtwork />
                 )}
               </div>
               <div className="landing-card-copy">
@@ -138,15 +112,7 @@ export function HomePage({ onResume, onChoose, onMass, onJourney, onBreviary }: 
           ))}
           <button className="landing-card" type="button" aria-label="Breviary: Pray the Hours" onClick={onBreviary}>
             <div className="landing-card-art landing-card-art--prayer" aria-hidden="true">
-              <svg className="landing-card-artwork" viewBox="0 0 400 200">
-                <path className="landing-prayer-table" d="M95 157h210v9H95z" />
-                <path className="landing-prayer-book" d="M128 135q36-16 72 0 36-16 72 0v31q-36-14-72 0-36-14-72 0z" />
-                <path className="landing-prayer-book-lines" d="M140 145q27-9 48 0m-47 8q24-8 46 0m30-8q24-9 45 0m-44 8q22-8 44 0" />
-                <path className="landing-prayer-candle" d="M286 90h25l-3 48h-19z" />
-                <path className="landing-prayer-candle-top" d="M286 90q12-7 25 0-12 7-25 0" />
-                <path className="landing-prayer-flame" d="M299 84q-13-12 0-30 13 18 0 30" />
-                <path className="landing-prayer-wick" d="M299 86v5" />
-              </svg>
+              <LandingBreviaryArtwork />
             </div>
             <div className="landing-card-copy">
               <h3>Breviary</h3>
