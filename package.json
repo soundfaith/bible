@@ -6,9 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "chat:validate": "node scripts/chat/validate-topics.mjs",
+    "chat:index": "node scripts/chat/build-index.mjs",
+    "chat:eval": "node scripts/chat/eval.mjs"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.1",
     "@vitejs/plugin-react": "latest",
     "lucide-react": "^0.468.0",
     "react": "latest",

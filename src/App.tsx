@@ -13,7 +13,6 @@ import {
   Menu,
   Minus,
   Plus,
-  Search,
   Share2,
   Sunrise,
   Sunset,
@@ -25,6 +24,7 @@ import { Brand, ThemeToggle } from "./components/Brand";
 import { BibleMark } from "./components/BibleMark";
 import { ModalLayer, type Modal } from "./components/ModalLayer";
 import { SearchModal, type SearchResult } from "./components/SearchModal";
+import { ChatWidget } from "./components/ChatWidget";
 import { HomePage } from "./pages/HomePage";
 import { BibleJourneyLibrary, BibleJourneyPage } from "./pages/BibleJourneyPage";
 import { JourneyArtworkPage } from "./pages/JourneyArtworkPage";
@@ -532,17 +532,6 @@ export default function App() {
   const openBibleBooks = () => {
     window.location.hash = "#/bible";
   };
-  const openSearch = () => {
-    setSearchInteracted(false);
-    setModal({
-      type: "search",
-      onChoose: (result) =>
-        openReader(
-          { bookId: result.bookId, chapter: result.chapter },
-          result.verse,
-        ),
-    });
-  };
   const openMassReference = (reference: string) => {
     const verses = resolveReference(reference);
     const bookName = reference.split(/\s+\d+:/)[0].toLowerCase();
@@ -736,9 +725,6 @@ export default function App() {
           </div>
         </nav>
         <div className="header-actions">
-          <button className="icon-button header-search-button" aria-label="Explore Scripture" onClick={openSearch}>
-            <Search size={18} />
-          </button>
           <button
             className="icon-button mobile-toggle"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -853,6 +839,7 @@ export default function App() {
           </section>
         </div>
       )}
+      <ChatWidget onOpenVerse={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)} />
     </div>
   );
 }

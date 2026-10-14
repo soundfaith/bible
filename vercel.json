@@ -3,5 +3,8 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "cleanUrls": true,
+  "headers": [
+    { "source": "/chat/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, must-revalidate" }] }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

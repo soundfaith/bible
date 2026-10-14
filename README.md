@@ -173,13 +173,18 @@ $env:HF_HUB_OFFLINE = '1'
 
 
 
+
+-- regenerate missing verses with smart resume
+
 python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice am_michael --plan
 python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice am_michael --overwrite --upload-github --replace-existing --execute
 python scripts/generate_bible_narration.py --chapter-plan scripts/audio_regeneration_plan.json --voice af_heart --overwrite --upload-github --replace-existing --execute
 
 
+-- regenerate journey
 python scripts/regenerate_journey_audio.py --plan
 python scripts/regenerate_journey_audio.py --execute
+
 
 ## Breviary
 

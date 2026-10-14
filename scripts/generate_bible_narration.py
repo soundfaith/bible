@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import datetime
 import json
 import shutil
 import subprocess
@@ -325,6 +326,15 @@ def validate_remote(book: dict[str, Any], chapters: list[int]) -> None:
     print(f"GitHub remote validation passed for all {len(chapters)} chapters in {book['name']}.")
 
 
+def is_already_regenerated(mp3_path: Path, cutoff: float | None) -> bool:
+    if cutoff is None or not mp3_path.is_file():
+        return False
+    try:
+        return mp3_path.stat().st_mtime >= cutoff and has_playable_mp3_frames(mp3_path.read_bytes())
+    except Exception:
+        return False
+
+
 def main() -> int:
     global OUTPUT_DIR, VOICE, VOICE_DESCRIPTION
 
@@ -344,6 +354,11 @@ def main() -> int:
         help="clobber every selected GitHub asset, even when its size is unchanged",
     )
     parser.add_argument("--execute", action="store_true", help="confirm GitHub publishing after typing the confirmation phrase")
+    parser.add_argument(
+        "--since", help="skip chapters whose MP3 was modified at/after this local time "
+        "(e.g. '2026-10-14 08:00'); default: the --chapter-plan file's modified time",
+    )
+    parser.add_argument("--no-resume", action="store_true", help="do not skip chapters already regenerated")
     args = parser.parse_args()
     if not 0.5 <= args.speed <= 1.5:
         parser.error("--speed must be between 0.5 and 1.5")
@@ -355,6 +370,16 @@ def main() -> int:
         parser.error("--chapter-plan cannot be combined with --book")
 
     voices = list(dict.fromkeys(args.voice or ["af_heart"]))
+
+    cutoff: float | None = None
+    if not args.no_resume:
+        if args.since:
+            try:
+                cutoff = datetime.datetime.fromisoformat(args.since).timestamp()
+            except ValueError:
+                parser.error("--since must look like '2026-10-14 08:00'")
+        elif args.chapter_plan:
+            cutoff = args.chapter_plan.stat().st_mtime if args.chapter_plan.is_file() else None
 
     try:
         books = read_books()
@@ -378,8 +403,17 @@ def main() -> int:
             print(f"\nVoice: {VOICE} ({VOICE_DESCRIPTION})")
             print(f"Books: {len(work)}; chapters: {chapter_count}")
             print(f"Output: {OUTPUT_DIR.relative_to(ROOT)}")
+            if cutoff is not None:
+                print("Resume cutoff: " + datetime.datetime.fromtimestamp(cutoff).strftime("%Y-%m-%d %H:%M:%S"))
+            total_skipped = 0
             for book, chapters in work:
-                print(f"  {book['name']}: {len(chapters)} chapters -> {gh_release_tag(book['id'])}")
+                skipped = [c for c in chapters if is_already_regenerated(chapter_paths(book["id"], c)[1], cutoff)]
+                total_skipped += len(skipped)
+                print(
+                    f"  {book['name']}: {len(chapters) - len(skipped)} to generate, {len(skipped)} already done"
+                    f" -> {gh_release_tag(book['id'])}"
+                )
+            print(f"Total: {chapter_count - total_skipped} to generate, {total_skipped} skipped")
         if args.plan:
             return 0
 
@@ -408,6 +442,13 @@ def main() -> int:
                 print(f"\n{book['name']}: processing {len(chapters)} chapters.")
                 for chapter in chapters:
                     wav_path, mp3_path = chapter_paths(book["id"], chapter)
+                    if is_already_regenerated(mp3_path, cutoff):
+                        # Already regenerated before the interruption; only ensure it is published.
+                        if args.upload_github:
+                            upload_book(book, [mp3_path], False)
+                            validate_remote(book, [chapter])
+                        completed += 1
+                        continue
                     if not mp3_path.is_file() or args.overwrite:
                         wav_path = generate_chapter(
                             book["id"], book["name"], chapter,

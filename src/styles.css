@@ -928,7 +928,6 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
 	.bible-chapter-grid { grid-template-columns:repeat(7,minmax(30px,1fr)); gap:5px; }
 	.bible-chapter-button { min-height:36px; }
 	.bible-library-return { margin-top:27px; }
-	.header-search-button { display:grid; }
 	.mobile-bottom-nav .mobile-listen-button { width:48px; height:48px; }
 	.mobile-bottom-nav .mobile-listen-button span:not(.audio-equalizer) { font-size:8px; }
 }
