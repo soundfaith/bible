@@ -104,6 +104,22 @@ function AssistantBubble({ message, onOpen, onPick }: { message: ChatMessage; on
       </div>
     );
   }
+  if (message.kind === "verses" && message.passageRefs?.length) {
+    return (
+      <div className="chat-bubble assistant">
+        <p className="chat-lead">Here is where Scripture speaks of “{message.keyword}”.</p>
+        <div className="chat-verses">
+          {message.passageRefs.map((ref) => <VerseCard key={ref} reference={ref} onOpen={onOpen} />)}
+        </div>
+        {!!message.optionIds?.length && (
+          <>
+            <p className="chat-related">Or explore</p>
+            <Chips ids={message.optionIds} onPick={onPick} label="Related topics" />
+          </>
+        )}
+      </div>
+    );
+  }
   if (message.kind === "suggest") {
     return (
       <div className="chat-bubble assistant">

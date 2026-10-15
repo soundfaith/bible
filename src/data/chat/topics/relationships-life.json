@@ -1,0 +1,270 @@
+[
+  {
+    "id": "parenting",
+    "title": "Christian parenting",
+    "category": "Relationships & Life",
+    "intro": "Parenting is guiding children toward faith, virtue, and maturity. It requires patience, love, and trust in God’s grace.",
+    "phrasings": [
+      "Catholic parenting advice",
+      "Christian parenting",
+      "parenting in the Bible",
+      "teaching kids about God",
+      "how do I raise my kids to love God",
+      "my child has left the faith what do I do",
+      "how should Christian parents discipline children",
+      "what does the Bible say about raising children"
+    ],
+    "verses": [
+      "Proverbs 22:6",
+      "Ephesians 6:4",
+      "Colossians 3:21",
+      "Psalm 127:3",
+      "Deuteronomy 6:6-7"
+    ],
+    "related": [
+      "family",
+      "patience",
+      "love"
+    ]
+  },
+  {
+    "id": "work",
+    "title": "Work and vocation",
+    "category": "Relationships & Life",
+    "intro": "Work is participation in God’s creation and a way to serve others. Every vocation is a call to holiness and generosity.",
+    "phrasings": [
+      "Catholic teaching on work",
+      "Christian view of work",
+      "work and faith",
+      "vocation meaning",
+      "serving God through work"
+    ],
+    "verses": [
+      "Colossians 3:23",
+      "Proverbs 16:3",
+      "1 Thessalonians 4:11",
+      "Genesis 2:15",
+      "Ephesians 2:10"
+    ],
+    "related": [
+      "service",
+      "generosity",
+      "perseverance"
+    ]
+  },
+  {
+    "id": "conflict",
+    "title": "Conflict and reconciliation",
+    "category": "Relationships & Life",
+    "intro": "Conflict is part of human relationships, but Christ calls us to forgiveness, patience, and reconciliation rooted in love.",
+    "phrasings": [
+      "how to resolve conflict",
+      "Bible teaching on conflict",
+      "handling arguments",
+      "reconciliation",
+      "my coworker and I keep fighting",
+      "how do I make peace after an argument",
+      "how do I fix a broken relationship",
+      "what does the Bible say about resolving disputes",
+      "how to communicate better",
+      "communication problems",
+      "Bible verses about communication",
+      "speaking with love",
+      "listening well"
+    ],
+    "verses": [
+      "Matthew 5:23-24",
+      "Colossians 3:13",
+      "Romans 12:18",
+      "Proverbs 15:1",
+      "Ephesians 4:31-32",
+      "Ephesians 4:29"
+    ],
+    "related": [
+      "forgiveness",
+      "peace",
+      "humility"
+    ]
+  },
+  {
+    "id": "community",
+    "title": "Community and fellowship",
+    "category": "Relationships & Life",
+    "intro": "Community is God’s design for support, growth, and shared faith. Christians are called to build each other up and walk together.",
+    "phrasings": [
+      "importance of Christian community",
+      "fellowship in the Bible",
+      "church community",
+      "why community matters",
+      "building fellowship"
+    ],
+    "verses": [
+      "Hebrews 10:24-25",
+      "Acts 2:42-47",
+      "Romans 12:4-5",
+      "Galatians 6:2",
+      "1 Thessalonians 5:11"
+    ],
+    "related": [
+      "friendship",
+      "service",
+      "love"
+    ]
+  },
+  {
+    "id": "boundaries",
+    "title": "Healthy boundaries",
+    "category": "Relationships & Life",
+    "intro": "Healthy boundaries protect relationships, preserve dignity, and help us love others without losing ourselves.",
+    "phrasings": [
+      "how to set boundaries",
+      "Christian boundaries",
+      "toxic relationships",
+      "saying no with love",
+      "protecting your peace",
+      "setting boundaries with family",
+      "toxic family dynamics",
+      "Bible guidance for family conflict",
+      "honoring parents with boundaries",
+      "protecting emotional health"
+    ],
+    "verses": [
+      "Proverbs 4:23",
+      "Galatians 6:5",
+      "Matthew 5:37",
+      "1 Corinthians 6:19-20",
+      "Romans 12:2",
+      "Romans 12:18"
+    ],
+    "related": [
+      "conflict",
+      "peace",
+      "wisdom"
+    ]
+  },
+  {
+    "id": "hospitality",
+    "title": "Hospitality",
+    "category": "Relationships & Life",
+    "intro": "Hospitality is welcoming others with warmth and generosity, reflecting God’s open heart toward us.",
+    "phrasings": [
+      "Christian hospitality",
+      "welcoming others",
+      "serving guests",
+      "opening your home",
+      "hospitality in the Bible"
+    ],
+    "verses": [
+      "Hebrews 13:2",
+      "Romans 12:13",
+      "1 Peter 4:9",
+      "Genesis 18:1-8",
+      "Matthew 25:35"
+    ],
+    "related": [
+      "community",
+      "service",
+      "generosity"
+    ]
+  },
+  {
+    "id": "mentorship",
+    "title": "Mentorship and guidance",
+    "category": "Relationships & Life",
+    "intro": "Mentorship is passing on wisdom, faith, and encouragement. Scripture shows the power of spiritual guides and companions.",
+    "phrasings": [
+      "finding a mentor",
+      "spiritual guidance",
+      "discipleship",
+      "learning from others",
+      "mentorship in the Bible"
+    ],
+    "verses": [
+      "2 Timothy 2:2",
+      "Proverbs 27:17",
+      "Titus 2:3-5",
+      "1 Samuel 3:8-10",
+      "Acts 16:1-3"
+    ],
+    "related": [
+      "wisdom",
+      "community",
+      "vocation"
+    ]
+  },
+  {
+    "id": "aging",
+    "title": "Aging and elder care",
+    "category": "Relationships & Life",
+    "intro": "Aging is a season of dignity, wisdom, and continued purpose. Scripture calls us to honor and care for the elderly.",
+    "phrasings": [
+      "caring for aging parents",
+      "honoring the elderly",
+      "Bible verses about aging",
+      "elder care",
+      "purpose in old age"
+    ],
+    "verses": [
+      "Leviticus 19:32",
+      "Proverbs 16:31",
+      "Psalm 71:9",
+      "1 Timothy 5:1-4",
+      "Isaiah 46:4"
+    ],
+    "related": [
+      "family",
+      "service",
+      "love"
+    ]
+  },
+  {
+    "id": "financial-stress",
+    "title": "Financial stress and provision",
+    "category": "Relationships & Life",
+    "intro": "Financial stress affects relationships deeply, but Scripture reminds us that God provides and calls us to wise stewardship.",
+    "phrasings": [
+      "Bible verses about money stress",
+      "trusting God with finances",
+      "financial anxiety",
+      "God provides",
+      "managing money wisely"
+    ],
+    "verses": [
+      "Matthew 6:25-34",
+      "Philippians 4:19",
+      "Proverbs 3:9-10",
+      "Hebrews 13:5",
+      "Luke 12:22-24"
+    ],
+    "related": [
+      "trust-in-god",
+      "wisdom",
+      "contentment"
+    ]
+  },
+  {
+    "id": "life-transitions",
+    "title": "Life transitions",
+    "category": "Relationships & Life",
+    "intro": "Life transitions—new jobs, moves, marriage, parenthood—bring change and growth. God walks with us through every season.",
+    "phrasings": [
+      "handling life changes",
+      "Bible verses for transitions",
+      "new seasons of life",
+      "trusting God in change",
+      "major life decisions"
+    ],
+    "verses": [
+      "Ecclesiastes 3:1",
+      "Isaiah 43:19",
+      "Joshua 1:9",
+      "Psalm 32:8",
+      "Romans 8:28"
+    ],
+    "related": [
+      "trust-in-god",
+      "wisdom",
+      "hope"
+    ]
+  }
+]

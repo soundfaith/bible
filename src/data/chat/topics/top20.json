@@ -5,15 +5,51 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Prayer is a conversation with God, who already knows us and loves us. Jesus teaches us to pray simply and sincerely, to trust the Father, and to persevere. The Church prays with Scripture, especially the Our Father, and every prayer can begin with just a few honest words.",
-    "phrasings": ["how do I pray", "teach me how to pray", "what is the right way to pray", "how can I talk to God", "how should I pray every day", "I don't know how to pray", "what does the Bible say about prayer", "how to start a prayer life"],
-    "verses": [
-      { "ref": "Matthew 6:9-13", "why": "Jesus gives the Our Father as the model of all prayer." },
-      { "ref": "Matthew 6:5-8", "why": "Pray sincerely, not to be seen, and without empty repetition." },
-      { "ref": "Luke 11:9-10", "why": "Ask, seek, and knock; God answers those who persevere." },
-      { "ref": "Romans 8:26", "why": "The Spirit helps us when we do not know what to say." },
-      { "ref": "1 Thessalonians 5:16-18", "why": "Pray continually and give thanks in all circumstances." }
+    "phrasings": [
+      "how do I pray",
+      "teach me how to pray",
+      "what is the right way to pray",
+      "how can I talk to God",
+      "how should I pray every day",
+      "I don't know how to pray",
+      "what does the Bible say about prayer",
+      "how to start a prayer life",
+      "what is prayer",
+      "how to pray",
+      "Catholic teaching on prayer",
+      "why prayer matters",
+      "forms of prayer",
+      "prayer explained",
+      "talking to God",
+      "learning to pray"
     ],
-    "related": ["trust-in-god", "gratitude", "perseverance"]
+    "verses": [
+      {
+        "ref": "Matthew 6:9-13",
+        "why": "Jesus gives the Our Father as the model of all prayer."
+      },
+      {
+        "ref": "Matthew 6:5-8",
+        "why": "Pray sincerely, not to be seen, and without empty repetition."
+      },
+      {
+        "ref": "Luke 11:9-10",
+        "why": "Ask, seek, and knock; God answers those who persevere."
+      },
+      {
+        "ref": "Romans 8:26",
+        "why": "The Spirit helps us when we do not know what to say."
+      },
+      {
+        "ref": "1 Thessalonians 5:16-18",
+        "why": "Pray continually and give thanks in all circumstances."
+      }
+    ],
+    "related": [
+      "trust-in-god",
+      "gratitude",
+      "perseverance"
+    ]
   },
   {
     "id": "forgiveness",
@@ -21,15 +57,56 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "God's mercy has no limit, and he asks us to share it. We are forgiven so that we can forgive, even when it is hard. Forgiving does not excuse the wrong; it releases us from bitterness and entrusts justice to God. Catholics receive God's forgiveness of sins in the Sacrament of Reconciliation.",
-    "phrasings": ["how do I forgive someone", "I can't forgive the person who hurt me", "what does the Bible say about forgiveness", "does God forgive me", "how many times should I forgive", "how to let go of anger and resentment", "how to forgive myself", "will God forgive any sin"],
-    "verses": [
-      { "ref": "Matthew 18:21-22", "why": "Forgive not seven times but seventy-seven times." },
-      { "ref": "Colossians 3:13", "why": "Forgive as the Lord forgave you." },
-      { "ref": "1 John 1:9", "why": "If we confess our sins, God is faithful to forgive." },
-      { "ref": "Psalms 103:8-12", "why": "God removes our sins as far as east is from west." },
-      { "ref": "Luke 23:34", "why": "Jesus forgives even those who crucify him." }
+    "phrasings": [
+      "how do I forgive someone",
+      "I can't forgive the person who hurt me",
+      "what does the Bible say about forgiveness",
+      "does God forgive me",
+      "how many times should I forgive",
+      "how to let go of anger and resentment",
+      "how to forgive myself",
+      "will God forgive any sin",
+      "how to forgive",
+      "forgiveness in the Bible",
+      "Catholic teaching on forgiveness",
+      "why forgiveness matters",
+      "letting go of anger",
+      "forgiving others",
+      "God forgives us",
+      "forgiveness explained",
+      "how to forgive someone",
+      "forgiveness in relationships",
+      "letting go of hurt",
+      "Bible verses about forgiveness",
+      "healing after conflict"
     ],
-    "related": ["confession", "mercy", "anger"]
+    "verses": [
+      {
+        "ref": "Matthew 18:21-22",
+        "why": "Forgive not seven times but seventy-seven times."
+      },
+      {
+        "ref": "Colossians 3:13",
+        "why": "Forgive as the Lord forgave you."
+      },
+      {
+        "ref": "1 John 1:9",
+        "why": "If we confess our sins, God is faithful to forgive."
+      },
+      {
+        "ref": "Psalms 103:8-12",
+        "why": "God removes our sins as far as east is from west."
+      },
+      {
+        "ref": "Luke 23:34",
+        "why": "Jesus forgives even those who crucify him."
+      }
+    ],
+    "related": [
+      "confession",
+      "mercy",
+      "anger"
+    ]
   },
   {
     "id": "anxiety",
@@ -37,15 +114,43 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Scripture speaks tenderly to anxious hearts. God does not ask us to pretend we are not afraid; he invites us to hand him our worries and trust that he cares. Bring each concern to him in prayer, take today one step at a time, and receive his peace.",
-    "phrasings": ["I am anxious", "what does the Bible say about anxiety", "how to stop worrying", "I feel overwhelmed and stressed", "I'm worried about the future", "I can't stop overthinking", "how to find peace when I am stressed", "verses for anxiety"],
-    "verses": [
-      { "ref": "Philippians 4:6-7", "why": "Bring everything to God in prayer and his peace will guard your heart." },
-      { "ref": "1 Peter 5:7", "why": "Cast all your worries on him because he cares for you." },
-      { "ref": "Matthew 6:25-34", "why": "Do not worry about tomorrow; your Father knows what you need." },
-      { "ref": "Isaiah 41:10", "why": "God promises to be with you and to uphold you." },
-      { "ref": "John 14:27", "why": "Christ gives a peace that the world cannot give." }
+    "phrasings": [
+      "I am anxious",
+      "what does the Bible say about anxiety",
+      "how to stop worrying",
+      "I feel overwhelmed and stressed",
+      "I'm worried about the future",
+      "I can't stop overthinking",
+      "how to find peace when I am stressed",
+      "verses for anxiety"
     ],
-    "related": ["peace", "fear", "trust-in-god"]
+    "verses": [
+      {
+        "ref": "Philippians 4:6-7",
+        "why": "Bring everything to God in prayer and his peace will guard your heart."
+      },
+      {
+        "ref": "1 Peter 5:7",
+        "why": "Cast all your worries on him because he cares for you."
+      },
+      {
+        "ref": "Matthew 6:25-34",
+        "why": "Do not worry about tomorrow; your Father knows what you need."
+      },
+      {
+        "ref": "Isaiah 41:10",
+        "why": "God promises to be with you and to uphold you."
+      },
+      {
+        "ref": "John 14:27",
+        "why": "Christ gives a peace that the world cannot give."
+      }
+    ],
+    "related": [
+      "peace",
+      "fear",
+      "trust-in-god"
+    ]
   },
   {
     "id": "salvation",
@@ -53,15 +158,51 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Salvation is a gift of God's grace through Jesus Christ, received in faith. Catholics understand it as a living relationship: we are saved by grace, we respond with faith working through love, and we are sustained by the sacraments, beginning with Baptism. It is not earned, but it is meant to be lived.",
-    "phrasings": ["how can I be saved", "what must I do to be saved", "what is salvation", "how do I get to heaven", "can I lose my salvation", "once saved always saved", "how to become a Christian", "what does the Bible say about salvation"],
-    "verses": [
-      { "ref": "Ephesians 2:8-10", "why": "We are saved by grace through faith, created for good works." },
-      { "ref": "Acts 16:30-31", "why": "Believe in the Lord Jesus and you will be saved." },
-      { "ref": "John 3:16-17", "why": "God sent his Son so that the world might be saved through him." },
-      { "ref": "Romans 10:9-10", "why": "Confess Jesus as Lord and believe in your heart." },
-      { "ref": "Philippians 2:12-13", "why": "Work out your salvation with reverence; God is at work in you." }
+    "phrasings": [
+      "how can I be saved",
+      "what must I do to be saved",
+      "what is salvation",
+      "how do I get to heaven",
+      "can I lose my salvation",
+      "once saved always saved",
+      "how to become a Christian",
+      "what does the Bible say about salvation",
+      "how are we saved",
+      "Catholic teaching on salvation",
+      "what is grace",
+      "Jesus saves us",
+      "salvation explained",
+      "faith and works Catholic view",
+      "why did Jesus die",
+      "meaning of redemption"
     ],
-    "related": ["faith-and-works", "baptism", "grace"]
+    "verses": [
+      {
+        "ref": "Ephesians 2:8-10",
+        "why": "We are saved by grace through faith, created for good works."
+      },
+      {
+        "ref": "Acts 16:30-31",
+        "why": "Believe in the Lord Jesus and you will be saved."
+      },
+      {
+        "ref": "John 3:16-17",
+        "why": "God sent his Son so that the world might be saved through him."
+      },
+      {
+        "ref": "Romans 10:9-10",
+        "why": "Confess Jesus as Lord and believe in your heart."
+      },
+      {
+        "ref": "Philippians 2:12-13",
+        "why": "Work out your salvation with reverence; God is at work in you."
+      }
+    ],
+    "related": [
+      "faith-and-works",
+      "baptism",
+      "grace"
+    ]
   },
   {
     "id": "suffering",
@@ -69,15 +210,47 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "The Bible does not give a simple explanation for suffering, but it gives something better: God does not stand far away. In Jesus he enters our pain, and Scripture shows suffering being used for growth, compassion and hope, never wasted. Evil is not God's will, and he promises to wipe away every tear.",
-    "phrasings": ["why does God allow suffering", "why do bad things happen to good people", "why is there evil in the world", "why did God let this happen", "where is God when I suffer", "what does the Bible say about suffering", "why is life so painful", "how to find meaning in pain"],
-    "verses": [
-      { "ref": "Romans 8:18", "why": "Present sufferings cannot compare with the glory to come." },
-      { "ref": "Romans 8:28", "why": "God works all things for good for those who love him." },
-      { "ref": "2 Corinthians 1:3-5", "why": "God comforts us so we can comfort others." },
-      { "ref": "Job 42:1-6", "why": "Job meets God in the midst of unexplained suffering." },
-      { "ref": "Revelation 21:4", "why": "God will wipe away every tear and there will be no more pain." }
+    "phrasings": [
+      "why does God allow suffering",
+      "why do bad things happen to good people",
+      "why is there evil in the world",
+      "why did God let this happen",
+      "where is God when I suffer",
+      "what does the Bible say about suffering",
+      "why is life so painful",
+      "how to find meaning in pain",
+      "Bible verses for suffering",
+      "how to endure trials",
+      "God in hard times",
+      "finding meaning in suffering"
     ],
-    "related": ["hope", "grief", "trust-in-god"]
+    "verses": [
+      {
+        "ref": "Romans 8:18",
+        "why": "Present sufferings cannot compare with the glory to come."
+      },
+      {
+        "ref": "Romans 8:28",
+        "why": "God works all things for good for those who love him."
+      },
+      {
+        "ref": "2 Corinthians 1:3-5",
+        "why": "God comforts us so we can comfort others."
+      },
+      {
+        "ref": "Job 42:1-6",
+        "why": "Job meets God in the midst of unexplained suffering."
+      },
+      {
+        "ref": "Revelation 21:4",
+        "why": "God will wipe away every tear and there will be no more pain."
+      }
+    ],
+    "related": [
+      "hope",
+      "grief",
+      "trust-in-god"
+    ]
   },
   {
     "id": "heaven",
@@ -85,15 +258,50 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Scripture promises that death is not the end. For those who belong to Christ, heaven is life with God, face to face, with every tear wiped away, and the Church also hopes for the resurrection of the body. Jesus has gone ahead to prepare a place for us.",
-    "phrasings": ["what happens after we die", "what is heaven like", "is there life after death", "will I see my loved ones in heaven", "what does the Bible say about heaven", "what is eternal life", "how do I get into heaven", "resurrection of the dead"],
-    "verses": [
-      { "ref": "John 14:1-3", "why": "Jesus prepares a place for us and will take us to himself." },
-      { "ref": "1 Corinthians 2:9", "why": "No eye has seen what God has prepared for those who love him." },
-      { "ref": "Revelation 21:1-4", "why": "God dwells with his people and there is no more death." },
-      { "ref": "1 Corinthians 15:51-54", "why": "We will be changed, and death is swallowed up in victory." },
-      { "ref": "Luke 23:42-43", "why": "Jesus promises the repentant thief: today you will be with me in paradise." }
+    "phrasings": [
+      "what happens after we die",
+      "what is heaven like",
+      "is there life after death",
+      "will I see my loved ones in heaven",
+      "what does the Bible say about heaven",
+      "what is eternal life",
+      "how do I get into heaven",
+      "resurrection of the dead",
+      "what is heaven",
+      "Catholic teaching on heaven",
+      "life after death",
+      "eternal life meaning",
+      "heaven explained",
+      "being with God forever",
+      "hope of heaven"
     ],
-    "related": ["hell", "purgatory", "grief"]
+    "verses": [
+      {
+        "ref": "John 14:1-3",
+        "why": "Jesus prepares a place for us and will take us to himself."
+      },
+      {
+        "ref": "1 Corinthians 2:9",
+        "why": "No eye has seen what God has prepared for those who love him."
+      },
+      {
+        "ref": "Revelation 21:1-4",
+        "why": "God dwells with his people and there is no more death."
+      },
+      {
+        "ref": "1 Corinthians 15:51-54",
+        "why": "We will be changed, and death is swallowed up in victory."
+      },
+      {
+        "ref": "Luke 23:42-43",
+        "why": "Jesus promises the repentant thief: today you will be with me in paradise."
+      }
+    ],
+    "related": [
+      "hell",
+      "purgatory",
+      "grief"
+    ]
   },
   {
     "id": "hell",
@@ -101,15 +309,51 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Scripture warns seriously about the possibility of final separation from God, which is the Church's meaning of hell. It is the result of freely and finally rejecting his love, never God's desire. He wants all to be saved, so the warnings are a call to conversion while there is time.",
-    "phrasings": ["is hell real", "what does the Bible say about hell", "who goes to hell", "will bad people be punished", "what is eternal punishment", "is hell forever", "does a loving God send people to hell", "final judgment"],
-    "verses": [
-      { "ref": "Matthew 25:31-46", "why": "Christ describes the final judgment, based on love shown to the least." },
-      { "ref": "2 Peter 3:9", "why": "God is patient, wanting all to come to repentance." },
-      { "ref": "1 Timothy 2:3-4", "why": "God desires all people to be saved." },
-      { "ref": "Mark 9:43-48", "why": "A sober warning to turn from whatever leads us to sin." },
-      { "ref": "Ezekiel 18:23", "why": "God takes no pleasure in the death of the wicked but wants them to turn and live." }
+    "phrasings": [
+      "is hell real",
+      "what does the Bible say about hell",
+      "who goes to hell",
+      "will bad people be punished",
+      "what is eternal punishment",
+      "is hell forever",
+      "does a loving God send people to hell",
+      "final judgment",
+      "what is hell",
+      "Catholic teaching on hell",
+      "eternal separation from God",
+      "why does hell exist",
+      "hell explained",
+      "mortal sin consequences",
+      "judgment and hell",
+      "what happens in hell"
     ],
-    "related": ["heaven", "repentance", "sin"]
+    "verses": [
+      {
+        "ref": "Matthew 25:31-46",
+        "why": "Christ describes the final judgment, based on love shown to the least."
+      },
+      {
+        "ref": "2 Peter 3:9",
+        "why": "God is patient, wanting all to come to repentance."
+      },
+      {
+        "ref": "1 Timothy 2:3-4",
+        "why": "God desires all people to be saved."
+      },
+      {
+        "ref": "Mark 9:43-48",
+        "why": "A sober warning to turn from whatever leads us to sin."
+      },
+      {
+        "ref": "Ezekiel 18:23",
+        "why": "God takes no pleasure in the death of the wicked but wants them to turn and live."
+      }
+    ],
+    "related": [
+      "heaven",
+      "repentance",
+      "sin"
+    ]
   },
   {
     "id": "divorce",
@@ -117,15 +361,43 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Jesus teaches that marriage is a lifelong covenant, rooted in creation itself. The Catholic Church holds that a valid marriage cannot be dissolved, while recognizing that annulments, separations and wounded hearts are real, and that those who are divorced remain loved members of the Church. Anyone in this situation is encouraged to speak with a priest.",
-    "phrasings": ["what does the Bible say about divorce", "can I remarry after divorce", "is divorce a sin", "does Jesus allow divorce", "I am divorced can I receive communion", "what is an annulment", "how to save my marriage from divorce", "separation from my spouse"],
-    "verses": [
-      { "ref": "Matthew 19:3-9", "why": "Jesus answers the question on divorce by returning to God's original plan." },
-      { "ref": "Mark 10:6-9", "why": "What God has joined together, let no one separate." },
-      { "ref": "Malachi 2:13-16", "why": "God cares deeply about faithfulness in marriage." },
-      { "ref": "1 Corinthians 7:10-15", "why": "Paul addresses separation and mixed marriages." },
-      { "ref": "Psalms 34:18", "why": "The Lord is close to the brokenhearted." }
+    "phrasings": [
+      "what does the Bible say about divorce",
+      "can I remarry after divorce",
+      "is divorce a sin",
+      "does Jesus allow divorce",
+      "I am divorced can I receive communion",
+      "what is an annulment",
+      "how to save my marriage from divorce",
+      "separation from my spouse"
     ],
-    "related": ["marriage", "forgiveness", "loneliness"]
+    "verses": [
+      {
+        "ref": "Matthew 19:3-9",
+        "why": "Jesus answers the question on divorce by returning to God's original plan."
+      },
+      {
+        "ref": "Mark 10:6-9",
+        "why": "What God has joined together, let no one separate."
+      },
+      {
+        "ref": "Malachi 2:13-16",
+        "why": "God cares deeply about faithfulness in marriage."
+      },
+      {
+        "ref": "1 Corinthians 7:10-15",
+        "why": "Paul addresses separation and mixed marriages."
+      },
+      {
+        "ref": "Psalms 34:18",
+        "why": "The Lord is close to the brokenhearted."
+      }
+    ],
+    "related": [
+      "marriage",
+      "forgiveness",
+      "loneliness"
+    ]
   },
   {
     "id": "sin",
@@ -133,15 +405,50 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Sin is a free choice that turns away from God's love and wounds ourselves and others. The Bible is honest about sin, but never leaves it there: the same Scripture that names sin proclaims a Savior who forgives. The Church distinguishes mortal from venial sin, and offers Confession as the path back.",
-    "phrasings": ["what is sin", "what does the Bible say about sin", "what is the difference between mortal and venial sin", "what is the worst sin", "is there an unforgivable sin", "why do we sin", "original sin", "how to stop sinning"],
-    "verses": [
-      { "ref": "Romans 3:23", "why": "All have sinned and fall short of God's glory." },
-      { "ref": "1 John 5:16-17", "why": "John distinguishes sin that leads to death from sin that does not." },
-      { "ref": "Romans 7:15-20", "why": "Paul shows the struggle between what we want and what we do." },
-      { "ref": "Psalms 51:1-4", "why": "A model prayer of a sinner asking for mercy." },
-      { "ref": "Romans 6:23", "why": "The wages of sin is death, but God's gift is eternal life." }
+    "phrasings": [
+      "what is sin",
+      "what does the Bible say about sin",
+      "what is the difference between mortal and venial sin",
+      "what is the worst sin",
+      "is there an unforgivable sin",
+      "why do we sin",
+      "original sin",
+      "how to stop sinning",
+      "Catholic teaching on sin",
+      "how does God forgive",
+      "mortal vs venial sin",
+      "why confession matters",
+      "meaning of repentance",
+      "how to return to God",
+      "sin explained simply"
     ],
-    "related": ["repentance", "confession", "forgiveness"]
+    "verses": [
+      {
+        "ref": "Romans 3:23",
+        "why": "All have sinned and fall short of God's glory."
+      },
+      {
+        "ref": "1 John 5:16-17",
+        "why": "John distinguishes sin that leads to death from sin that does not."
+      },
+      {
+        "ref": "Romans 7:15-20",
+        "why": "Paul shows the struggle between what we want and what we do."
+      },
+      {
+        "ref": "Psalms 51:1-4",
+        "why": "A model prayer of a sinner asking for mercy."
+      },
+      {
+        "ref": "Romans 6:23",
+        "why": "The wages of sin is death, but God's gift is eternal life."
+      }
+    ],
+    "related": [
+      "repentance",
+      "confession",
+      "forgiveness"
+    ]
   },
   {
     "id": "who-is-jesus",
@@ -149,15 +456,48 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "The Gospels present Jesus as the Son of God made man: the Word through whom all things were made, who lived among us, died for our sins and rose again. He is fully God and fully human, our Lord, our Savior and our friend.",
-    "phrasings": ["who is Jesus", "is Jesus God", "who is Jesus Christ", "what does the Bible say about Jesus", "why did Jesus die", "who is the Son of God", "was Jesus really resurrected", "what did Jesus teach"],
-    "verses": [
-      { "ref": "John 1:1-14", "why": "The Word was God and became flesh." },
-      { "ref": "Matthew 16:13-17", "why": "Peter confesses Jesus as the Christ, the Son of the living God." },
-      { "ref": "John 14:6", "why": "Jesus is the way, the truth and the life." },
-      { "ref": "Colossians 1:15-20", "why": "In Christ all things were created and reconciled." },
-      { "ref": "1 Corinthians 15:3-6", "why": "The earliest proclamation of his death and resurrection." }
+    "phrasings": [
+      "who is Jesus",
+      "is Jesus God",
+      "who is Jesus Christ",
+      "what does the Bible say about Jesus",
+      "who is the Son of God",
+      "was Jesus really resurrected",
+      "what did Jesus teach",
+      "Catholic teaching on Jesus",
+      "Jesus Son of God",
+      "why Jesus came",
+      "Jesus Christ explained",
+      "meaning of Messiah",
+      "Jesus in the Bible"
     ],
-    "related": ["trinity", "salvation", "love"]
+    "verses": [
+      {
+        "ref": "John 1:1-14",
+        "why": "The Word was God and became flesh."
+      },
+      {
+        "ref": "Matthew 16:13-17",
+        "why": "Peter confesses Jesus as the Christ, the Son of the living God."
+      },
+      {
+        "ref": "John 14:6",
+        "why": "Jesus is the way, the truth and the life."
+      },
+      {
+        "ref": "Colossians 1:15-20",
+        "why": "In Christ all things were created and reconciled."
+      },
+      {
+        "ref": "1 Corinthians 15:3-6",
+        "why": "The earliest proclamation of his death and resurrection."
+      }
+    ],
+    "related": [
+      "trinity",
+      "salvation",
+      "love"
+    ]
   },
   {
     "id": "love",
@@ -165,15 +505,51 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Love is at the heart of the whole Bible. God is love, and he commands us to love him and our neighbor. Biblical love is patient, selfless and willing to sacrifice, and it is first of all a gift we receive before it is something we give.",
-    "phrasings": ["what does the Bible say about love", "what is true love", "how to love others", "love your neighbor", "God's love for me", "what is the greatest commandment", "how to love my enemies", "verses about love"],
-    "verses": [
-      { "ref": "1 Corinthians 13:4-8", "why": "Paul's famous description of what love is and is not." },
-      { "ref": "1 John 4:7-12", "why": "God is love, and we love because he first loved us." },
-      { "ref": "Matthew 22:37-40", "why": "Love of God and neighbor sums up the whole law." },
-      { "ref": "John 15:12-13", "why": "There is no greater love than to lay down one's life for friends." },
-      { "ref": "Romans 5:8", "why": "God proved his love by Christ dying for us while we were still sinners." }
+    "phrasings": [
+      "what does the Bible say about love",
+      "what is true love",
+      "how to love others",
+      "love your neighbor",
+      "God's love for me",
+      "what is the greatest commandment",
+      "how to love my enemies",
+      "verses about love",
+      "what is Christian love",
+      "how to love like Jesus",
+      "love in the Bible",
+      "Catholic teaching on love",
+      "agape love meaning",
+      "loving others daily",
+      "love explained simply",
+      "how to grow in love"
     ],
-    "related": ["mercy", "family", "friendship"]
+    "verses": [
+      {
+        "ref": "1 Corinthians 13:4-8",
+        "why": "Paul's famous description of what love is and is not."
+      },
+      {
+        "ref": "1 John 4:7-12",
+        "why": "God is love, and we love because he first loved us."
+      },
+      {
+        "ref": "Matthew 22:37-40",
+        "why": "Love of God and neighbor sums up the whole law."
+      },
+      {
+        "ref": "John 15:12-13",
+        "why": "There is no greater love than to lay down one's life for friends."
+      },
+      {
+        "ref": "Romans 5:8",
+        "why": "God proved his love by Christ dying for us while we were still sinners."
+      }
+    ],
+    "related": [
+      "mercy",
+      "family",
+      "friendship"
+    ]
   },
   {
     "id": "faith-and-works",
@@ -181,15 +557,43 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Scripture teaches both that we are saved by grace through faith and that faith without works is dead. The Catholic understanding holds these together: good works do not earn salvation, but they are the living expression of the faith that saves.",
-    "phrasings": ["are we saved by faith or works", "faith without works is dead", "do good deeds get me to heaven", "what does the Bible say about works", "Paul and James faith works", "do I have to do good works to be saved", "is faith alone enough", "what is justification"],
-    "verses": [
-      { "ref": "James 2:14-26", "why": "Faith without works is dead." },
-      { "ref": "Ephesians 2:8-10", "why": "Saved by grace through faith, created for good works." },
-      { "ref": "Galatians 5:6", "why": "What matters is faith working through love." },
-      { "ref": "Romans 3:28", "why": "A person is justified by faith apart from works of the law." },
-      { "ref": "Matthew 25:34-40", "why": "Christ judges by how we served the least of his brothers." }
+    "phrasings": [
+      "are we saved by faith or works",
+      "faith without works is dead",
+      "do good deeds get me to heaven",
+      "what does the Bible say about works",
+      "Paul and James faith works",
+      "do I have to do good works to be saved",
+      "is faith alone enough",
+      "what is justification"
     ],
-    "related": ["salvation", "grace", "love"]
+    "verses": [
+      {
+        "ref": "James 2:14-26",
+        "why": "Faith without works is dead."
+      },
+      {
+        "ref": "Ephesians 2:8-10",
+        "why": "Saved by grace through faith, created for good works."
+      },
+      {
+        "ref": "Galatians 5:6",
+        "why": "What matters is faith working through love."
+      },
+      {
+        "ref": "Romans 3:28",
+        "why": "A person is justified by faith apart from works of the law."
+      },
+      {
+        "ref": "Matthew 25:34-40",
+        "why": "Christ judges by how we served the least of his brothers."
+      }
+    ],
+    "related": [
+      "salvation",
+      "grace",
+      "love"
+    ]
   },
   {
     "id": "trinity",
@@ -197,15 +601,49 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "The Trinity is the central mystery of the Christian faith: one God in three Persons, Father, Son and Holy Spirit. The word is not in the Bible, but the truth is revealed throughout it, most clearly at Jesus' baptism and in his command to baptize in the name of the Father, the Son and the Holy Spirit.",
-    "phrasings": ["what is the Trinity", "is the Trinity in the Bible", "who is the Holy Spirit", "are Father Son and Holy Spirit one God", "explain the Trinity", "what does the Bible say about the Holy Spirit", "is Jesus God the Father", "three persons one God"],
-    "verses": [
-      { "ref": "Matthew 28:19", "why": "Baptize in the name of the Father, the Son and the Holy Spirit." },
-      { "ref": "Matthew 3:16-17", "why": "At Jesus' baptism, Father, Son and Spirit are revealed together." },
-      { "ref": "John 14:16-17", "why": "Jesus promises the Father will send another Advocate, the Spirit." },
-      { "ref": "2 Corinthians 13:13", "why": "A Trinitarian blessing of grace, love and fellowship." },
-      { "ref": "Deuteronomy 6:4", "why": "The Lord our God is one." }
+    "phrasings": [
+      "what is the Trinity",
+      "is the Trinity in the Bible",
+      "who is the Holy Spirit",
+      "are Father Son and Holy Spirit one God",
+      "explain the Trinity",
+      "what does the Bible say about the Holy Spirit",
+      "is Jesus God the Father",
+      "three persons one God",
+      "explain the Holy Trinity",
+      "Catholic teaching on the Trinity",
+      "how is God Father Son Spirit",
+      "Trinity mystery",
+      "understanding the Trinity",
+      "Trinity explained simply"
     ],
-    "related": ["who-is-jesus", "holy-spirit", "baptism"]
+    "verses": [
+      {
+        "ref": "Matthew 28:19",
+        "why": "Baptize in the name of the Father, the Son and the Holy Spirit."
+      },
+      {
+        "ref": "Matthew 3:16-17",
+        "why": "At Jesus' baptism, Father, Son and Spirit are revealed together."
+      },
+      {
+        "ref": "John 14:16-17",
+        "why": "Jesus promises the Father will send another Advocate, the Spirit."
+      },
+      {
+        "ref": "2 Corinthians 13:13",
+        "why": "A Trinitarian blessing of grace, love and fellowship."
+      },
+      {
+        "ref": "Deuteronomy 6:4",
+        "why": "The Lord our God is one."
+      }
+    ],
+    "related": [
+      "who-is-jesus",
+      "holy-spirit",
+      "baptism"
+    ]
   },
   {
     "id": "purpose",
@@ -213,15 +651,43 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "According to Scripture, we were made by God and for God. Our purpose is to know him, love him and serve him in this life, and to be happy with him forever. Each person also has a particular calling, a way of loving and serving that only they can give.",
-    "phrasings": ["what is my purpose in life", "why am I here", "what is the meaning of life", "what does God want from me", "how to find God's plan for my life", "what is my calling", "does my life have meaning", "I feel lost in life"],
-    "verses": [
-      { "ref": "Jeremiah 29:11", "why": "God has plans for your welfare and a future of hope." },
-      { "ref": "Ephesians 2:10", "why": "We are God's handiwork, created for good works prepared for us." },
-      { "ref": "Ecclesiastes 12:13", "why": "Fear God and keep his commandments; this is the whole duty of man." },
-      { "ref": "Proverbs 3:5-6", "why": "Trust in the Lord and he will make your paths straight." },
-      { "ref": "Micah 6:8", "why": "Act justly, love mercy and walk humbly with God." }
+    "phrasings": [
+      "what is my purpose in life",
+      "why am I here",
+      "what is the meaning of life",
+      "what does God want from me",
+      "how to find God's plan for my life",
+      "what is my calling",
+      "does my life have meaning",
+      "I feel lost in life"
     ],
-    "related": ["trust-in-god", "vocation", "hope"]
+    "verses": [
+      {
+        "ref": "Jeremiah 29:11",
+        "why": "God has plans for your welfare and a future of hope."
+      },
+      {
+        "ref": "Ephesians 2:10",
+        "why": "We are God's handiwork, created for good works prepared for us."
+      },
+      {
+        "ref": "Ecclesiastes 12:13",
+        "why": "Fear God and keep his commandments; this is the whole duty of man."
+      },
+      {
+        "ref": "Proverbs 3:5-6",
+        "why": "Trust in the Lord and he will make your paths straight."
+      },
+      {
+        "ref": "Micah 6:8",
+        "why": "Act justly, love mercy and walk humbly with God."
+      }
+    ],
+    "related": [
+      "trust-in-god",
+      "vocation",
+      "hope"
+    ]
   },
   {
     "id": "fear",
@@ -229,15 +695,43 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "\"Do not be afraid\" is one of the most repeated phrases in Scripture. God does not promise a life without frightening moments; he promises his presence in them. Courage in the Bible is not the absence of fear but trusting God while afraid.",
-    "phrasings": ["I am afraid", "what does the Bible say about fear", "how to overcome fear", "do not be afraid", "I need courage", "I'm scared", "how to be brave", "verses for fear"],
-    "verses": [
-      { "ref": "Isaiah 41:10", "why": "Do not fear, for I am with you." },
-      { "ref": "Joshua 1:9", "why": "Be strong and courageous; the Lord is with you wherever you go." },
-      { "ref": "Psalms 23:4", "why": "Even in the darkest valley, I fear no evil for you are with me." },
-      { "ref": "2 Timothy 1:7", "why": "God gave us a spirit of power, love and self-discipline." },
-      { "ref": "Psalms 27:1", "why": "The Lord is my light and my salvation; whom shall I fear?" }
+    "phrasings": [
+      "I am afraid",
+      "what does the Bible say about fear",
+      "how to overcome fear",
+      "do not be afraid",
+      "I need courage",
+      "I'm scared",
+      "how to be brave",
+      "verses for fear"
     ],
-    "related": ["anxiety", "trust-in-god", "courage"]
+    "verses": [
+      {
+        "ref": "Isaiah 41:10",
+        "why": "Do not fear, for I am with you."
+      },
+      {
+        "ref": "Joshua 1:9",
+        "why": "Be strong and courageous; the Lord is with you wherever you go."
+      },
+      {
+        "ref": "Psalms 23:4",
+        "why": "Even in the darkest valley, I fear no evil for you are with me."
+      },
+      {
+        "ref": "2 Timothy 1:7",
+        "why": "God gave us a spirit of power, love and self-discipline."
+      },
+      {
+        "ref": "Psalms 27:1",
+        "why": "The Lord is my light and my salvation; whom shall I fear?"
+      }
+    ],
+    "related": [
+      "anxiety",
+      "trust-in-god",
+      "courage"
+    ]
   },
   {
     "id": "loneliness",
@@ -245,15 +739,44 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Loneliness is deeply human, and the Bible is full of people who felt alone. The promise of Scripture is that God never leaves us, and that he places us in a family, the Church, so that we do not have to carry life by ourselves.",
-    "phrasings": ["I feel lonely", "what does the Bible say about loneliness", "I have no friends", "I feel alone", "nobody cares about me", "God is with me", "feeling isolated", "verses for loneliness"],
-    "verses": [
-      { "ref": "Deuteronomy 31:8", "why": "The Lord goes before you and will never leave you." },
-      { "ref": "Psalms 25:16-18", "why": "A prayer of a lonely and afflicted soul." },
-      { "ref": "Matthew 28:20", "why": "Jesus is with us always, to the end of the age." },
-      { "ref": "Psalms 68:5-6", "why": "God sets the lonely in families." },
-      { "ref": "Hebrews 13:5", "why": "God says: I will never leave you nor forsake you." }
+    "phrasings": [
+      "I feel lonely",
+      "what does the Bible say about loneliness",
+      "I have no friends",
+      "I feel alone",
+      "nobody cares about me",
+      "God is with me",
+      "feeling isolated",
+      "verses for loneliness",
+      "finding belonging"
     ],
-    "related": ["friendship", "hopelessness", "comfort"]
+    "verses": [
+      {
+        "ref": "Deuteronomy 31:8",
+        "why": "The Lord goes before you and will never leave you."
+      },
+      {
+        "ref": "Psalms 25:16-18",
+        "why": "A prayer of a lonely and afflicted soul."
+      },
+      {
+        "ref": "Matthew 28:20",
+        "why": "Jesus is with us always, to the end of the age."
+      },
+      {
+        "ref": "Psalms 68:5-6",
+        "why": "God sets the lonely in families."
+      },
+      {
+        "ref": "Hebrews 13:5",
+        "why": "God says: I will never leave you nor forsake you."
+      }
+    ],
+    "related": [
+      "friendship",
+      "hopelessness",
+      "comfort"
+    ]
   },
   {
     "id": "hopelessness",
@@ -261,15 +784,45 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Scripture does not hide dark seasons; the psalms and the prophets cry out in despair and are heard. If you are struggling, you are not weak and you are not alone. God is close to the brokenhearted. Please also reach out to someone you trust, a priest, a counselor or a doctor, and if you are in danger, contact emergency services or a crisis line right away.",
-    "phrasings": ["I feel depressed", "I have lost hope", "what does the Bible say about depression", "I feel hopeless", "I'm so sad", "I don't want to go on", "everything feels dark", "verses for sadness", "I feel empty inside", "I am so tired of everything and feel numb"],
-    "verses": [
-      { "ref": "Psalms 34:18", "why": "The Lord is close to the brokenhearted." },
-      { "ref": "Psalms 42:5", "why": "Why are you downcast, my soul? Put your hope in God." },
-      { "ref": "Psalms 40:1-3", "why": "God lifts us out of the pit." },
-      { "ref": "Lamentations 3:21-23", "why": "His mercies are new every morning." },
-      { "ref": "Romans 15:13", "why": "May the God of hope fill you with joy and peace." }
+    "phrasings": [
+      "I feel depressed",
+      "I have lost hope",
+      "what does the Bible say about depression",
+      "I feel hopeless",
+      "I'm so sad",
+      "I don't want to go on",
+      "everything feels dark",
+      "verses for sadness",
+      "I feel empty inside",
+      "I am so tired of everything and feel numb"
     ],
-    "related": ["hope", "comfort", "loneliness"]
+    "verses": [
+      {
+        "ref": "Psalms 34:18",
+        "why": "The Lord is close to the brokenhearted."
+      },
+      {
+        "ref": "Psalms 42:5",
+        "why": "Why are you downcast, my soul? Put your hope in God."
+      },
+      {
+        "ref": "Psalms 40:1-3",
+        "why": "God lifts us out of the pit."
+      },
+      {
+        "ref": "Lamentations 3:21-23",
+        "why": "His mercies are new every morning."
+      },
+      {
+        "ref": "Romans 15:13",
+        "why": "May the God of hope fill you with joy and peace."
+      }
+    ],
+    "related": [
+      "hope",
+      "comfort",
+      "loneliness"
+    ]
   },
   {
     "id": "money",
@@ -277,15 +830,50 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "The Bible does not condemn money itself but warns against the love of it and calls us to generosity, especially toward the poor. Everything we have is a gift from God to be used wisely. Giving, tithing and almsgiving are practices that keep our hearts free.",
-    "phrasings": ["what does the Bible say about money", "should I tithe", "is it a sin to be rich", "how should I use my money", "what does the Bible say about wealth", "giving to the poor", "debt and finances", "can you serve God and money"],
-    "verses": [
-      { "ref": "Matthew 6:19-21", "why": "Store up treasure in heaven, for your heart follows your treasure." },
-      { "ref": "Matthew 6:24", "why": "You cannot serve both God and money." },
-      { "ref": "1 Timothy 6:6-10", "why": "The love of money is a root of all kinds of evil." },
-      { "ref": "2 Corinthians 9:6-8", "why": "God loves a cheerful giver." },
-      { "ref": "Malachi 3:10", "why": "Bring the tithes into the storehouse." }
+    "phrasings": [
+      "what does the Bible say about money",
+      "should I tithe",
+      "is it a sin to be rich",
+      "how should I use my money",
+      "what does the Bible say about wealth",
+      "giving to the poor",
+      "debt and finances",
+      "can you serve God and money",
+      "is wealth sinful",
+      "Bible verses about poverty",
+      "Christian generosity",
+      "money and morality",
+      "is it wrong to be rich",
+      "what does the Bible say about helping the poor",
+      "should Christians give to the needy"
     ],
-    "related": ["generosity", "poverty", "job-loss"]
+    "verses": [
+      {
+        "ref": "Matthew 6:19-21",
+        "why": "Store up treasure in heaven, for your heart follows your treasure."
+      },
+      {
+        "ref": "Matthew 6:24",
+        "why": "You cannot serve both God and money."
+      },
+      {
+        "ref": "1 Timothy 6:6-10",
+        "why": "The love of money is a root of all kinds of evil."
+      },
+      {
+        "ref": "2 Corinthians 9:6-8",
+        "why": "God loves a cheerful giver."
+      },
+      {
+        "ref": "Malachi 3:10",
+        "why": "Bring the tithes into the storehouse."
+      }
+    ],
+    "related": [
+      "generosity",
+      "poverty",
+      "job-loss"
+    ]
   },
   {
     "id": "grief",
@@ -293,15 +881,48 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Jesus himself wept at the tomb of his friend. Grief is the price of love, and God does not rush us through it. The Christian hope is that death does not have the last word, and the Church prays for the dead and trusts them to God's mercy.",
-    "phrasings": ["my loved one died", "how to cope with grief", "what does the Bible say about death", "I lost my mother", "comfort for those who mourn", "how to deal with losing someone", "will I see them again", "prayer for the dead"],
-    "verses": [
-      { "ref": "John 11:32-36", "why": "Jesus weeps with those who grieve." },
-      { "ref": "Matthew 5:4", "why": "Blessed are those who mourn, for they will be comforted." },
-      { "ref": "1 Thessalonians 4:13-14", "why": "We do not grieve as those without hope." },
-      { "ref": "John 11:25-26", "why": "Jesus is the resurrection and the life." },
-      { "ref": "2 Maccabees 12:44-45", "why": "The Church has long prayed for the dead." }
+    "phrasings": [
+      "my loved one died",
+      "how to cope with grief",
+      "what does the Bible say about death",
+      "I lost my mother",
+      "comfort for those who mourn",
+      "how to deal with losing someone",
+      "will I see them again",
+      "prayer for the dead",
+      "Bible verses for grief",
+      "losing a loved one",
+      "how to deal with grief",
+      "God comforts the grieving",
+      "hope in loss"
     ],
-    "related": ["heaven", "purgatory", "comfort"]
+    "verses": [
+      {
+        "ref": "John 11:32-36",
+        "why": "Jesus weeps with those who grieve."
+      },
+      {
+        "ref": "Matthew 5:4",
+        "why": "Blessed are those who mourn, for they will be comforted."
+      },
+      {
+        "ref": "1 Thessalonians 4:13-14",
+        "why": "We do not grieve as those without hope."
+      },
+      {
+        "ref": "John 11:25-26",
+        "why": "Jesus is the resurrection and the life."
+      },
+      {
+        "ref": "2 Maccabees 12:44-45",
+        "why": "The Church has long prayed for the dead."
+      }
+    ],
+    "related": [
+      "heaven",
+      "purgatory",
+      "comfort"
+    ]
   },
   {
     "id": "baptism",
@@ -309,14 +930,52 @@
     "category": "Top Questions",
     "tier": 1,
     "intro": "Baptism is the first sacrament, by which we are cleansed of sin, born again as God's children and welcomed into the Church. Jesus himself was baptized and commanded his disciples to baptize all nations. The New Testament also shows whole households being baptized.",
-    "phrasings": ["what does the Bible say about baptism", "why should I be baptized", "do babies need baptism", "what is the meaning of baptism", "is baptism necessary for salvation", "infant baptism in the Bible", "how to be born again", "what is baptism"],
-    "verses": [
-      { "ref": "John 3:3-5", "why": "Unless one is born of water and the Spirit, he cannot enter the kingdom." },
-      { "ref": "Matthew 28:19", "why": "Jesus commands baptism in the name of the Trinity." },
-      { "ref": "Acts 2:38-39", "why": "Be baptized for the forgiveness of sins; the promise is for you and your children." },
-      { "ref": "Romans 6:3-4", "why": "In baptism we are buried and raised with Christ." },
-      { "ref": "Acts 16:33", "why": "The jailer and his whole household were baptized." }
+    "phrasings": [
+      "what does the Bible say about baptism",
+      "why should I be baptized",
+      "do babies need baptism",
+      "what is the meaning of baptism",
+      "is baptism necessary for salvation",
+      "infant baptism in the Bible",
+      "how to be born again",
+      "what is baptism",
+      "Catholic teaching on baptism",
+      "why baptize babies",
+      "meaning of baptism",
+      "born again Catholic meaning",
+      "baptism explained",
+      "water and Spirit",
+      "importance of baptism",
+      "why baptism matters",
+      "infant baptism",
+      "born again meaning"
     ],
-    "related": ["salvation", "holy-spirit", "trinity"]
+    "verses": [
+      {
+        "ref": "John 3:3-5",
+        "why": "Unless one is born of water and the Spirit, he cannot enter the kingdom."
+      },
+      {
+        "ref": "Matthew 28:19",
+        "why": "Jesus commands baptism in the name of the Trinity."
+      },
+      {
+        "ref": "Acts 2:38-39",
+        "why": "Be baptized for the forgiveness of sins; the promise is for you and your children."
+      },
+      {
+        "ref": "Romans 6:3-4",
+        "why": "In baptism we are buried and raised with Christ."
+      },
+      {
+        "ref": "Acts 16:33",
+        "why": "The jailer and his whole household were baptized."
+      }
+    ],
+    "related": [
+      "salvation",
+      "holy-spirit",
+      "trinity"
+    ]
   }
 ]

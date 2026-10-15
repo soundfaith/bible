@@ -23,7 +23,10 @@ Write them in a NEW file `src/data/chat/topics/<category-kebab>.json`. Never edi
   "related": ["existing-topic-id"]
 }
 ```
-- Tier 2 verses are plain strings. Use 4-6 verses. (Tier 1 uses `{ "ref": "...", "why": "..." }`; use it only for the most common questions.)
+- Tier 2 verses are plain strings. Use 4-6 verses. (Tier 1 uses `{ "ref": "...", "why": "..." }`, where `why` is one sentence explaining why that verse fits. Prefer tier 1 whenever you can write good `why` lines.)
+- Intros must be substantive: 3-5 sentences that actually answer the question (what the Church teaches, the key idea, a pastoral note). Never a one-line generic summary.
+- Never reuse an existing id and never create a topic that overlaps an existing one. Check titles first; if a topic already covers it, skip it.
+- Phrasings must be natural questions a real person would type, not keyword fragments.
 - Book names must exactly match `src/data/index.json` (e.g. "Psalms", "Song of Solomon", "1 Corinthians", "Sirach", "Wisdom", "2 Maccabees"). Verse numbers must exist in the WEB text in `src/data/`. Prefer ranges of 1-4 verses; the best, most on-point verse first.
 - `related`: 2-4 ids that really exist.
 

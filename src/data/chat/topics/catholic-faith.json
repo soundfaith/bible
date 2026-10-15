@@ -1,0 +1,169 @@
+[
+  {
+    "id": "incarnation",
+    "title": "The Incarnation",
+    "category": "Catholic Faith",
+    "intro": "The Incarnation is the belief that God the Son became truly human in Jesus, fully God and fully man. It means God entered our world, shares our joys and sufferings, and made it possible for us to share his life. Christmas celebrates this mystery.",
+    "phrasings": [
+      "what is the Incarnation",
+      "Jesus became man",
+      "God became flesh",
+      "Catholic teaching on Incarnation",
+      "meaning of Word made flesh",
+      "Incarnation explained",
+      "why did Jesus become human",
+      "Jesus fully God fully man"
+    ],
+    "verses": [
+      "John 1:14",
+      "Philippians 2:6-8",
+      "Luke 1:35",
+      "Hebrews 2:14",
+      "Colossians 1:15-17"
+    ],
+    "related": [
+      "who-is-jesus",
+      "salvation",
+      "mary"
+    ]
+  },
+  {
+    "id": "church",
+    "title": "The Catholic Church",
+    "category": "Catholic Faith",
+    "intro": "Jesus founded one Church on the apostles, with Peter as its rock, to carry on his mission until he returns. Catholics believe this Church is one, holy, catholic, and apostolic. It is a family of sinners being made holy, not a club of the perfect.",
+    "phrasings": [
+      "what is the Catholic Church",
+      "why do we need the Church",
+      "Church founded by Jesus",
+      "Catholic teaching on the Church",
+      "Body of Christ meaning",
+      "role of the Church",
+      "Church authority explained",
+      "mission of the Church"
+    ],
+    "verses": [
+      "Matthew 16:18",
+      "Acts 2:42-47",
+      "1 Corinthians 12:12-27",
+      "Ephesians 4:4-6",
+      "John 20:21-23"
+    ],
+    "related": [
+      "sacraments",
+      "holy-spirit",
+      "mass"
+    ]
+  },
+  {
+    "id": "scripture-tradition",
+    "title": "Scripture and Tradition",
+    "category": "Catholic Faith",
+    "intro": "Catholics believe God's Word comes through both Sacred Scripture and Sacred Tradition, the teaching handed down from the apostles and guarded by the Church. The Bible itself says that not everything Jesus did is written down. The two work together, not against each other.",
+    "phrasings": [
+      "scripture and tradition",
+      "Catholic view of the Bible",
+      "why tradition matters",
+      "Bible and tradition explained",
+      "Church teaching authority",
+      "deposit of faith",
+      "Catholic interpretation of scripture",
+      "tradition in the Church"
+    ],
+    "verses": [
+      "2 Thessalonians 2:15",
+      "1 Timothy 3:15",
+      "John 21:25",
+      "Acts 2:42",
+      "2 Peter 1:20-21"
+    ],
+    "related": [
+      "church",
+      "bible-canon",
+      "mass"
+    ]
+  },
+  {
+    "id": "judgment",
+    "title": "Judgment",
+    "category": "Catholic Faith",
+    "intro": "Scripture teaches that each of us will stand before God, and that the standard is love, as Jesus describes in the parable of the sheep and goats. The Church speaks of a particular judgment at death and a final judgment at the end of time. We trust in God's mercy while taking our choices seriously.",
+    "phrasings": [
+      "what is judgment",
+      "Catholic teaching on judgment",
+      "particular judgment meaning",
+      "final judgment explained",
+      "God judges us",
+      "end of life judgment",
+      "judgment day meaning",
+      "how God evaluates our life"
+    ],
+    "verses": [
+      "Hebrews 9:27",
+      "Matthew 25:31-46",
+      "Romans 14:10-12",
+      "2 Corinthians 5:10",
+      "John 12:48"
+    ],
+    "related": [
+      "heaven",
+      "hell",
+      "purgatory"
+    ]
+  },
+  {
+    "id": "resurrection",
+    "title": "The Resurrection",
+    "category": "Catholic Faith",
+    "intro": "The Resurrection is the heart of the Christian faith: Jesus really rose from the dead, and in him we are promised new life. Paul says that if Christ is not raised, our faith is in vain. Because he lives, death is not the end.",
+    "phrasings": [
+      "what is the resurrection",
+      "Jesus rose from the dead",
+      "Catholic teaching on resurrection",
+      "why the resurrection matters",
+      "resurrection explained",
+      "empty tomb meaning",
+      "hope of resurrection",
+      "Jesus victory over death"
+    ],
+    "verses": [
+      "Matthew 28:5-6",
+      "John 11:25-26",
+      "1 Corinthians 15:3-8",
+      "Romans 6:5",
+      "1 Peter 1:3"
+    ],
+    "related": [
+      "salvation",
+      "heaven",
+      "who-is-jesus"
+    ]
+  },
+  {
+    "id": "second-coming",
+    "title": "The Second Coming",
+    "category": "Catholic Faith",
+    "intro": "Christians believe Jesus will return in glory to judge the living and the dead and bring his kingdom to completion. We do not know when, so we are called to live ready. It is a message of hope, not fear.",
+    "phrasings": [
+      "what is the second coming",
+      "Jesus return explained",
+      "Catholic teaching on second coming",
+      "end times meaning",
+      "Christ will come again",
+      "second coming signs",
+      "hope in Christ’s return"
+    ],
+    "verses": [
+      "Matthew 24:30",
+      "Acts 1:11",
+      "1 Thessalonians 4:16-17",
+      "Revelation 22:20",
+      "2 Peter 3:10"
+    ],
+    "related": [
+      "judgment",
+      "heaven",
+      "resurrection"
+    ]
+  }
+]

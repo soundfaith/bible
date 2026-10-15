@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -37,6 +38,7 @@ from period_narration import (  # noqa: E402
 
 DATA_PATH = ROOT / "src" / "data" / "breviary.json"
 OUTPUT_ROOT = ROOT / "narration" / "breviary"
+SITE_ROOT = ROOT / "public" / "audio" / "breviary"
 TAG_PREFIX = "breviary-narration-"
 UPLOAD_BATCH = 40
 CONFIRMATION = "UPLOAD BREVIARY"
@@ -114,7 +116,9 @@ def convert(clips: dict[str, str], voice: str, overwrite: bool) -> None:
             continue
         temporary = destination.with_name(destination.stem + ".tmp.mp3")
         result = subprocess.run(
-            [ffmpeg, "-nostdin", "-hide_banner", "-loglevel", "error", "-y", "-i", str(source), "-codec:a", "libmp3lame", "-q:a", "2", str(temporary)],
+            [ffmpeg, "-nostdin", "-hide_banner", "-loglevel", "error", "-y", "-i", str(source),
+             "-vn", "-map_metadata", "-1", "-codec:a", "libmp3lame", "-b:a", "64k", "-ac", "1", "-ar", "44100",
+             "-write_xing", "1", "-id3v2_version", "3", str(temporary)],
             capture_output=True, text=True, encoding="utf-8", errors="replace", check=False,
         )
         if result.returncode != 0:
@@ -176,6 +180,16 @@ def upload_github(clips: dict[str, str], voice: str) -> None:
     print(f"GitHub upload verified: {len(files)} clip(s) in release {tag}.")
 
 
+def publish_site(clips: dict[str, str], voice: str) -> None:
+    """Copy MP3s into public/ so Vercel serves them as audio/mpeg with byte-range support (required by iOS)."""
+    destination = SITE_ROOT / voice
+    destination.mkdir(parents=True, exist_ok=True)
+    for name in clips:
+        source = folder(voice) / f"{name}.mp3"
+        shutil.copyfile(source, destination / source.name)
+    print(f"Copied {len(clips)} clip(s) to {destination.relative_to(ROOT)}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--list", action="store_true", help="list clip IDs and exit")
@@ -186,6 +200,7 @@ def main() -> int:
     parser.add_argument("--skip-generate", action="store_true", help="reuse existing WAV files")
     parser.add_argument("--skip-convert", action="store_true", help="reuse existing MP3 files")
     parser.add_argument("--plan", action="store_true", help="print the plan without generating or uploading")
+    parser.add_argument("--publish-site", action="store_true", help="copy MP3s to public/audio/breviary/<voice> (served by Vercel)")
     parser.add_argument("--upload-github", action="store_true", help="upload MP3s to the breviary-narration-<voice> release")
     parser.add_argument("--execute", action="store_true", help="allow remote uploads after a typed confirmation")
     parser.add_argument("--validate-only", action="store_true", help="only check the published URLs")
@@ -211,6 +226,8 @@ def main() -> int:
         convert(clips, args.voice, args.overwrite)
     if local_validate(clips, args.voice):
         return 1
+    if args.publish_site:
+        publish_site(clips, args.voice)
     if args.upload_github:
         if not args.execute:
             print("Dry run: add --execute to upload to GitHub.")

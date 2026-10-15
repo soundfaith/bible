@@ -1,0 +1,135 @@
+[
+  {
+    "id": "holiness",
+    "title": "Holiness",
+    "category": "Christian Living",
+    "intro": "Holiness is not for a few special people; it is the call of every Christian. It means growing in virtue, such as patience, honesty, and self-control, and living each day close to God. The saints show that holiness looks different in every life, but it always begins with love.",
+    "phrasings": [
+      "what is holiness",
+      "how to be holy",
+      "Catholic teaching on holiness",
+      "call to holiness",
+      "holiness explained",
+      "living a holy life",
+      "saints and holiness",
+      "God calls us to holiness",
+      "what are virtues",
+      "how to grow in virtue",
+      "Christian virtues explained",
+      "virtue vs vice",
+      "living a good Christian life",
+      "habits that please God",
+      "virtue in daily life",
+      "how to become virtuous"
+    ],
+    "verses": [
+      "1 Peter 1:15-16",
+      "Hebrews 12:14",
+      "Matthew 5:8",
+      "Romans 12:1",
+      "Ephesians 1:4",
+      "Philippians 4:8"
+    ],
+    "related": [
+      "prayer",
+      "saints"
+    ]
+  },
+  {
+    "id": "self-control",
+    "title": "Self-control",
+    "category": "Christian Living",
+    "intro": "Self-control is a fruit of the Spirit: the strength to choose what is good over what is easy. It is built like a muscle through small daily acts, prayer, and the sacraments rather than willpower alone. Paul compares it to an athlete's discipline.",
+    "phrasings": [
+      "what is self-control",
+      "how to grow in self-control",
+      "self-control in the Bible",
+      "Catholic teaching on self-control",
+      "controlling emotions",
+      "self-control explained",
+      "discipline in Christian life",
+      "virtue of self-control"
+    ],
+    "verses": [
+      "Galatians 5:22-23",
+      "Proverbs 25:28",
+      "1 Corinthians 9:24-27",
+      "2 Peter 1:6",
+      "Titus 2:11-12"
+    ],
+    "related": [
+      "sexuality",
+      "patience",
+      "holiness"
+    ]
+  },
+  {
+    "id": "service",
+    "title": "Service",
+    "category": "Christian Living",
+    "intro": "Jesus came not to be served but to serve, and he asks us to do the same. Service can mean washing dishes, caring for a neighbour, or volunteering; every act of love for someone in need is done for him. Serve quietly and with joy.",
+    "phrasings": [
+      "what is Christian service",
+      "how to serve others",
+      "service in the Bible",
+      "Catholic teaching on service",
+      "serving like Jesus",
+      "acts of service",
+      "service explained",
+      "how to help people",
+      "serving others",
+      "Bible verses about helping",
+      "acts of kindness",
+      "Christian service",
+      "loving others",
+      "Bible verses about neighbors",
+      "Christian compassion",
+      "helping your neighbor",
+      "who counts as my neighbor",
+      "how do I love difficult people",
+      "what does it mean to love your neighbor as yourself",
+      "how can I serve the people around me"
+    ],
+    "verses": [
+      "Mark 10:45",
+      "Galatians 5:13",
+      "John 13:14-15",
+      "Philippians 2:4",
+      "Hebrews 6:10",
+      "Galatians 6:2"
+    ],
+    "related": [
+      "generosity",
+      "love",
+      "humility"
+    ]
+  },
+  {
+    "id": "obedience",
+    "title": "Obedience",
+    "category": "Christian Living",
+    "intro": "Biblical obedience is love in action, not fear. Jesus obeyed the Father out of love, and he says that if we love him, we will keep his commandments. Obedience to God leads to freedom, not restriction.",
+    "phrasings": [
+      "what is obedience",
+      "how to obey God",
+      "obedience in the Bible",
+      "Catholic teaching on obedience",
+      "following God’s will",
+      "obedience explained",
+      "living obediently",
+      "obedience and faith"
+    ],
+    "verses": [
+      "John 14:23",
+      "Deuteronomy 5:33",
+      "Romans 6:16",
+      "Philippians 2:12-13",
+      "1 Samuel 15:22"
+    ],
+    "related": [
+      "faith",
+      "holiness",
+      "wisdom"
+    ]
+  }
+]

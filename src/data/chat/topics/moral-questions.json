@@ -1,0 +1,308 @@
+[
+  {
+    "id": "sexuality",
+    "title": "Sexuality and chastity",
+    "category": "Moral Questions",
+    "intro": "Sexuality is a gift meant for lifelong, faithful marriage. Chastity protects the heart and aligns desire with God’s plan.",
+    "phrasings": [
+      "sex before marriage",
+      "lust and purity",
+      "Catholic teaching on sexuality",
+      "what does the Church teach about sex",
+      "is sex outside marriage wrong in the Catholic Church",
+      "how do I stay chaste",
+      "what is the theology of the body",
+      "what is chastity",
+      "Catholic teaching on chastity",
+      "how to live chastity",
+      "chastity explained",
+      "purity and self-control",
+      "sexual purity Catholic view",
+      "chastity in relationships",
+      "virtue of chastity",
+      "what does the Bible say about sex before marriage",
+      "dating as a Christian",
+      "how to stay pure",
+      "chastity",
+      "is premarital sex a sin",
+      "lust and pornography"
+    ],
+    "verses": [
+      "1 Corinthians 6:18-20",
+      "1 Thessalonians 4:3-7",
+      "Matthew 5:27-28",
+      "Psalm 51:10",
+      "Hebrews 13:4",
+      "Matthew 5:8"
+    ],
+    "related": [
+      "marriage",
+      "self-control",
+      "addiction"
+    ]
+  },
+  {
+    "id": "materialism",
+    "title": "Materialism and consumerism",
+    "category": "Moral Questions",
+    "intro": "Materialism distracts the heart from God and relationships. Scripture warns against storing treasures on earth instead of heaven.",
+    "phrasings": [
+      "is materialism a sin",
+      "consumer culture",
+      "loving money",
+      "how to live simply",
+      "I care too much about buying things",
+      "does God want me to be rich",
+      "why am I never satisfied with what I own"
+    ],
+    "verses": [
+      "Matthew 6:19-21",
+      "Luke 12:15",
+      "1 Timothy 6:7-10",
+      "Hebrews 13:5",
+      "Proverbs 11:28"
+    ],
+    "related": [
+      "contentment",
+      "gratitude"
+    ]
+  },
+  {
+    "id": "envy-jealousy",
+    "title": "Envy and jealousy",
+    "category": "Moral Questions",
+    "intro": "Envy corrodes the heart and damages relationships. Scripture teaches gratitude, humility, and celebrating others’ blessings.",
+    "phrasings": [
+      "is jealousy a sin",
+      "Bible verses about envy",
+      "comparison issues",
+      "coveting",
+      "how to stop being jealous"
+    ],
+    "verses": [
+      "Galatians 5:26",
+      "James 3:16",
+      "Proverbs 14:30",
+      "Romans 12:15",
+      "Philippians 4:11"
+    ],
+    "related": [
+      "contentment",
+      "gratitude",
+      "humility"
+    ]
+  },
+  {
+    "id": "injustice",
+    "title": "Injustice and oppression",
+    "category": "Moral Questions",
+    "intro": "God hates injustice and calls His people to defend the vulnerable, speak truth, and act with righteousness.",
+    "phrasings": [
+      "Bible verses about justice",
+      "oppression",
+      "helping the poor",
+      "Christian teaching on justice",
+      "standing up for the vulnerable"
+    ],
+    "verses": [
+      "Isaiah 1:17",
+      "Micah 6:8",
+      "Proverbs 31:8-9",
+      "Psalm 82:3-4",
+      "Luke 4:18"
+    ],
+    "related": [
+      "mercy",
+      "courage"
+    ]
+  },
+  {
+    "id": "technology-ethics",
+    "title": "Technology and moral responsibility",
+    "category": "Moral Questions",
+    "intro": "Technology shapes modern life, but moral responsibility guides how we use it. The Church calls for wisdom, moderation, and respect for human dignity.",
+    "phrasings": [
+      "is technology harmful",
+      "ethical use of technology",
+      "screen addiction",
+      "AI and morality",
+      "Christian view of digital life"
+    ],
+    "verses": [
+      "1 Corinthians 6:12",
+      "Philippians 4:8",
+      "Psalm 101:3",
+      "Ephesians 5:15-16",
+      "Romans 12:2"
+    ],
+    "related": [
+      "wisdom",
+      "self-control"
+    ]
+  },
+  {
+    "id": "environment",
+    "title": "Care for creation",
+    "category": "Moral Questions",
+    "intro": "Creation is a gift entrusted to humanity. Stewardship honors God and protects the vulnerable who suffer most from environmental harm.",
+    "phrasings": [
+      "Christian view of the environment",
+      "is pollution a sin",
+      "Bible verses about creation care",
+      "climate responsibility",
+      "stewardship of the earth"
+    ],
+    "verses": [
+      "Genesis 2:15",
+      "Psalm 24:1",
+      "Romans 8:19-21",
+      "Revelation 11:18",
+      "Proverbs 12:10"
+    ],
+    "related": []
+  },
+  {
+    "id": "bioethics",
+    "title": "Bioethics and human dignity",
+    "category": "Moral Questions",
+    "intro": "Medical advances raise complex moral questions. The Church teaches that every human life has dignity from conception to natural death.",
+    "phrasings": [
+      "Christian bioethics",
+      "stem cell research",
+      "euthanasia",
+      "genetic engineering",
+      "sanctity of life"
+    ],
+    "verses": [
+      "Genesis 1:27",
+      "Psalm 139:13-16",
+      "Deuteronomy 30:19",
+      "Job 12:10",
+      "Romans 14:8"
+    ],
+    "related": []
+  },
+  {
+    "id": "workplace-ethics",
+    "title": "Workplace ethics",
+    "category": "Moral Questions",
+    "intro": "Integrity, fairness, and respect should guide all work. Christians are called to honesty, diligence, and justice in professional life.",
+    "phrasings": [
+      "Christian workplace ethics",
+      "honesty at work",
+      "fair treatment",
+      "Bible verses about work",
+      "ethical leadership"
+    ],
+    "verses": [
+      "Colossians 3:23",
+      "Proverbs 11:1",
+      "Ephesians 4:28",
+      "Luke 3:14",
+      "Proverbs 16:11"
+    ],
+    "related": [
+      "honesty",
+      "service"
+    ]
+  },
+  {
+    "id": "revenge",
+    "title": "Revenge and retaliation",
+    "category": "Moral Questions",
+    "intro": "Revenge deepens wounds and destroys peace. Jesus teaches forgiveness, mercy, and leaving justice in God’s hands.",
+    "phrasings": [
+      "is revenge a sin",
+      "Bible verses about retaliation",
+      "getting even",
+      "forgiving instead of revenge",
+      "justice vs revenge"
+    ],
+    "verses": [
+      "Romans 12:19",
+      "Matthew 5:38-39",
+      "Proverbs 20:22",
+      "1 Peter 3:9",
+      "Luke 6:27"
+    ],
+    "related": [
+      "forgiveness",
+      "peace",
+      "anger"
+    ]
+  },
+  {
+    "id": "scandal",
+    "title": "Scandal and leading others into sin",
+    "category": "Moral Questions",
+    "intro": "Scandal occurs when our actions lead others toward sin or confusion. Scripture warns strongly against causing spiritual harm.",
+    "phrasings": [
+      "what is scandal",
+      "leading others into sin",
+      "bad example",
+      "Bible teaching on scandal",
+      "causing others to stumble"
+    ],
+    "verses": [
+      "Matthew 18:6",
+      "Romans 14:13",
+      "1 Corinthians 8:9",
+      "Philippians 2:15",
+      "1 Thessalonians 5:22"
+    ],
+    "related": [
+      "holiness",
+      "speech"
+    ]
+  },
+  {
+    "id": "superstition",
+    "title": "Superstition and false beliefs",
+    "category": "Moral Questions",
+    "intro": "Superstition replaces trust in God with fear or magical thinking. Christians are called to rely on God’s providence, not rituals or omens.",
+    "phrasings": [
+      "is superstition a sin",
+      "horoscopes and astrology",
+      "luck and charms",
+      "Bible verses about superstition",
+      "trusting God instead of signs"
+    ],
+    "verses": [
+      "Deuteronomy 18:10-12",
+      "Isaiah 8:19",
+      "Jeremiah 10:2",
+      "Psalm 37:5",
+      "Proverbs 3:5-6"
+    ],
+    "related": [
+      "trust-in-god",
+      "wisdom",
+      "idolatry"
+    ]
+  },
+  {
+    "id": "idolatry",
+    "title": "Idolatry and misplaced worship",
+    "category": "Moral Questions",
+    "intro": "Idolatry is giving ultimate devotion to anything other than God—money, power, pleasure, or people. Scripture calls believers to wholehearted worship.",
+    "phrasings": [
+      "is idolatry still a sin today",
+      "modern idols",
+      "Bible verses about idolatry",
+      "putting God first",
+      "false gods"
+    ],
+    "verses": [
+      "Exodus 20:3-5",
+      "1 John 5:21",
+      "Colossians 3:5",
+      "Matthew 6:24",
+      "Psalm 115:4-8"
+    ],
+    "related": [
+      "worship",
+      "trust-in-god",
+      "materialism"
+    ]
+  }
+]

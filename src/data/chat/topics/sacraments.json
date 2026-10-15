@@ -1,0 +1,153 @@
+[
+  {
+    "id": "confirmation",
+    "title": "Confirmation",
+    "category": "Sacraments",
+    "intro": "Confirmation strengthens baptismal grace, seals the believer with the Holy Spirit, and empowers them for mission and witness.",
+    "phrasings": [
+      "what is confirmation",
+      "Catholic confirmation",
+      "receiving the Holy Spirit",
+      "gifts of the Spirit",
+      "sacrament of confirmation"
+    ],
+    "verses": [
+      "Acts 8:14-17",
+      "Acts 19:6",
+      "Isaiah 11:2",
+      "2 Timothy 1:6",
+      "Ephesians 1:13"
+    ],
+    "related": [
+      "holy-spirit",
+      "evangelization",
+      "baptism"
+    ]
+  },
+  {
+    "id": "anointing",
+    "title": "Anointing of the Sick",
+    "category": "Sacraments",
+    "intro": "Anointing of the Sick brings healing, strength, and peace to those suffering illness. Christ meets the sick with compassion and grace.",
+    "phrasings": [
+      "Catholic anointing of the sick",
+      "last rites",
+      "healing sacrament",
+      "prayers for the sick",
+      "Bible verses about healing"
+    ],
+    "verses": [
+      "James 5:14-15",
+      "Mark 6:13",
+      "Psalm 41:3",
+      "Matthew 11:28",
+      "Isaiah 53:5"
+    ],
+    "related": [
+      "suffering",
+      "hope"
+    ]
+  },
+  {
+    "id": "holy-orders",
+    "title": "Holy Orders",
+    "category": "Sacraments",
+    "intro": "Holy Orders confers the grace and responsibility of ordained ministry. Through deacons, priests, and bishops, Christ continues His work of teaching, sanctifying, and shepherding.",
+    "phrasings": [
+      "what is holy orders",
+      "Catholic priesthood",
+      "ordination",
+      "deacons priests bishops",
+      "vocation to ministry"
+    ],
+    "verses": [
+      "1 Timothy 4:14",
+      "Acts 6:1-6",
+      "John 20:21",
+      "Titus 1:5-9",
+      "Hebrews 5:1"
+    ],
+    "related": [
+      "vocation",
+      "service",
+      "evangelization"
+    ]
+  },
+  {
+    "id": "sacramentals",
+    "title": "Sacramentals",
+    "category": "Sacraments",
+    "intro": "Sacramentals—holy water, blessings, medals, and other sacred signs—prepare the faithful to receive grace and remind them of God’s presence in daily life.",
+    "phrasings": [
+      "what are sacramentals",
+      "holy water meaning",
+      "Catholic blessings",
+      "rosary and medals",
+      "difference between sacraments and sacramentals"
+    ],
+    "verses": [
+      "Numbers 6:24-26",
+      "Mark 6:13",
+      "Acts 19:11-12",
+      "Deuteronomy 6:8-9",
+      "Psalm 121:8"
+    ],
+    "related": [
+      "prayer",
+      "holy-spirit"
+    ]
+  },
+  {
+    "id": "devotions",
+    "title": "Devotions and prayer practices",
+    "category": "Sacraments",
+    "intro": "Devotions—such as the Rosary, chaplets, novenas, and holy hours—support sacramental life by deepening prayer and love for God.",
+    "phrasings": [
+      "Catholic devotions",
+      "rosary meaning",
+      "novenas",
+      "holy hour",
+      "prayer practices"
+    ],
+    "verses": [
+      "Luke 18:1",
+      "Psalm 141:2",
+      "Philippians 4:6",
+      "Matthew 6:6",
+      "Psalm 119:105"
+    ],
+    "related": [
+      "prayer",
+      "sacramentals",
+      "holy-spirit"
+    ]
+  },
+  {
+    "id": "worship",
+    "title": "Worship and adoration",
+    "category": "Sacraments",
+    "intro": "Worship expresses love for God through prayer, song, silence, and sacramental participation. Adoration deepens union with Christ in the Eucharist.",
+    "phrasings": [
+      "adoration of the Blessed Sacrament",
+      "praise and worship",
+      "how to worship God",
+      "Eucharistic adoration",
+      "what is true worship",
+      "why do we worship God",
+      "how should I worship in spirit and truth",
+      "what is the point of praising God"
+    ],
+    "verses": [
+      "Psalm 95:6",
+      "John 4:23-24",
+      "Psalm 63:1-4",
+      "Revelation 4:11",
+      "Luke 22:19"
+    ],
+    "related": [
+      "eucharist",
+      "mass",
+      "devotions"
+    ]
+  }
+]

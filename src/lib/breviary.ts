@@ -106,7 +106,12 @@ export function breviaryDateKey(date: Date) {
 const voiceOrder = (preference: NarrationGender) => (preference === "male" ? ["am_michael", "af_heart"] : ["af_heart", "am_michael"]);
 
 export function breviaryClipUrls(clipId: string, preference: NarrationGender) {
-  return voiceOrder(preference).map((voice) => `https://github.com/soundfaith/bible/releases/download/breviary-narration-${voice}/${clipId}.mp3`);
+  const voices = voiceOrder(preference);
+  // Same-origin files are served as audio/mpeg with range support, which iOS Safari requires.
+  return [
+    ...voices.map((voice) => `/audio/breviary/${voice}/${clipId}.mp3`),
+    ...voices.map((voice) => `https://github.com/soundfaith/bible/releases/download/breviary-narration-${voice}/${clipId}.mp3`),
+  ];
 }
 
 function plain(id: string, heading: string, text: string, clipId: string, preference: NarrationGender, reference?: string): BreviarySegment {

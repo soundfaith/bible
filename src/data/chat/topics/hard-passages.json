@@ -1,0 +1,451 @@
+[
+  {
+    "id": "nephilim",
+    "title": "The Nephilim and the giants",
+    "category": "Hard Passages",
+    "tier": 1,
+    "intro": "The Nephilim appear briefly in Genesis 6:1-4 as mighty figures in the days before the flood, and Numbers 13:33 mentions them again among the inhabitants of Canaan. The Bible does not explain exactly who they were, and the Church has no defined doctrine about them. Christians have understood the passage in different ways: as descendants of Seth's line mingling with Cain's, as powerful tyrants and warriors, or, in some ancient Jewish writings, as the offspring of heavenly beings. Many Church Fathers favoured the first reading. What the text clearly stresses is the growing corruption that led to the flood.",
+    "phrasings": [
+      "what are nephilim",
+      "who were the nephilim",
+      "were there giants in the bible",
+      "who are the sons of God in Genesis 6",
+      "did angels have children with humans",
+      "what does the Church teach about the nephilim",
+      "who were the giants in Numbers 13",
+      "are nephilim fallen angels"
+    ],
+    "verses": [
+      { "ref": "Genesis 6:1-4", "why": "The passage that introduces the Nephilim and the sons of God." },
+      { "ref": "Numbers 13:33", "why": "The spies report seeing the Nephilim in Canaan and feel like grasshoppers beside them." },
+      { "ref": "Genesis 6:5-8", "why": "Right after, the text focuses on human wickedness, the real reason for the flood." },
+      { "ref": "Deuteronomy 3:11", "why": "Og king of Bashan is described as one of the last of the giants." },
+      { "ref": "Matthew 22:30", "why": "Jesus says angels do not marry, which shapes how many Christians read the 'sons of God'." }
+    ],
+    "related": ["noah", "angels"]
+  },
+  {
+    "id": "cain-wife",
+    "title": "Cain's wife and the first families",
+    "category": "Hard Passages",
+    "tier": 1,
+    "intro": "Genesis does not name Cain's wife, but it tells us that Adam and Eve had other sons and daughters. The Church has traditionally understood that Cain married one of his sisters or other descendants of the first family, since all humanity then came from Adam and Eve. Later laws against such marriages came only after the human family had grown large. The story's real focus is not the genealogy but the first murder and God's mercy even toward Cain.",
+    "phrasings": [
+      "who was Cain's wife",
+      "where did Cain's wife come from",
+      "who did Cain marry",
+      "did Adam and Eve have daughters",
+      "how did the first people have children",
+      "who else was alive when Cain killed Abel",
+      "did Cain marry his sister"
+    ],
+    "verses": [
+      { "ref": "Genesis 4:17", "why": "Cain knows his wife, and she conceives, with no explanation of who she is." },
+      { "ref": "Genesis 5:4", "why": "Adam had other sons and daughters." },
+      { "ref": "Genesis 3:20", "why": "Eve is called the mother of all the living." },
+      { "ref": "Acts 17:26", "why": "From one man God made every nation of humankind." }
+    ],
+    "related": ["cain-abel", "adam-eve"]
+  },
+  {
+    "id": "tower-of-babel",
+    "title": "The Tower of Babel",
+    "category": "Hard Passages",
+    "tier": 1,
+    "intro": "At Babel, people try to build a tower to make a name for themselves and avoid being scattered. God confuses their language and spreads them across the earth. The sin is pride, trying to reach heaven by human power. The Church sees Pentecost as its answer: the Holy Spirit gathers every language into one body.",
+    "phrasings": [
+      "what is the tower of Babel",
+      "why did God confuse languages",
+      "story of the tower of Babel",
+      "why are there different languages",
+      "what is the meaning of Babel",
+      "why did God scatter the people at Babel"
+    ],
+    "verses": [
+      { "ref": "Genesis 11:1-9", "why": "The whole story of the tower and the confusion of languages." },
+      { "ref": "Acts 2:1-11", "why": "At Pentecost, people of every language hear the Gospel in their own tongue." },
+      { "ref": "Proverbs 16:18", "why": "Pride goes before destruction." }
+    ],
+    "related": ["holy-spirit", "humility"]
+  },
+  {
+    "id": "adam-eve",
+    "title": "Adam and Eve and the Fall",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "God creates man and woman in his image and places them in the garden in friendship with him. They choose to disobey, and sin enters the world, which the Church calls the Fall. Yet God does not abandon them; he promises a Redeemer. Catholics read the story as a true account of humanity's origin in meaning, while it can be read as a symbolic narrative in form.",
+    "phrasings": [
+      "story of Adam and Eve",
+      "what happened in the Garden of Eden",
+      "why did Adam and Eve eat the fruit",
+      "what is original sin",
+      "was the fall of man real",
+      "what did the serpent say to Eve",
+      "why did God put the tree in the garden"
+    ],
+    "verses": [
+      { "ref": "Genesis 2:15-17", "why": "God places Adam in the garden with a single command." },
+      { "ref": "Genesis 3:1-7", "why": "The serpent tempts Eve, and they eat." },
+      { "ref": "Genesis 3:15", "why": "God promises that the woman's offspring will crush the serpent, a first hint of the Saviour." },
+      { "ref": "Romans 5:12-19", "why": "Paul explains that as sin came through one man, grace comes through one man, Christ." }
+    ],
+    "related": ["cain-abel", "grace"]
+  },
+  {
+    "id": "cain-abel",
+    "title": "Cain and Abel",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "Cain's offering is not accepted, jealousy grows into anger, and he kills his brother Abel. God confronts him, protects him from vengeance, and still sends him away. The story shows how sin crouches at the door and how jealousy can become violence if we do not master it.",
+    "phrasings": [
+      "story of Cain and Abel",
+      "why did Cain kill Abel",
+      "why did God reject Cain's offering",
+      "am I my brother's keeper",
+      "what was the mark of Cain",
+      "why did God accept Abel's sacrifice"
+    ],
+    "verses": [
+      { "ref": "Genesis 4:1-7", "why": "The two offerings, and God's warning that sin is crouching at the door." },
+      { "ref": "Genesis 4:8-12", "why": "Cain kills Abel, and Abel's blood cries out from the ground." },
+      { "ref": "Genesis 4:13-16", "why": "God places a mark on Cain so that no one will kill him." },
+      { "ref": "Hebrews 11:4", "why": "Abel's offering was made by faith." },
+      { "ref": "1 John 3:11-15", "why": "John warns against hatred like Cain's and calls us to love." }
+    ],
+    "related": ["adam-eve", "jealousy"]
+  },
+  {
+    "id": "flood-meaning",
+    "title": "Why did God send the flood?",
+    "category": "Hard Passages",
+    "tier": 1,
+    "intro": "The flood story says that violence and corruption filled the earth and that God grieved. Yet even then he saves Noah's family and starts again with a covenant. The Church sees the flood as a sign of Baptism, where sin is washed away and new life begins. Whether the flood was local or worldwide is not defined doctrine; the Church is concerned with its religious message.",
+    "phrasings": [
+      "was the flood real",
+      "did God kill everyone in the flood",
+      "was Noah's flood worldwide",
+      "what does the flood mean",
+      "why did God destroy the world with water",
+      "is a God who sends a flood loving"
+    ],
+    "verses": [
+      { "ref": "Genesis 6:5-8", "why": "God sees the wickedness of humanity, and it grieves his heart." },
+      { "ref": "Genesis 9:11-17", "why": "God promises never again to destroy the earth, with the rainbow as the sign." },
+      { "ref": "1 Peter 3:20-21", "why": "Peter links the flood to Baptism, which saves us." },
+      { "ref": "Ezekiel 18:23", "why": "God takes no pleasure in the death of the wicked but wants them to turn and live." }
+    ],
+    "related": ["noah", "nephilim"]
+  },
+  {
+    "id": "pharaoh-hardened-heart",
+    "title": "Did God harden Pharaoh's heart?",
+    "category": "Hard Passages",
+    "tier": 1,
+    "intro": "Exodus says both that Pharaoh hardened his own heart and that God hardened it. The Church understands that God does not force anyone to sin; he permits Pharaoh's stubbornness to bring about his plan, and Pharaoh's free choices remain his own. The Bible often attributes to God what he allows. Notice how many times Pharaoh refuses first.",
+    "phrasings": [
+      "did God harden Pharaoh's heart",
+      "why did God harden Pharaoh's heart",
+      "did Pharaoh have free will",
+      "is it fair for God to harden hearts",
+      "why were the plagues sent on Egypt"
+    ],
+    "verses": [
+      { "ref": "Exodus 4:21", "why": "God tells Moses he will harden Pharaoh's heart." },
+      { "ref": "Exodus 8:15", "why": "Pharaoh hardens his own heart when relief comes." },
+      { "ref": "Exodus 9:34-35", "why": "Pharaoh sins again and hardens his heart." },
+      { "ref": "Romans 9:17-18", "why": "Paul reflects on this mystery of God's mercy and power." }
+    ],
+    "related": ["moses-exodus", "trust-in-god"]
+  },
+  {
+    "id": "job-satan",
+    "title": "Why did God let Satan test Job?",
+    "category": "Hard Passages",
+    "tier": 1,
+    "intro": "In Job, Satan can act only within the limits God sets. The book does not claim that God likes suffering; it shows that faith can survive when answers are not given. The Church teaches that God permits evil only to bring a greater good, and that in Christ he enters our suffering himself.",
+    "phrasings": [
+      "why did God allow Satan to test Job",
+      "did God make a bet with Satan",
+      "why did God let Job suffer",
+      "is God testing me like Job",
+      "does God allow Satan to hurt us"
+    ],
+    "verses": [
+      { "ref": "Job 1:6-12", "why": "Satan may act only as far as God permits." },
+      { "ref": "Job 2:3-6", "why": "Satan's power is limited again." },
+      { "ref": "Job 42:1-6", "why": "Job finds God's presence greater than any explanation." },
+      { "ref": "1 Corinthians 10:13", "why": "God will not let us be tested beyond what we can bear." }
+    ],
+    "related": ["job", "suffering"]
+  },
+  {
+    "id": "witch-endor",
+    "title": "Saul and the witch of Endor",
+    "category": "Hard Passages",
+    "tier": 1,
+    "intro": "King Saul, abandoned by God, secretly visits a medium and asks her to call up the dead prophet Samuel. Scripture shows God allowing Samuel to speak, but to condemn Saul. The Church forbids any attempt to contact the dead through mediums, and this story is not an example to follow.",
+    "phrasings": [
+      "what happened with the witch of Endor",
+      "did the witch really raise Samuel",
+      "can the dead be contacted",
+      "why did Saul visit a medium",
+      "is it a sin to talk to the dead"
+    ],
+    "verses": [
+      { "ref": "1 Samuel 28:3-14", "why": "Saul finds a medium and asks for Samuel." },
+      { "ref": "1 Samuel 28:15-19", "why": "Samuel tells Saul that he and his sons will die." },
+      { "ref": "Deuteronomy 18:10-12", "why": "The Law forbids anyone to consult mediums or the dead." },
+      { "ref": "Sirach 46:20", "why": "Sirach says Samuel prophesied even after his death." }
+    ],
+    "related": ["superstition", "purgatory"]
+  },
+  {
+    "id": "elijah-chariot",
+    "title": "Elijah taken up in the chariot of fire",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "Elijah does not die; he is taken to heaven in a whirlwind with a chariot of fire, and his mantle falls to Elisha. Because of this, he returns in Jewish expectation, and Jesus says John the Baptist came in the spirit of Elijah. At the Transfiguration, Elijah appears with Moses.",
+    "phrasings": [
+      "what happened to Elijah",
+      "did Elijah die",
+      "who went to heaven without dying",
+      "what is the chariot of fire",
+      "who was taken up to heaven in the Bible"
+    ],
+    "verses": [
+      { "ref": "2 Kings 2:1-12", "why": "Elijah is taken up in a whirlwind while Elisha watches." },
+      { "ref": "2 Kings 2:13-15", "why": "Elisha takes up Elijah's mantle and receives his spirit." },
+      { "ref": "Matthew 17:1-4", "why": "Elijah appears at the Transfiguration." },
+      { "ref": "Genesis 5:24", "why": "Enoch also is taken by God." }
+    ],
+    "related": ["elijah-mount-carmel", "end-times"]
+  },
+  {
+    "id": "annunciation",
+    "title": "The Annunciation",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "The angel Gabriel greets Mary and announces that she will conceive the Son of God by the Holy Spirit. Mary, troubled and curious, asks how this can be and then answers: let it be done to me according to your word. Her yes opens the way for the Incarnation, and Catholics celebrate it on March 25.",
+    "phrasings": [
+      "what is the Annunciation",
+      "what did the angel Gabriel tell Mary",
+      "how did Mary conceive Jesus",
+      "story of Mary and the angel",
+      "what does full of grace mean",
+      "what was Mary's answer to the angel"
+    ],
+    "verses": [
+      { "ref": "Luke 1:26-33", "why": "Gabriel greets Mary as full of grace and announces the birth of Jesus." },
+      { "ref": "Luke 1:34-37", "why": "Mary asks how, and the angel says nothing is impossible for God." },
+      { "ref": "Luke 1:38", "why": "Mary says yes: let it be done to me according to your word." },
+      { "ref": "Matthew 1:18-21", "why": "Matthew tells the same event from Joseph's side." }
+    ],
+    "related": ["mary", "incarnation"]
+  },
+  {
+    "id": "the-passion",
+    "title": "The Passion and death of Jesus",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "The Passion tells how Jesus was betrayed, arrested, condemned, and crucified, freely giving his life for our sins. Every detail is a sign of his love, from Gethsemane to the cross. Catholics enter into this mystery most deeply during Holy Week and each time we attend Mass.",
+    "phrasings": [
+      "what happened on Good Friday",
+      "why did Jesus die on the cross",
+      "story of the crucifixion",
+      "what happened in Gethsemane",
+      "what did Jesus say on the cross",
+      "why was Jesus crucified",
+      "what is the Passion of Christ"
+    ],
+    "verses": [
+      { "ref": "Luke 22:39-46", "why": "In Gethsemane, Jesus prays: not my will but yours be done." },
+      { "ref": "John 19:16-30", "why": "The crucifixion and Jesus' final words: it is finished." },
+      { "ref": "Luke 23:33-43", "why": "Jesus forgives his executioners and promises paradise to the repentant thief." },
+      { "ref": "Isaiah 53:4-6", "why": "The suffering servant bears our sins." },
+      { "ref": "Romans 5:8", "why": "God shows his love in that Christ died for us while we were still sinners." }
+    ],
+    "related": ["resurrection", "eucharist"]
+  },
+  {
+    "id": "nativity-magi",
+    "title": "The visit of the Magi",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "Wise men from the East follow a star to find the newborn king, bringing gold, frankincense, and myrrh. Their visit, celebrated at Epiphany, shows that Christ came for all nations, not only Israel. Herod's fear shows how the world can react to the true King.",
+    "phrasings": [
+      "who were the three wise men",
+      "what is Epiphany",
+      "what did the magi bring to Jesus",
+      "story of the star of Bethlehem",
+      "why gold frankincense and myrrh"
+    ],
+    "verses": [
+      { "ref": "Matthew 2:1-12", "why": "The Magi follow the star, worship Jesus, and offer their gifts." },
+      { "ref": "Isaiah 60:1-6", "why": "Isaiah foretold nations coming to the light with gold and frankincense." },
+      { "ref": "Numbers 24:17", "why": "A star rising from Jacob was an ancient prophecy." }
+    ],
+    "related": ["christmas", "incarnation"]
+  },
+  {
+    "id": "pentecost",
+    "title": "Pentecost",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "Fifty days after Easter, the Holy Spirit descends on the apostles as wind and tongues of fire, and they begin to preach in many languages. Catholics call this the birthday of the Church. Pentecost shows that the Spirit gives courage, unity, and the power to share the Gospel.",
+    "phrasings": [
+      "what happened at Pentecost",
+      "what is the day of Pentecost",
+      "what are the tongues of fire",
+      "when did the Holy Spirit come to the apostles",
+      "what does speaking in tongues mean at Pentecost"
+    ],
+    "verses": [
+      { "ref": "Acts 2:1-4", "why": "The Spirit comes with wind and fire, and the apostles speak in other languages." },
+      { "ref": "Acts 2:5-13", "why": "People from many nations hear them in their own languages." },
+      { "ref": "Acts 2:37-42", "why": "Peter preaches, and about three thousand are baptized." },
+      { "ref": "John 14:26", "why": "Jesus had promised the Spirit would teach them everything." }
+    ],
+    "related": ["holy-spirit", "tower-of-babel"]
+  },
+  {
+    "id": "transfiguration",
+    "title": "The Transfiguration",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "On a mountain, Jesus' face shines like the sun, and Moses and Elijah appear beside him as the Father's voice says: this is my beloved Son. The apostles glimpse his glory before the cross. It reminds us that suffering is not the final word.",
+    "phrasings": [
+      "what is the Transfiguration",
+      "why did Jesus shine on the mountain",
+      "why did Moses and Elijah appear with Jesus",
+      "what happened on Mount Tabor",
+      "what does it mean that Jesus was transfigured"
+    ],
+    "verses": [
+      { "ref": "Matthew 17:1-8", "why": "Jesus is transfigured and the Father speaks." },
+      { "ref": "Luke 9:28-36", "why": "Luke notes they spoke of his departure at Jerusalem." },
+      { "ref": "2 Peter 1:16-18", "why": "Peter recalls seeing his majesty on the holy mountain." }
+    ],
+    "related": ["elijah-chariot", "resurrection"]
+  },
+  {
+    "id": "lazarus-raised",
+    "title": "Jesus raises Lazarus",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "Jesus arrives after Lazarus has been dead four days, weeps with his sisters, and calls him out of the tomb. The miracle shows that Jesus is the resurrection and the life, and it points to his own rising. It also shows that Jesus shares our grief.",
+    "phrasings": [
+      "story of Lazarus",
+      "did Jesus raise Lazarus from the dead",
+      "why did Jesus weep",
+      "who is Lazarus in the Bible",
+      "what is I am the resurrection and the life"
+    ],
+    "verses": [
+      { "ref": "John 11:17-27", "why": "Jesus tells Martha: I am the resurrection and the life." },
+      { "ref": "John 11:33-36", "why": "Jesus weeps." },
+      { "ref": "John 11:38-44", "why": "Lazarus comes out of the tomb." }
+    ],
+    "related": ["resurrection", "grief"]
+  },
+  {
+    "id": "temptation-of-jesus",
+    "title": "The temptation of Jesus in the desert",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "After forty days of fasting, Jesus is tempted by the devil and answers each time with Scripture. Where Adam and Israel failed, Jesus remains faithful. It is the model for Lent and a help when we are tempted: he knows what it is like, and he gives us the way to respond.",
+    "phrasings": [
+      "how was Jesus tempted",
+      "what happened in the desert with Satan",
+      "why did Jesus fast for forty days",
+      "how did Jesus resist temptation",
+      "what are the three temptations of Jesus"
+    ],
+    "verses": [
+      { "ref": "Matthew 4:1-11", "why": "The three temptations and Jesus' answers from Scripture." },
+      { "ref": "Hebrews 4:15-16", "why": "Jesus was tempted in every way yet did not sin, so we can approach him with confidence." },
+      { "ref": "Deuteronomy 8:3", "why": "Man does not live by bread alone, the verse Jesus quotes first." }
+    ],
+    "related": ["lent", "spiritual-warfare"]
+  },
+  {
+    "id": "woman-adultery",
+    "title": "The woman caught in adultery",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "A crowd brings a woman to Jesus and wants to stone her. He says: let the one without sin cast the first stone, and they leave one by one. He tells her he does not condemn her and to sin no more. Mercy and truth meet here.",
+    "phrasings": [
+      "story of the woman caught in adultery",
+      "let him who is without sin cast the first stone",
+      "did Jesus forgive the adulterous woman",
+      "what did Jesus write on the ground",
+      "go and sin no more"
+    ],
+    "verses": [
+      { "ref": "John 8:3-9", "why": "Jesus challenges those without sin to throw the first stone." },
+      { "ref": "John 8:10-11", "why": "He does not condemn her and tells her to sin no more." },
+      { "ref": "Romans 2:1-4", "why": "Paul warns against judging others while we need mercy ourselves." }
+    ],
+    "related": ["mercy", "forgiveness"]
+  },
+  {
+    "id": "peter-denial",
+    "title": "Peter's denial and restoration",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "Peter, who promised to die for Jesus, denies him three times before the rooster crows and weeps bitterly. After the Resurrection, Jesus asks him three times, do you love me, and entrusts him with his flock. The story is for anyone who has failed.",
+    "phrasings": [
+      "why did Peter deny Jesus",
+      "story of Peter and the rooster",
+      "did Jesus forgive Peter",
+      "what happened to Peter after he denied Jesus",
+      "do you love me Peter"
+    ],
+    "verses": [
+      { "ref": "Luke 22:54-62", "why": "Peter denies Jesus three times, and Jesus looks at him." },
+      { "ref": "John 21:15-19", "why": "Jesus restores Peter with three questions of love." },
+      { "ref": "Luke 22:31-32", "why": "Jesus had already prayed that Peter's faith would not fail." }
+    ],
+    "related": ["failure", "peter-pope"]
+  },
+  {
+    "id": "paul-conversion",
+    "title": "The conversion of Saint Paul",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "Saul, a persecutor of Christians, is struck down on the road to Damascus by a light and the voice of Jesus. Blinded, he is healed and baptized, and becomes Paul, the great apostle to the Gentiles. No one is too far gone for God's grace.",
+    "phrasings": [
+      "how did Paul convert",
+      "what happened on the road to Damascus",
+      "story of Saul becoming Paul",
+      "why did Paul persecute Christians",
+      "who was Saint Paul"
+    ],
+    "verses": [
+      { "ref": "Acts 9:1-9", "why": "Jesus appears to Saul on the road to Damascus." },
+      { "ref": "Acts 9:10-19", "why": "Ananias baptizes Saul, and his sight is restored." },
+      { "ref": "1 Timothy 1:15-16", "why": "Paul calls himself the foremost of sinners, shown mercy." },
+      { "ref": "Galatians 1:13-16", "why": "Paul tells his own story of being called by grace." }
+    ],
+    "related": ["grace", "repentance"]
+  },
+  {
+    "id": "last-supper",
+    "title": "The Last Supper",
+    "category": "Bible Stories",
+    "tier": 1,
+    "intro": "On the night before he died, Jesus shared the Passover meal with his apostles, washed their feet, and gave them his Body and Blood. He told them to do this in memory of him, which is why the Church celebrates the Mass. It is also where he gave the new commandment to love one another.",
+    "phrasings": [
+      "what happened at the Last Supper",
+      "why did Jesus wash the disciples' feet",
+      "what is the new commandment",
+      "what did Jesus say at the Last Supper",
+      "what is Holy Thursday"
+    ],
+    "verses": [
+      { "ref": "Luke 22:14-20", "why": "Jesus gives bread and wine, saying do this in memory of me." },
+      { "ref": "John 13:1-15", "why": "He washes the apostles' feet as an example of service." },
+      { "ref": "John 13:34-35", "why": "The new commandment: love one another as I have loved you." }
+    ],
+    "related": ["eucharist", "the-passion"]
+  }
+]

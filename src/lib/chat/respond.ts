@@ -1,17 +1,20 @@
 import { bibleBooks } from "../bible";
 import { THRESHOLDS, matchTopics, type TopicMatch } from "./matcher";
 import { getTopic, parseRef, passageLabel, type ChatTopic } from "./topics";
+import { searchVerses } from "./verseSearch";
 
 export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   text?: string;
-  kind?: "welcome" | "answer" | "suggest" | "passage" | "fallback";
+  kind?: "welcome" | "answer" | "suggest" | "passage" | "fallback" | "verses";
   lead?: string;
   topicId?: string;
   optionIds?: string[];
   followUpIds?: string[];
   passageRef?: string;
+  passageRefs?: string[];
+  keyword?: string;
   crisis?: boolean;
 };
 
@@ -68,8 +71,13 @@ export async function respondTo(query: string): Promise<ChatMessage> {
   if (top && top.score >= limits.answer) {
     return { id: uid(), role: "assistant", kind: "answer", lead: pick(LEADS), topicId: top.topic.id, followUpIds: followUps(top.topic, matches.slice(1, 3), limits.suggest) };
   }
+  const nearby = matches.filter((match) => match.score >= limits.suggest).slice(0, 3).map((match) => match.topic.id);
+  const found = searchVerses(text);
+  if (found) {
+    return { id: uid(), role: "assistant", kind: "verses", keyword: found.keyword, passageRefs: found.hits.map((hit) => hit.ref), optionIds: nearby };
+  }
   if (top && top.score >= limits.suggest) {
-    return { id: uid(), role: "assistant", kind: "suggest", optionIds: matches.filter((match) => match.score >= limits.suggest).slice(0, 3).map((match) => match.topic.id) };
+    return { id: uid(), role: "assistant", kind: "suggest", optionIds: nearby };
   }
   return { id: uid(), role: "assistant", kind: "fallback", optionIds: FALLBACK_STARTERS.filter((id) => getTopic(id)) };
 }

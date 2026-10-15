@@ -10,6 +10,10 @@ const extractor = await pipeline("feature-extraction", index.model, { dtype: "q8
 
 // [question, expected topic id or null when nothing should match confidently]
 const cases = [
+  ["Who were the giants in Genesis 6?", "nephilim"],
+  ["Who did Cain marry?", "cain-wife"],
+  ["What happened on the road to Damascus?", "paul-conversion"],
+  ["Why did Jesus die on the cross?", "the-passion"],
   ["My mom just passed away and I can't stop crying", "grief"],
   ["I keep worrying about my exams", "anxiety"],
   ["How can I get closer to God through prayer?", "prayer"],
