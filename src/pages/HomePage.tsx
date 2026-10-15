@@ -25,8 +25,15 @@ const primaryCards = [
     onClick: "onJourney",
   },
   {
+    art: "prayer",
+    title: "Breviary",
+    description: "Pray Lauds, Vespers, and Compline each day.",
+    action: "Pray the Hours",
+    onClick: "onBreviary",
+  },
+  {
     art: "readings",
-    title: "Mass Readings",
+    title: "Mass Reading",
     description: "Pray with today’s liturgy.",
     action: "Today’s Readings",
     onClick: "onMass",
@@ -34,7 +41,7 @@ const primaryCards = [
 ] as const;
 
 export function HomePage({ onResume, onChoose, onMass, onJourney, onBreviary }: HomePageProps) {
-  const actions = { onChoose, onMass, onJourney };
+  const actions = { onChoose, onMass, onJourney, onBreviary };
 
   return (
     <main className="landing-page">
@@ -97,6 +104,8 @@ export function HomePage({ onResume, onChoose, onMass, onJourney, onBreviary }: 
                     <circle className="landing-journey-star-center" cx="200" cy="42" r="2.5" />
                     <path className="landing-journey-star-rays" d="M200 14v6m0 44v6m-28-28h6m44 0h6" />
                   </svg>
+                ) : art === "prayer" ? (
+                  <LandingBreviaryArtwork />
                 ) : (
                   <LandingChurchArtwork />
                 )}
@@ -110,18 +119,6 @@ export function HomePage({ onResume, onChoose, onMass, onJourney, onBreviary }: 
               </div>
             </button>
           ))}
-          <button className="landing-card" type="button" aria-label="Breviary: Pray the Hours" onClick={onBreviary}>
-            <div className="landing-card-art landing-card-art--prayer" aria-hidden="true">
-              <LandingBreviaryArtwork />
-            </div>
-            <div className="landing-card-copy">
-              <h3>Breviary</h3>
-              <p>Pray Lauds, Vespers, and Compline each day.</p>
-              <span className="text-link">
-                Pray the Hours <ArrowRight size={15} />
-              </span>
-            </div>
-          </button>
         </div>
       </section>
 

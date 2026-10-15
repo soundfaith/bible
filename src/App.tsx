@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  BookOpen,
+  Compass,
+  Church,
   Bookmark as BookmarkMenuIcon,
-  CalendarDays,
   House,
-  CircleHelp,
   Home,
+  CircleHelp,
+  BookOpen,
   Headphones,
-  Milestone,
   Pause,
   Play,
   Menu,
@@ -17,7 +17,6 @@ import {
   Sunrise,
   Sunset,
   Moon,
-  Compass,
   X,
 } from "lucide-react";
 import { Brand, ThemeToggle } from "./components/Brand";
@@ -668,9 +667,9 @@ export default function App() {
         <nav className="desktop-nav" aria-label="Primary navigation">
           <a href="#/" className={route === "home" ? "active" : ""}>Home</a>
           <a href="#/bible" className={route === "read" || route === "bible" ? "active" : ""}>Bible</a>
-          <a href="#/mass" className={route === "mass" ? "active" : ""}>Mass Reading</a>
-          <a href="#/breviary" className={route === "breviary" ? "active" : ""}>Breviary</a>
           <a href="#/journey" className={route === "journey" || route === "journey-artwork" ? "active" : ""}>Bible Journey</a>
+          <a href="#/breviary" className={route === "breviary" ? "active" : ""}>Breviary</a>
+          <a href="#/mass" className={route === "mass" ? "active" : ""}>Mass Reading</a>
         </nav>
         <nav
           className={menuOpen ? "main-nav nav-open" : "main-nav"}
@@ -686,10 +685,10 @@ export default function App() {
             </button>
           </div>
           <a href="#/" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><House size={17} />Home</a>
-          <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Read Scriptures</a>
-          <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily Mass</a>
+          <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible</a>
+          <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Compass size={17} />Bible Journey</a>
           <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BreviaryHourIcon size={17} />Breviary</a>
-          <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Milestone size={17} />Bible Journey</a>
+          <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><Church size={17} />Mass Reading</a>
           <a href="#/bookmarks" onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
           <a href="#/about" onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>
           <section className="font-size-control" aria-label="Reading font size">
