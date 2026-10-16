@@ -203,6 +203,10 @@ python scripts/breviary_narration.py --voice af_heart --upload-github --execute
 Clips upload to the `breviary-narration-<voice>` releases. Until they exist, playback falls back to browser speech.
 
 
+## Journey intro
+python scripts/period_intro_narration.py --voice am_michael --upload-github --execute
+python scripts/period_intro_narration.py --voice af_heart --upload-github --execute
+
 
 
 - complete bible m/f, and journey

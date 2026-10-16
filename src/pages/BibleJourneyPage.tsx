@@ -1,5 +1,6 @@
-import { ArrowLeft, ArrowRight, Check, Circle, Headphones, Pause, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Circle, Headphones, Pause, Play, SkipForward } from "lucide-react";
 import { bibleJourney } from "../data/bibleJourney";
+import journeyIntros from "../data/journeyIntros.json";
 import { JourneyArtwork } from "../components/JourneyArtwork";
 import { bibleBooks, getParagraphs } from "../lib/bible";
 import { resolveReference, referenceLabel } from "../lib/readings";
@@ -17,6 +18,7 @@ type JourneyPageProps = {
   onToggleComplete: (periodId: string) => void;
   onToggleAudio: () => void;
   onSelectAudioStory: (storyIndex: number) => void;
+  onSkipIntro: () => void;
   onOpenPassage: (bookId: string, chapter: number, verse: number) => void;
 };
 
@@ -55,6 +57,7 @@ export function BibleJourneyPage({
   onToggleComplete,
   onToggleAudio,
   onSelectAudioStory,
+  onSkipIntro,
   onOpenPassage,
 }: JourneyPageProps) {
   const currentPeriod = bibleJourney.find((period) => period.id === periodId);
@@ -78,6 +81,11 @@ export function BibleJourneyPage({
   const previous = bibleJourney[periodIndex - 1];
   const next = bibleJourney[periodIndex + 1];
   const isComplete = completedIds.includes(period.id);
+  const introParagraphs = ((journeyIntros as Record<string, string>)[period.id] ?? "")
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  const introPlaying = audioStatus !== "idle" && activeStoryIndex === -1;
 
   return (
     <main className="journey-page journey-detail-page section-wrap">
@@ -107,12 +115,25 @@ export function BibleJourneyPage({
             {audioStatus === "playing" ? <Pause size={16} /> : audioStatus === "paused" ? <Play size={16} /> : <Headphones size={17} />}
             {audioStatus === "playing" ? "Pause audio" : audioStatus === "paused" ? "Resume audio" : "Listen to period"}
           </button>
+          {introPlaying && (
+            <button className="button button-outline journey-skip-intro journey-skip-intro-inline" type="button" onClick={onSkipIntro}>
+              <SkipForward size={15} aria-hidden="true" /> Skip intro
+            </button>
+          )}
         </div>
         {audioError && <p className="journey-audio-error" role="status">{audioError}</p>}
         {(audioStatus === "playing" || audioStatus === "paused") && (
           <p className="journey-audio-status" aria-live="polite">
-            {audioStatus === "playing" ? "Playing" : "Paused"}: {period.stories[activeStoryIndex]?.title}
+            {audioStatus === "playing" ? "Playing" : "Paused"}: {introPlaying ? "Introduction" : period.stories[activeStoryIndex]?.title}
           </p>
+        )}
+        {introParagraphs.length > 0 && (
+          <details className="journey-intro">
+            <summary>Introduction to this period</summary>
+            <div className="journey-intro-text">
+              {introParagraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}
+            </div>
+          </details>
         )}
       </header>
 

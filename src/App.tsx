@@ -9,6 +9,7 @@ import {
   BookOpen,
   Headphones,
   Pause,
+  SkipForward,
   Play,
   Menu,
   Minus,
@@ -32,19 +33,23 @@ import { AboutPage } from "./pages/AboutPage";
 import {
   ChapterPage,
   getLastReading,
+  hasOpenedBible,
   type ReadingPosition,
   type SelectedVerseRange,
 } from "./pages/ChapterPage";
 import { MassReadingPage } from "./pages/MassReadingPage";
 import { BreviaryLibrary, BreviaryPage } from "./pages/BreviaryPage";
 import { assembleBreviary, breviaryDayInfo, currentBreviaryHour, isBreviaryHour } from "./lib/breviary";
+import { useScrollReveal } from "./lib/reveal";
+import { loadDailyStreak, localDateKey, recordDailyItem } from "./lib/dailyStreak";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
 import { bibleJourney } from "./data/bibleJourney";
+import journeyIntros from "./data/journeyIntros.json";
 import { resolveJourneyPeriodId, loadJourneyArtworkSelections, saveJourneyArtworkSelections } from "./data/journeyArtwork";
 import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress";
-import { journeyStoryAudioUrls, narrationAudioUrlsFor } from "./lib/narrationAudio";
+import { journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor } from "./lib/narrationAudio";
 import { getNarrationGender, saveNarrationGender, type NarrationGender } from "./lib/narrationVoice";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
@@ -72,6 +77,12 @@ type BreviaryAudioState = { segmentIndex: number; status: JourneyAudioStatus; er
 const INITIAL_BREVIARY_AUDIO: BreviaryAudioState = { segmentIndex: 0, status: "idle", error: null };
 const LAST_JOURNEY_PERIOD_KEY = "soundfaith-bible-journey-last-period-v1";
 const INITIAL_JOURNEY_AUDIO: JourneyAudioState = { periodId: null, storyIndex: 0, status: "idle", error: null };
+const JOURNEY_INTRO_INDEX = -1;
+
+function journeyIntroText(periodId: string) {
+  const intro = (journeyIntros as Record<string, string>)[periodId] ?? "";
+  return intro.replace(/\s+/g, " ").trim();
+}
 
 function getLastJourneyPeriodId() {
   try {
@@ -113,6 +124,7 @@ function readJourneyStoryAnchor() {
 }
 
 export default function App() {
+  useScrollReveal();
   const [route, setRoute] = useState<Route>(readRoute);
   const BreviaryHourIcon = { lauds: Sunrise, vespers: Sunset, compline: Moon }[currentBreviaryHour()];
   const [journeyPeriodId, setJourneyPeriodId] = useState<string | null>(readJourneyPeriodId);
@@ -135,6 +147,15 @@ export default function App() {
   const [massDate, setMassDate] = useState(() => getTodaysMassReading().date);
   const [breviaryDate, setBreviaryDate] = useState(() => new Date());
   const [breviaryHour, setBreviaryHour] = useState<string | null>(readBreviaryHour);
+  const [dailyStreak, setDailyStreak] = useState(loadDailyStreak);
+  useEffect(() => {
+    const today = localDateKey();
+    if (route === "breviary" && breviaryHour && isBreviaryHour(breviaryHour) && localDateKey(breviaryDate) === today) {
+      setDailyStreak((state) => recordDailyItem(state, breviaryHour, today));
+    } else if (route === "mass" && massDate === getTodaysMassReading().date) {
+      setDailyStreak((state) => recordDailyItem(state, "mass", today));
+    }
+  }, [route, breviaryHour, breviaryDate, massDate]);
   const [breviaryAudio, setBreviaryAudio] = useState<BreviaryAudioState>(INITIAL_BREVIARY_AUDIO);
   const [highlightVerse, setHighlightVerse] = useState<number | null>(null);
   const [pendingNarration, setPendingNarration] = useState<PendingNarration>(null);
@@ -185,19 +206,25 @@ export default function App() {
       error: "This story's GitHub MP3 and browser text-to-speech could not be played.",
     });
   };
+  const journeyPlayback = (periodIndex: number, storyIndex: number) => {
+    const period = bibleJourney[periodIndex];
+    if (storyIndex === JOURNEY_INTRO_INDEX) {
+      return { text: journeyIntroText(period.id), audioUrls: journeyIntroAudioUrls(periodIndex, voicePreference) };
+    }
+    const text = period.stories[storyIndex].references.flatMap((reference) => resolveReference(reference).map((verse) => verse.text)).join(" ");
+    return { text, audioUrls: journeyStoryAudioUrls(periodIndex, storyIndex, voicePreference) };
+  };
   const playJourneyStory = (periodId: string, storyIndex: number, shouldPlay: boolean) => {
     const periodIndex = bibleJourney.findIndex((period) => period.id === periodId);
     const period = bibleJourney[periodIndex];
-    if (!period || storyIndex < 0 || storyIndex >= period.stories.length) return;
-    const story = period.stories[storyIndex];
-    const text = story.references.flatMap((reference) => resolveReference(reference).map((verse) => verse.text)).join(" ");
+    if (!period || storyIndex < JOURNEY_INTRO_INDEX || storyIndex >= period.stories.length) return;
+    const { text, audioUrls } = journeyPlayback(periodIndex, storyIndex);
     const next: JourneyAudioState = {
       periodId,
       storyIndex,
       status: shouldPlay ? "playing" : "paused",
       error: null,
     };
-    const audioUrls = journeyStoryAudioUrls(periodIndex, storyIndex, voicePreference);
     updateJourneyAudio(next);
     if (shouldPlay) {
       const started = startSpeaking(
@@ -222,13 +249,11 @@ export default function App() {
     }
     if (current.periodId === journeyPeriodId && current.status === "paused") {
       const periodIndex = bibleJourney.findIndex((period) => period.id === journeyPeriodId);
-      const period = bibleJourney[periodIndex];
-      const story = period?.stories[current.storyIndex];
-      if (!story) return;
-      const text = story.references.flatMap((reference) => resolveReference(reference).map((verse) => verse.text)).join(" ");
+      if (periodIndex < 0) return;
+      const { text, audioUrls } = journeyPlayback(periodIndex, current.storyIndex);
       const started = resumeSpeaking(
         text,
-        journeyStoryAudioUrls(periodIndex, current.storyIndex, voicePreference),
+        audioUrls,
         advanceJourneyAudio,
         () => failJourneyAudio(journeyPeriodId, current.storyIndex),
         voicePreference,
@@ -237,7 +262,15 @@ export default function App() {
       if (!started) failJourneyAudio(journeyPeriodId, current.storyIndex);
       return;
     }
+    playJourneyStory(journeyPeriodId, JOURNEY_INTRO_INDEX, true);
+  };
+  const skipJourneyIntro = () => {
+    const current = journeyAudioStateRef.current;
+    if (!journeyPeriodId || current.periodId !== journeyPeriodId || current.storyIndex !== JOURNEY_INTRO_INDEX) return;
     playJourneyStory(journeyPeriodId, 0, true);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`story-${journeyPeriodId}-0`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
   const selectJourneyAudioStory = (storyIndex: number) => {
     if (!journeyPeriodId) return;
@@ -256,6 +289,9 @@ export default function App() {
       return;
     }
     playJourneyStory(period.id, nextStoryIndex, true);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`story-${period.id}-${nextStoryIndex}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
   };
   const updateBreviaryAudio = (next: BreviaryAudioState) => {
     breviaryAudioStateRef.current = next;
@@ -459,16 +495,18 @@ export default function App() {
     setBookmarkCategories(next);
     saveBookmarkCategories(next);
   };
-  const shareApp = async () => {
+  const shareApp = async (): Promise<"shared" | "copied"> => {
     const shareData = {
       title: "Soundfaith Bible",
       text: "A quiet place to return to the Scriptures.",
       url: window.location.href,
     };
-    if (navigator.share) await navigator.share(shareData);
-    else {
-      await navigator.clipboard?.writeText(window.location.href);
+    if (navigator.share) {
+      await navigator.share(shareData);
+      return "shared";
     }
+    await navigator.clipboard?.writeText(window.location.href);
+    return "copied";
   };
   const chapterNarration = (position: ReadingPosition) => getChapter(position.bookId, position.chapter)
     .map((verse) => verse.text)
@@ -557,6 +595,7 @@ export default function App() {
     ? narration.position / narration.duration
     : narration.text.length > 0 ? narration.position / narration.text.length : 0;
   const isJourneyDetail = route === "journey" && Boolean(journeyPeriodId);
+  const journeyIntroActive = isJourneyDetail && journeyAudioForPage.storyIndex === JOURNEY_INTRO_INDEX && journeyAudioForPage.status !== "idle";
   const isBreviaryDetail = route === "breviary" && breviaryDay !== null;
   const mobileListenStatus = isBreviaryDetail ? breviaryAudio.status : isJourneyDetail ? journeyAudioForPage.status : narration.status;
   const mobileListenLabel = mobileListenStatus === "playing"
@@ -634,6 +673,7 @@ export default function App() {
         onToggleComplete={toggleJourneyPeriod}
         onToggleAudio={toggleJourneyAudio}
         onSelectAudioStory={selectJourneyAudioStory}
+        onSkipIntro={skipJourneyIntro}
         onOpenPassage={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)}
       />
     ) : (
@@ -657,6 +697,21 @@ export default function App() {
         onMass={() => {
           setMassDate(getTodaysMassReading().date);
           window.location.hash = "#/mass";
+        }}
+        streak={dailyStreak}
+        bible={{
+          started: hasOpenedBible(),
+          label: `${bibleBooks.find((book) => book.id === readingPosition.bookId)?.name ?? "Genesis"} ${readingPosition.chapter}`,
+        }}
+        onShare={shareApp}
+        onOpenDaily={(item) => {
+          if (item === "mass") {
+            setMassDate(getTodaysMassReading().date);
+            window.location.hash = "#/mass";
+          } else {
+            setBreviaryDate(new Date());
+            window.location.hash = `#/breviary/${item}`;
+          }
         }}
       />
     );
@@ -746,11 +801,16 @@ export default function App() {
         {isJourneyDetail && <JourneyNarrationProgress
           className="narration-progress-mobile"
           storyCount={bibleJourney.find((period) => period.id === journeyPeriodId)?.stories.length ?? 0}
-          activeStoryIndex={journeyAudioForPage.storyIndex}
-          activeStoryProgress={journeyStoryProgress}
+          activeStoryIndex={Math.max(0, journeyAudioForPage.storyIndex)}
+          activeStoryProgress={journeyIntroActive ? 0 : journeyStoryProgress}
           status={journeyAudioForPage.status}
           onSelectStory={selectJourneyAudioStory}
         />}
+        {journeyIntroActive && (
+          <button type="button" className="journey-skip-intro journey-skip-intro-floating" onClick={skipJourneyIntro}>
+            <SkipForward size={12} aria-hidden="true" /> Skip intro
+          </button>
+        )}
         {isBreviaryDetail && breviaryDay && <JourneyNarrationProgress
           className="narration-progress-mobile"
           storyCount={breviaryDay.segments.length}

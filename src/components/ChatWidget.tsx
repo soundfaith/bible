@@ -1,6 +1,7 @@
 import { ArrowRight, Send, Trash2, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import "../chat.css";
+import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "../lib/assistant";
 import { clearChatHistory, loadChatHistory, saveChatHistory } from "../lib/chat/history";
 import { warmUpChatModel } from "../lib/chat/matcher";
 import { respondTo, SUGGESTED_PROMPTS, topicReply, welcomeMessage, type ChatMessage } from "../lib/chat/respond";
@@ -11,9 +12,9 @@ type Props = { onOpenVerse: (bookId: string, chapter: number, verse: number) => 
 const MIN_TYPING_MS = 700;
 const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const BOT_NAME = "Sofia";
+const BOT_NAME = ASSISTANT_NAME;
 
-function SofiaAvatar({ size = 46 }: { size?: number }) {
+export function SofiaAvatar({ size = 46 }: { size?: number }) {
   const id = useId();
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
@@ -170,6 +171,11 @@ export function ChatWidget({ onOpenVerse }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { saveChatHistory(messages); }, [messages]);
+  useEffect(() => {
+    const openFromPage = () => setOpen(true);
+    window.addEventListener(OPEN_ASSISTANT_EVENT, openFromPage);
+    return () => window.removeEventListener(OPEN_ASSISTANT_EVENT, openFromPage);
+  }, []);
   useEffect(() => {
     if (!open) return;
     warmUpChatModel();

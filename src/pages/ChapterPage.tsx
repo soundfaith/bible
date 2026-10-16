@@ -9,6 +9,14 @@ const READING_KEY = "bible-last-reading";
 export type ReadingPosition = { bookId: string; chapter: number };
 export type SelectedVerseRange = { verseStart: number; verseEnd: number };
 
+export function hasOpenedBible() {
+  try {
+    return window.localStorage.getItem(READING_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export function getLastReading(): ReadingPosition {
   try {
     const saved = JSON.parse(window.localStorage.getItem(READING_KEY) || "null") as ReadingPosition | null;

@@ -1,0 +1,47 @@
+/* Quiet motion: short fades and small lifts, no bounce. */
+@keyframes revealUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+@keyframes pageFade { from { opacity:0; } to { opacity:1; } }
+
+[data-reveal="pending"] { opacity:0; transform:translateY(14px); }
+[data-reveal="shown"] { animation:revealUp .7s var(--ease-out) var(--reveal-delay,0ms) backwards; }
+
+.app-shell > main { animation:pageFade .45s var(--ease-out); }
+
+.landing-card-art > svg,
+.landing-card-art > .landing-card-artwork { transition:transform .9s var(--ease-out); }
+.landing-card:hover .landing-card-art > svg { transform:scale(1.045); }
+
+.text-link svg,
+.landing-card-copy .text-link svg { transition:transform .22s var(--ease-out); }
+.landing-card:hover .text-link svg,
+.landing-ask-card:hover .text-link svg,
+.text-link:hover svg { transform:translateX(3px); }
+
+.landing-ask-card > svg { transition:transform .5s var(--ease-out); }
+.landing-ask-card:hover > svg { transform:scale(1.06) rotate(-4deg); }
+
+.journey-library-card,
+.bookmark-item,
+.mass-reading-card { transition:transform .25s var(--ease-out),box-shadow .25s var(--ease-out),border-color .2s var(--ease-out); }
+.journey-library-card:hover { transform:translateY(-3px); }
+.bookmark-item:hover { transform:translateY(-2px); }
+
+.journey-intro[open] > :not(summary) { animation:pageFade .5s var(--ease-out); }
+
+.button:active,
+.landing-card:active,
+.landing-ask-card:active { transform:scale(.985); }
+
+@media (prefers-reduced-motion:reduce) {
+  [data-reveal],
+  .app-shell > main,
+  .journey-intro[open] > :not(summary) { animation:none; opacity:1; transform:none; }
+  .landing-card-art > svg,
+  .text-link svg,
+  .landing-ask-card > svg { transition:none; }
+  .landing-card:hover .landing-card-art > svg,
+  .landing-card:hover .text-link svg,
+  .landing-ask-card:hover .text-link svg,
+  .text-link:hover svg,
+  .landing-ask-card:hover > svg { transform:none; }
+}
