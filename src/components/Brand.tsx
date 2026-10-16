@@ -1,9 +1,7 @@
-import { BibleMark } from "./BibleMark";
-
 export function Brand() {
   return (
     <a className="wordmark" href="#/" aria-label="Soundfaith Bible home">
-      <span className="wordmark-mark"><BibleMark /></span>
+      <span className="wordmark-mark"><img src="/favicon.svg" alt="" /></span>
       <span>soundfaith bible</span>
     </a>
   );
