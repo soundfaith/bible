@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { Brand, ThemeToggle } from "./components/Brand";
+import { DailyNextStep } from "./components/DailyNextStep";
 import { BibleMark } from "./components/BibleMark";
 import { ModalLayer, type Modal } from "./components/ModalLayer";
 import { SearchModal, type SearchResult } from "./components/SearchModal";
@@ -41,7 +42,7 @@ import { MassReadingPage } from "./pages/MassReadingPage";
 import { BreviaryLibrary, BreviaryPage } from "./pages/BreviaryPage";
 import { assembleBreviary, breviaryDayInfo, currentBreviaryHour, isBreviaryHour } from "./lib/breviary";
 import { useScrollReveal } from "./lib/reveal";
-import { loadDailyStreak, localDateKey, recordDailyItem } from "./lib/dailyStreak";
+import { doneToday as getDoneToday, loadDailyStreak, localDateKey, recordDailyItem } from "./lib/dailyStreak";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
@@ -290,7 +291,7 @@ export default function App() {
     }
     playJourneyStory(period.id, nextStoryIndex, true);
     window.requestAnimationFrame(() => {
-      document.getElementById(`story-${period.id}-${nextStoryIndex}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document.getElementById(`story-${period.id}-${nextStoryIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   };
   const updateBreviaryAudio = (next: BreviaryAudioState) => {
@@ -597,6 +598,8 @@ export default function App() {
   const isJourneyDetail = route === "journey" && Boolean(journeyPeriodId);
   const journeyIntroActive = isJourneyDetail && journeyAudioForPage.storyIndex === JOURNEY_INTRO_INDEX && journeyAudioForPage.status !== "idle";
   const isBreviaryDetail = route === "breviary" && breviaryDay !== null;
+  const todayGospelReference = Object.entries(getTodaysMassReading().readings).find(([name]) => name.toLowerCase() === "gospel")?.[1].reference ?? "John 1:1-5";
+  const journeyComplete = bibleJourney.every((period) => journeyProgress.completedIds.includes(period.id));
   const mobileListenStatus = isBreviaryDetail ? breviaryAudio.status : isJourneyDetail ? journeyAudioForPage.status : narration.status;
   const mobileListenLabel = mobileListenStatus === "playing"
     ? isJourneyDetail || isBreviaryDetail ? "Pause prayer audio" : "Pause narration"
@@ -632,7 +635,24 @@ export default function App() {
         onChoose={(position) => openReader(position)}
       />
     ) : route === "mass" ? (
-      <MassReadingPage onOpenReference={openMassReference} selectedDate={massDate} onSelectedDateChange={setMassDate} voicePreference={voicePreference} />
+      <MassReadingPage
+        onOpenReference={openMassReference}
+        selectedDate={massDate}
+        onSelectedDateChange={setMassDate}
+        voicePreference={voicePreference}
+        nextStep={<DailyNextStep
+          page="mass"
+          doneToday={getDoneToday(dailyStreak)}
+          hour={currentBreviaryHour()}
+          journeyComplete={journeyComplete}
+          gospelReference={todayGospelReference}
+          onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
+          onOpenBreviary={openCurrentBreviary}
+          onOpenJourney={() => { window.location.hash = "#/journey"; }}
+          onOpenReference={openMassReference}
+          onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
+        />}
+      />
     ) : route === "breviary" ? breviaryHour ? (
       <BreviaryPage
         hour={breviaryHour}
@@ -644,6 +664,18 @@ export default function App() {
         audioError={breviaryAudio.error}
         onToggleAudio={toggleBreviaryAudio}
         onSelectSegment={playBreviarySegment}
+        nextStep={<DailyNextStep
+          page="breviary"
+          doneToday={getDoneToday(dailyStreak)}
+          hour={isBreviaryHour(breviaryHour) ? breviaryHour : currentBreviaryHour()}
+          journeyComplete={journeyComplete}
+          gospelReference={todayGospelReference}
+          onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
+          onOpenBreviary={openCurrentBreviary}
+          onOpenJourney={() => { window.location.hash = "#/journey"; }}
+          onOpenReference={openMassReference}
+          onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
+        />}
       />
     ) : (
       <BreviaryLibrary date={breviaryDate} onDateChange={setBreviaryDate} {...breviaryDayInfo(breviaryDate)} />

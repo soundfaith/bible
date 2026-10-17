@@ -790,6 +790,12 @@ input,textarea,select { border-radius:var(--radius-sm); } .site-footer { positio
   .about-app-list a { padding:14px 2px; }
   .about-app-list a > span { grid-template-columns:1fr; gap:4px; }
 }
+.daily-next-step { margin:48px auto 0; padding-bottom:20px; }
+.journey-page.has-next-step { padding-bottom:32px; }
+@media (max-width:760px) {
+  .daily-next-step { margin-top:38px; padding-bottom:14px; }
+  .journey-page.has-next-step { padding-bottom:28px; }
+}
 
 .journey-detail-nav { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:42px; }
 .journey-back-link,.journey-detail-nav > div a { display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-size:10px; font-weight:800; transition:color .18s ease; }

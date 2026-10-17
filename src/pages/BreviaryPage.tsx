@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Headphones, Pause, Play, X } from "lucide-react";
 import { BreviaryArtwork } from "../components/BreviaryArtwork";
 import {
@@ -92,9 +92,10 @@ type BreviaryPageProps = DateProps & {
   audioError: string | null;
   onToggleAudio: () => void;
   onSelectSegment: (index: number) => void;
+  nextStep?: ReactNode;
 };
 
-export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activeSegmentIndex, audioError, onToggleAudio, onSelectSegment }: BreviaryPageProps) {
+export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activeSegmentIndex, audioError, onToggleAudio, onSelectSegment, nextStep }: BreviaryPageProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   if (!isBreviaryHour(hour) || !day) {
     return (
@@ -115,7 +116,7 @@ export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activ
   const next: BreviaryHour | undefined = breviaryHours[index + 1];
   const caption = day.saint ? `${day.saint.name} · ${day.season.name}` : day.season.name;
   return (
-    <main className="journey-page journey-detail-page breviary-page section-wrap">
+    <main className={`journey-page journey-detail-page breviary-page section-wrap${nextStep ? " has-next-step" : ""}`}>
       <nav className="journey-detail-nav" aria-label="Breviary navigation">        <a className="button button-outline" href="#/breviary"><ArrowLeft size={16} /> All hours</a>
         <button className="mass-calendar-trigger" onClick={() => setCalendarOpen(true)}><CalendarDays size={17} /><span>Choose date</span></button>
       </nav>
@@ -193,6 +194,7 @@ export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activ
           {next ? <a className="button button-outline journey-next-action" href={`#/breviary/${next}`} rel="next">{breviaryHourInfo[next].name} <ArrowRight size={15} /></a> : <span />}
         </div>
       </footer>
+      {nextStep}
       {calendarOpen && <BreviaryCalendar date={date} onSelect={(value) => { onDateChange(value); setCalendarOpen(false); }} onClose={() => setCalendarOpen(false)} />}
     </main>
   );
