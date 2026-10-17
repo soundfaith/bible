@@ -202,6 +202,14 @@ python scripts/breviary_narration.py --voice af_heart --upload-github --execute
 
 Clips upload to the `breviary-narration-<voice>` releases. Until they exist, playback falls back to browser speech.
 
+Hour introductions use the same releases and voice fallback:
+
+```powershell
+python scripts/breviary_intro_narration.py --list
+python scripts/breviary_intro_narration.py --voice am_michael --upload-github --execute
+python scripts/breviary_intro_narration.py --voice af_heart --upload-github --execute
+```
+
 
 ## Journey intro
 python scripts/period_intro_narration.py --voice am_michael --upload-github --execute

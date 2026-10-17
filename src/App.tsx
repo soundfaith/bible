@@ -48,9 +48,10 @@ import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
 import { bibleJourney } from "./data/bibleJourney";
 import journeyIntros from "./data/journeyIntros.json";
+import breviaryIntros from "./data/breviaryIntros.json";
 import { resolveJourneyPeriodId, loadJourneyArtworkSelections, saveJourneyArtworkSelections } from "./data/journeyArtwork";
 import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress";
-import { journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor } from "./lib/narrationAudio";
+import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor } from "./lib/narrationAudio";
 import { getNarrationGender, saveNarrationGender, type NarrationGender } from "./lib/narrationVoice";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
@@ -79,10 +80,15 @@ const INITIAL_BREVIARY_AUDIO: BreviaryAudioState = { segmentIndex: 0, status: "i
 const LAST_JOURNEY_PERIOD_KEY = "soundfaith-bible-journey-last-period-v1";
 const INITIAL_JOURNEY_AUDIO: JourneyAudioState = { periodId: null, storyIndex: 0, status: "idle", error: null };
 const JOURNEY_INTRO_INDEX = -1;
+const BREVIARY_INTRO_INDEX = -1;
 
 function journeyIntroText(periodId: string) {
   const intro = (journeyIntros as Record<string, string>)[periodId] ?? "";
   return intro.replace(/\s+/g, " ").trim();
+}
+
+function breviaryIntroText(hour: string) {
+  return ((breviaryIntros as Record<string, string>)[hour] ?? "").replace(/\s+/g, " ").trim();
 }
 
 function getLastJourneyPeriodId() {
@@ -313,6 +319,23 @@ export default function App() {
       document.getElementById(`breviary-${segment.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
     });
   };
+  const playBreviaryIntro = () => {
+    if (!isBreviaryHour(breviaryHour)) return;
+    const text = breviaryIntroText(breviaryHour);
+    if (!text) return playBreviarySegment(0);
+    updateBreviaryAudio({ segmentIndex: BREVIARY_INTRO_INDEX, status: "playing", error: null });
+    const started = startSpeaking(text, breviaryIntroAudioUrls(breviaryHour, voicePreference), advanceBreviaryAudio, () => failBreviaryAudio(BREVIARY_INTRO_INDEX), voicePreference);
+    if (!started) failBreviaryAudio(BREVIARY_INTRO_INDEX);
+  };
+  const skipBreviaryIntro = () => {
+    const current = breviaryAudioStateRef.current;
+    if (current.status === "idle" || current.segmentIndex !== BREVIARY_INTRO_INDEX) return;
+    playBreviarySegment(0);
+    const firstSegment = breviaryDayRef.current?.segments[0];
+    if (firstSegment) window.requestAnimationFrame(() => {
+      document.getElementById(`breviary-${firstSegment.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  };
   const advanceBreviaryAudio = () => {
     const day = breviaryDayRef.current;
     if (!day) return;
@@ -331,13 +354,20 @@ export default function App() {
       return;
     }
     const segment = breviaryDayRef.current?.segments[current.segmentIndex];
+    if (current.status === "paused" && current.segmentIndex === BREVIARY_INTRO_INDEX && isBreviaryHour(breviaryHour)) {
+      const text = breviaryIntroText(breviaryHour);
+      const started = resumeSpeaking(text, breviaryIntroAudioUrls(breviaryHour, voicePreference), advanceBreviaryAudio, () => failBreviaryAudio(BREVIARY_INTRO_INDEX), voicePreference);
+      updateBreviaryAudio({ ...current, status: "playing", error: null });
+      if (!started) failBreviaryAudio(BREVIARY_INTRO_INDEX);
+      return;
+    }
     if (current.status === "paused" && segment) {
       const started = resumeSpeaking(segment.text, segment.audioUrls, advanceBreviaryAudio, () => failBreviaryAudio(current.segmentIndex), voicePreference);
       updateBreviaryAudio({ ...current, status: "playing", error: null });
       if (!started) failBreviaryAudio(current.segmentIndex);
       return;
     }
-    playBreviarySegment(0);
+    playBreviaryIntro();
   };
   useEffect(() => {
     const change = () => {
@@ -598,6 +628,7 @@ export default function App() {
   const isJourneyDetail = route === "journey" && Boolean(journeyPeriodId);
   const journeyIntroActive = isJourneyDetail && journeyAudioForPage.storyIndex === JOURNEY_INTRO_INDEX && journeyAudioForPage.status !== "idle";
   const isBreviaryDetail = route === "breviary" && breviaryDay !== null;
+  const breviaryIntroActive = isBreviaryDetail && breviaryAudio.segmentIndex === BREVIARY_INTRO_INDEX && breviaryAudio.status !== "idle";
   const todayGospelReference = Object.entries(getTodaysMassReading().readings).find(([name]) => name.toLowerCase() === "gospel")?.[1].reference ?? "John 1:1-5";
   const journeyComplete = bibleJourney.every((period) => journeyProgress.completedIds.includes(period.id));
   const mobileListenStatus = isBreviaryDetail ? breviaryAudio.status : isJourneyDetail ? journeyAudioForPage.status : narration.status;
@@ -664,6 +695,7 @@ export default function App() {
         audioError={breviaryAudio.error}
         onToggleAudio={toggleBreviaryAudio}
         onSelectSegment={playBreviarySegment}
+        onSkipIntro={skipBreviaryIntro}
         nextStep={<DailyNextStep
           page="breviary"
           doneToday={getDoneToday(dailyStreak)}
@@ -846,11 +878,16 @@ export default function App() {
         {isBreviaryDetail && breviaryDay && <JourneyNarrationProgress
           className="narration-progress-mobile"
           storyCount={breviaryDay.segments.length}
-          activeStoryIndex={breviaryAudio.segmentIndex}
-          activeStoryProgress={journeyStoryProgress}
+          activeStoryIndex={Math.max(0, breviaryAudio.segmentIndex)}
+          activeStoryProgress={breviaryIntroActive ? 0 : journeyStoryProgress}
           status={breviaryAudio.status}
           onSelectStory={playBreviarySegment}
         />}
+        {breviaryIntroActive && (
+          <button type="button" className="journey-skip-intro journey-skip-intro-floating" onClick={skipBreviaryIntro}>
+            <SkipForward size={12} aria-hidden="true" /> Skip intro
+          </button>
+        )}
         <a href="#/" className={route === "home" ? "active" : ""} aria-current={route === "home" ? "page" : undefined}>
           <Home size={17} />
           <span>Home</span>

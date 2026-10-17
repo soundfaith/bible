@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Headphones, Pause, Play, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Headphones, Pause, Play, SkipForward, X } from "lucide-react";
 import { BreviaryArtwork } from "../components/BreviaryArtwork";
+import breviaryIntros from "../data/breviaryIntros.json";
 import {
   breviaryHourInfo,
   breviaryHours,
@@ -92,10 +93,11 @@ type BreviaryPageProps = DateProps & {
   audioError: string | null;
   onToggleAudio: () => void;
   onSelectSegment: (index: number) => void;
+  onSkipIntro: () => void;
   nextStep?: ReactNode;
 };
 
-export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activeSegmentIndex, audioError, onToggleAudio, onSelectSegment, nextStep }: BreviaryPageProps) {
+export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activeSegmentIndex, audioError, onToggleAudio, onSelectSegment, onSkipIntro, nextStep }: BreviaryPageProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   if (!isBreviaryHour(hour) || !day) {
     return (
@@ -112,6 +114,8 @@ export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activ
   }
   const info = breviaryHourInfo[hour];
   const index = breviaryHours.indexOf(hour);
+  const introParagraphs = (breviaryIntros as Record<string, string>)[hour]?.split(/\n{2,}/).filter(Boolean) ?? [];
+  const introPlaying = audioStatus !== "idle" && activeSegmentIndex === -1;
   const previous: BreviaryHour | undefined = breviaryHours[index - 1];
   const next: BreviaryHour | undefined = breviaryHours[index + 1];
   const caption = day.saint ? `${day.saint.name} · ${day.season.name}` : day.season.name;
@@ -140,13 +144,18 @@ export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activ
             {audioStatus === "playing" ? <Pause size={16} /> : audioStatus === "paused" ? <Play size={16} /> : <Headphones size={17} />}
             {audioStatus === "playing" ? "Pause audio" : audioStatus === "paused" ? "Resume audio" : `Listen to ${info.name}`}
           </button>
+          {introPlaying && <button className="button button-outline journey-skip-intro journey-skip-intro-inline" type="button" onClick={onSkipIntro}><SkipForward size={15} aria-hidden="true" /> Skip intro</button>}
         </div>
         {audioError && <p className="journey-audio-error" role="status">{audioError}</p>}
         {(audioStatus === "playing" || audioStatus === "paused") && (
           <p className="journey-audio-status" aria-live="polite">
-            {audioStatus === "playing" ? "Playing" : "Paused"}: {day.segments[activeSegmentIndex]?.heading}
+            {audioStatus === "playing" ? "Playing" : "Paused"}: {introPlaying ? "Introduction" : day.segments[activeSegmentIndex]?.heading}
           </p>
         )}
+        {introParagraphs.length > 0 && <details className="journey-intro">
+          <summary>Introduction to {info.name}</summary>
+          <div className="journey-intro-text">{introParagraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}</div>
+        </details>}
       </header>
 
       <BreviaryArtwork hour={hour} hero />
