@@ -119,7 +119,7 @@ function HomeRosary({ prayedBeadIndices = [], activeBeadIndex = null, vertical =
   const beadStroke = (index: number) => activeBeadIndex === index ? "var(--rosary-bead-active-stroke)" : "var(--rosary-bead-outline)";
   const pendant = vertical
     ? { gloryY: 466, hailMaryY: [480, 493, 506], ourFatherY: 520, crossTop: 529, crossBottom: 565, crossArm: 542, cordEnd: 528 }
-    : { gloryY: 267, hailMaryY: [286, 300, 314], ourFatherY: 329, crossTop: 349, crossBottom: 379, crossArm: 368, cordEnd: 349 };
+    : { gloryY: 267, hailMaryY: [286, 300, 314], ourFatherY: 329, crossTop: 349, crossBottom: 389, crossArm: 360, cordEnd: 349 };
   const gloryRadius = vertical ? 4 : 8.3;
   return <>
     <path d={ringPath} fill="none" stroke="var(--rosary-cord)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />

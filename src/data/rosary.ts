@@ -3,10 +3,22 @@ import rosaryData from "./rosary.json";
 export type RosaryMystery = {
   title: string;
   weekday: string;
+  summary: string;
   scenes: { title: string; reference: string; gospel: string }[];
 };
 
 export const rosaryMysteries = rosaryData.mysteries as RosaryMystery[];
+
+const rosaryMysteryRoutes = ["joyful", "luminous", "sorrowful", "glorious"] as const;
+const mysteryByWeekday = [3, 0, 2, 3, 1, 2, 0];
+
+export function todaysRosaryMysteryIndex(date = new Date()) {
+  return mysteryByWeekday[date.getDay()];
+}
+
+export function todaysRosaryPath(date = new Date()) {
+  return `#/rosary/${rosaryMysteryRoutes[todaysRosaryMysteryIndex(date)]}`;
+}
 
 export type RosaryMode = "traditional" | "gospel";
 

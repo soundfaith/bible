@@ -41,7 +41,7 @@ import {
 import { MassReadingPage } from "./pages/MassReadingPage";
 import { BreviaryLibrary, BreviaryPage } from "./pages/BreviaryPage";
 import { RosaryLibrary, RosaryPrayerPage } from "./pages/RosaryPage";
-import { buildRosarySequence, type RosaryMode } from "./data/rosary";
+import { buildRosarySequence, todaysRosaryPath, type RosaryMode } from "./data/rosary";
 import { assembleBreviary, breviaryDayInfo, currentBreviaryHour, isBreviaryHour } from "./lib/breviary";
 import { useScrollReveal } from "./lib/reveal";
 import { doneToday as getDoneToday, loadDailyStreak, localDateKey, recordDailyItem } from "./lib/dailyStreak";
@@ -918,7 +918,7 @@ export default function App() {
         onChoose={() => { window.location.hash = "#/bible"; }}
         onJourney={() => { window.location.hash = "#/journey"; }}
         onBreviary={() => { window.location.hash = "#/breviary"; }}
-        onRosary={() => { window.location.hash = "#/rosary"; }}
+        onRosary={() => { window.location.hash = todaysRosaryPath(); }}
         onMass={() => {
           setMassDate(getTodaysMassReading().date);
           window.location.hash = "#/mass";

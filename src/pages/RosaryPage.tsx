@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, CircleDot, Headphones, Pause, Play } from "lucide-react";
 import { FloatingRosaryBeads, RosaryArtwork } from "../components/RosaryArtwork";
-import { buildRosarySequence, rosaryModeDescriptions, rosaryModeNames, rosaryMysteries, type RosaryMode, type RosaryPrayerGroup } from "../data/rosary";
+import { buildRosarySequence, rosaryModeDescriptions, rosaryModeNames, rosaryMysteries, todaysRosaryPath, type RosaryMode, type RosaryPrayerGroup } from "../data/rosary";
 
 type RosaryAudioStatus = "idle" | "playing" | "paused";
 
@@ -28,7 +28,7 @@ export function RosaryLibrary() {
         <p className="eyebrow"><span className="eyebrow-dot" /> A prayer with Mary</p>
         <h1>Pray the <em>Rosary</em></h1>
         <p className="journey-intro">Walk through the life of Jesus with the four sets of mysteries.</p>
-        <a className="button button-coral journey-resume-button" href="#/rosary/joyful">Begin praying <ArrowRight size={15} /></a>
+        <a className="button button-coral journey-resume-button" href={todaysRosaryPath()}>Begin praying <ArrowRight size={15} /></a>
       </div>
     </header>
     <section className="journey-library" aria-labelledby="rosary-mysteries-title">
@@ -42,7 +42,7 @@ export function RosaryLibrary() {
             <span className="journey-library-copy">
               <span className="journey-period-label"><span>{mystery.weekday}</span></span>
               <strong>{mystery.title}</strong>
-              <span className="journey-library-teaser">{mystery.scenes.length} Gospel moments</span>
+              <span className="journey-library-teaser">{mystery.summary}</span>
               <span className="journey-library-meta">Pray this set <ArrowRight size={14} aria-hidden="true" /></span>
             </span>
           </a>
@@ -122,7 +122,7 @@ export function RosaryPrayerPage({
     <header className="journey-detail-heading rosary-detail-heading">
       <p className="eyebrow"><span className="eyebrow-dot" /> {mystery.weekday}</p>
       <h1>{mystery.title}</h1>
-      <p className="journey-detail-overview">Pray through the life of Jesus, one mystery at a time.</p>
+      <p className="journey-detail-overview">{mystery.summary}</p>
       <div className="rosary-mode-pills" role="group" aria-label="Rosary prayer mode">
         {(["traditional", "gospel"] as const).map((value) => <button key={value} type="button" className={mode === value ? "active" : ""} aria-pressed={mode === value} title={rosaryModeDescriptions[value]} onClick={() => onModeChange(value)}>{rosaryModeNames[value]}</button>)}
       </div>
