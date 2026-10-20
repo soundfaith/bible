@@ -1,6 +1,6 @@
 import type { BreviaryHour } from "./breviary";
 
-export type DailyItem = BreviaryHour | "mass";
+export type DailyItem = BreviaryHour | "mass" | "rosary";
 export type DailyStreakState = {
   log: Record<string, DailyItem[]>;
   total: number;
@@ -9,7 +9,7 @@ export type DailyStreakState = {
 
 const KEY = "soundfaith-daily-streak-v1";
 const KEEP_DAYS = 400;
-const ITEMS: DailyItem[] = ["lauds", "vespers", "compline", "mass"];
+const ITEMS: DailyItem[] = ["lauds", "vespers", "compline", "mass", "rosary"];
 
 export function localDateKey(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -55,9 +55,13 @@ export function recordDailyItem(state: DailyStreakState, item: DailyItem, today 
   return { log, total, storageError };
 }
 
-export type Routine = "breviary" | "mass";
+export type Routine = "breviary" | "mass" | "rosary";
 
-const inRoutine = (routine: Routine, item: DailyItem) => (routine === "mass" ? item === "mass" : item !== "mass");
+const inRoutine = (routine: Routine, item: DailyItem) => routine === "mass"
+  ? item === "mass"
+  : routine === "rosary"
+    ? item === "rosary"
+    : item === "lauds" || item === "vespers" || item === "compline";
 
 /** Consecutive days with this routine. Today is not required yet, so a streak stays alive until a full day is missed. */
 export function routineStreak(state: DailyStreakState, routine: Routine, today = localDateKey()) {

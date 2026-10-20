@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Compass,
   Church,
@@ -40,6 +40,8 @@ import {
 } from "./pages/ChapterPage";
 import { MassReadingPage } from "./pages/MassReadingPage";
 import { BreviaryLibrary, BreviaryPage } from "./pages/BreviaryPage";
+import { RosaryLibrary, RosaryPrayerPage } from "./pages/RosaryPage";
+import { buildRosarySequence, type RosaryMode } from "./data/rosary";
 import { assembleBreviary, breviaryDayInfo, currentBreviaryHour, isBreviaryHour } from "./lib/breviary";
 import { useScrollReveal } from "./lib/reveal";
 import { doneToday as getDoneToday, loadDailyStreak, localDateKey, recordDailyItem } from "./lib/dailyStreak";
@@ -51,7 +53,7 @@ import journeyIntros from "./data/journeyIntros.json";
 import breviaryIntros from "./data/breviaryIntros.json";
 import { resolveJourneyPeriodId, loadJourneyArtworkSelections, saveJourneyArtworkSelections } from "./data/journeyArtwork";
 import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress";
-import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor } from "./lib/narrationAudio";
+import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor, rosaryAudioUrlsFor } from "./lib/narrationAudio";
 import { getNarrationGender, saveNarrationGender, type NarrationGender } from "./lib/narrationVoice";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
@@ -66,7 +68,7 @@ import {
   subscribeNarration,
 } from "./components/NarratorButton";
 
-type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork" | "breviary";
+type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork" | "breviary" | "rosary" | "rosary-prayer";
 type PendingNarration = "start" | "pause" | "resume" | null;
 type JourneyAudioStatus = "idle" | "playing" | "paused";
 type JourneyAudioState = {
@@ -77,10 +79,21 @@ type JourneyAudioState = {
 };
 type BreviaryAudioState = { segmentIndex: number; status: JourneyAudioStatus; error: string | null };
 const INITIAL_BREVIARY_AUDIO: BreviaryAudioState = { segmentIndex: 0, status: "idle", error: null };
+type RosaryAudioState = { segmentIndex: number; clipIndex: number; segmentElapsedSeconds: number; prayedBeadIndices: number[]; status: JourneyAudioStatus; error: string | null };
+const INITIAL_ROSARY_AUDIO: RosaryAudioState = { segmentIndex: 0, clipIndex: 0, segmentElapsedSeconds: 0, prayedBeadIndices: [], status: "idle", error: null };
 const LAST_JOURNEY_PERIOD_KEY = "soundfaith-bible-journey-last-period-v1";
+const ROSARY_MODE_KEY = "rosary-mode";
 const INITIAL_JOURNEY_AUDIO: JourneyAudioState = { periodId: null, storyIndex: 0, status: "idle", error: null };
 const JOURNEY_INTRO_INDEX = -1;
 const BREVIARY_INTRO_INDEX = -1;
+
+function readRosaryMode(): RosaryMode {
+  try {
+    return window.localStorage.getItem(ROSARY_MODE_KEY) === "gospel" ? "gospel" : "traditional";
+  } catch {
+    return "traditional";
+  }
+}
 
 function journeyIntroText(periodId: string) {
   const intro = (journeyIntros as Record<string, string>)[periodId] ?? "";
@@ -103,6 +116,8 @@ function getLastJourneyPeriodId() {
 function readRoute(): Route {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
   return path === "journey-artwork" ? "journey-artwork"
+    : path.startsWith("rosary/") ? "rosary-prayer"
+    : path === "rosary" ? "rosary"
     : path === "breviary" || path.startsWith("breviary/") ? "breviary"
     : path.startsWith("journey/") ? "journey"
     : path === "read" || path === "bible" || path === "mass" || path === "bookmarks" || path === "library" || path === "about" || path === "journey"
@@ -125,6 +140,13 @@ function readBreviaryHour() {
   return path.startsWith("breviary/") ? path.slice("breviary/".length) : null;
 }
 
+function readRosaryMysteryIndex() {
+  const segment = window.location.hash.split("?")[0].replace(/^#\/?/, "").split("/")[1];
+  const ids = ["joyful", "luminous", "sorrowful", "glorious"];
+  const index = ids.indexOf(segment ?? "");
+  return index < 0 ? 0 : index;
+}
+
 function readJourneyStoryAnchor() {
   const query = window.location.hash.split("?")[1] ?? "";
   return new URLSearchParams(query).get("story");
@@ -133,6 +155,7 @@ function readJourneyStoryAnchor() {
 export default function App() {
   useScrollReveal();
   const [route, setRoute] = useState<Route>(readRoute);
+  const [rosaryMysteryIndex, setRosaryMysteryIndex] = useState<number>(readRosaryMysteryIndex);
   const BreviaryHourIcon = { lauds: Sunrise, vespers: Sunset, compline: Moon }[currentBreviaryHour()];
   const [journeyPeriodId, setJourneyPeriodId] = useState<string | null>(readJourneyPeriodId);
   const [lastJourneyPeriodId, setLastJourneyPeriodId] = useState<string | null>(getLastJourneyPeriodId);
@@ -149,6 +172,7 @@ export default function App() {
   );
   const [voicePreference, setVoicePreference] = useState<NarrationGender>(getNarrationGender);
   const [voicePreferenceError, setVoicePreferenceError] = useState(false);
+  const [rosaryMode, setRosaryModeState] = useState<RosaryMode>(readRosaryMode);
   const [readingPosition, setReadingPosition] =
     useState<ReadingPosition>(getLastReading);
   const [massDate, setMassDate] = useState(() => getTodaysMassReading().date);
@@ -161,9 +185,12 @@ export default function App() {
       setDailyStreak((state) => recordDailyItem(state, breviaryHour, today));
     } else if (route === "mass" && massDate === getTodaysMassReading().date) {
       setDailyStreak((state) => recordDailyItem(state, "mass", today));
+    } else if (route === "rosary-prayer") {
+      setDailyStreak((state) => recordDailyItem(state, "rosary", today));
     }
   }, [route, breviaryHour, breviaryDate, massDate]);
   const [breviaryAudio, setBreviaryAudio] = useState<BreviaryAudioState>(INITIAL_BREVIARY_AUDIO);
+  const [rosaryAudio, setRosaryAudio] = useState<RosaryAudioState>(INITIAL_ROSARY_AUDIO);
   const [highlightVerse, setHighlightVerse] = useState<number | null>(null);
   const [pendingNarration, setPendingNarration] = useState<PendingNarration>(null);
   const [narration, setNarration] = useState(getNarrationSnapshot);
@@ -175,6 +202,12 @@ export default function App() {
   const menuRef = useRef<HTMLElement | null>(null);
   const journeyAudioStateRef = useRef(journeyAudio);
   const breviaryAudioStateRef = useRef(breviaryAudio);
+  const rosaryAudioStateRef = useRef(rosaryAudio);
+  const rosarySequence = useMemo(() => buildRosarySequence(rosaryMode, rosaryMysteryIndex), [rosaryMode, rosaryMysteryIndex]);
+  const rosarySegmentsRef = useRef(rosarySequence.segments);
+  const rosaryClipsRef = useRef(rosarySequence.clips);
+  rosarySegmentsRef.current = rosarySequence.segments;
+  rosaryClipsRef.current = rosarySequence.clips;
   const breviaryDay = route === "breviary" && isBreviaryHour(breviaryHour)
     ? assembleBreviary(breviaryDate, breviaryHour, voicePreference)
     : null;
@@ -304,6 +337,95 @@ export default function App() {
     breviaryAudioStateRef.current = next;
     setBreviaryAudio(next);
   };
+  const updateRosaryAudio = (next: RosaryAudioState) => {
+    rosaryAudioStateRef.current = next;
+    setRosaryAudio(next);
+  };
+  const failRosaryAudio = (clipIndex: number) => {
+    const current = rosaryAudioStateRef.current;
+    if (current.clipIndex !== clipIndex) return;
+    updateRosaryAudio({ ...current, status: "idle", error: "This prayer's audio and browser text-to-speech could not be played." });
+  };
+  const playRosaryClip = (clipIndex: number, resetSegmentElapsed = false) => {
+    const clip = rosaryClipsRef.current[clipIndex];
+    if (!clip) return;
+    const current = rosaryAudioStateRef.current;
+    const prayedBeadIndices = current.status === "idle" && clipIndex === 0 ? [] : current.prayedBeadIndices;
+    const segmentElapsedSeconds = resetSegmentElapsed || current.segmentIndex !== clip.segmentIndex ? 0 : current.segmentElapsedSeconds;
+    updateRosaryAudio({ segmentIndex: clip.segmentIndex, clipIndex, segmentElapsedSeconds, prayedBeadIndices, status: "playing", error: null });
+    const audioUrls = rosaryAudioUrlsFor(clip.audioAsset, voicePreference);
+    const started = startSpeaking(clip.spokenText, audioUrls, advanceRosaryAudio, () => failRosaryAudio(clipIndex), voicePreference);
+    if (!started) failRosaryAudio(clipIndex);
+    window.requestAnimationFrame(() => {
+      const targetId = clip.groupId
+        ? `rosary-prayer-${clip.groupId}`
+        : `rosary-heading-${clip.segmentIndex - 1}`;
+      const target = document.getElementById(targetId);
+      if (!target) return;
+
+      const bounds = target.getBoundingClientRect();
+      const mobileNav = document.querySelector<HTMLElement>(".mobile-bottom-nav");
+      const navBounds = mobileNav?.getBoundingClientRect();
+      const visibleBottom = navBounds && navBounds.top < window.innerHeight ? navBounds.top : window.innerHeight;
+      const visibleHeight = Math.max(0, Math.min(bounds.bottom, visibleBottom) - Math.max(bounds.top, 0));
+      const enoughVisible = Math.min(bounds.height * 0.6, 72);
+      if (visibleHeight < enoughVisible) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  };
+  const playRosarySegment = (segmentIndex: number) => {
+    const segment = rosarySegmentsRef.current[segmentIndex];
+    if (segment) playRosaryClip(segment.firstClipIndex, true);
+  };
+  const advanceRosaryAudio = () => {
+    if (route !== "rosary-prayer") return;
+    const current = rosaryAudioStateRef.current;
+    const activeClip = rosaryClipsRef.current[current.clipIndex];
+    const completedClipSeconds = Math.max(0, Math.floor(getNarrationSnapshot().elapsedSeconds));
+    const prayedBeadIndices = activeClip?.beadIndex === null || activeClip?.beadIndex === undefined || current.prayedBeadIndices.includes(activeClip.beadIndex)
+      ? current.prayedBeadIndices
+      : [...current.prayedBeadIndices, activeClip.beadIndex];
+    const nextClipIndex = current.clipIndex + 1;
+    const nextClip = rosaryClipsRef.current[nextClipIndex];
+    const segmentElapsedSeconds = activeClip && nextClip?.segmentIndex === activeClip.segmentIndex
+      ? current.segmentElapsedSeconds + completedClipSeconds
+      : 0;
+    updateRosaryAudio({ ...current, segmentElapsedSeconds, prayedBeadIndices });
+    if (nextClipIndex >= rosaryClipsRef.current.length) {
+      updateRosaryAudio({ ...rosaryAudioStateRef.current, status: "idle", error: null });
+      return;
+    }
+    playRosaryClip(nextClipIndex);
+  };
+  const toggleRosaryAudio = () => {
+    const current = rosaryAudioStateRef.current;
+    if (current.status === "playing") {
+      pauseSpeaking();
+      updateRosaryAudio({ ...current, status: "paused" });
+      return;
+    }
+    const clip = rosaryClipsRef.current[current.clipIndex];
+    if (current.status === "paused" && clip) {
+      const audioUrls = rosaryAudioUrlsFor(clip.audioAsset, voicePreference);
+      const started = resumeSpeaking(clip.spokenText, audioUrls, advanceRosaryAudio, () => failRosaryAudio(current.clipIndex), voicePreference);
+      updateRosaryAudio({ ...current, status: "playing", error: null });
+      if (!started) failRosaryAudio(current.clipIndex);
+      return;
+    }
+    playRosarySegment(0);
+  };
+  const changeRosaryMode = (mode: RosaryMode) => {
+    if (mode === rosaryMode) return;
+    stopSpeaking();
+    updateRosaryAudio(INITIAL_ROSARY_AUDIO);
+    setRosaryModeState(mode);
+    try {
+      window.localStorage.setItem(ROSARY_MODE_KEY, mode);
+    } catch {
+      // The selected mode still applies for this visit if storage is unavailable.
+    }
+  };
   const failBreviaryAudio = (segmentIndex: number) => {
     const current = breviaryAudioStateRef.current;
     if (current.segmentIndex !== segmentIndex) return;
@@ -372,6 +494,7 @@ export default function App() {
   useEffect(() => {
     const change = () => {
       setRoute(readRoute());
+      setRosaryMysteryIndex(readRosaryMysteryIndex());
       setBreviaryHour(readBreviaryHour());
       setJourneyPeriodId(readJourneyPeriodId());
       setJourneyStoryAnchor(readJourneyStoryAnchor());
@@ -409,6 +532,12 @@ export default function App() {
     stopSpeaking();
     updateBreviaryAudio(INITIAL_BREVIARY_AUDIO);
   }, [route, breviaryHour, breviaryDate]);
+  useEffect(() => {
+    const current = rosaryAudioStateRef.current;
+    if (route === "rosary-prayer" && current.status === "idle") return;
+    if (current.status !== "idle") stopSpeaking();
+    updateRosaryAudio(INITIAL_ROSARY_AUDIO);
+  }, [route, rosaryMysteryIndex, rosaryMode]);
   useEffect(() => {
     setMenuOpen(false);
   }, [route]);
@@ -625,17 +754,26 @@ export default function App() {
   const journeyStoryProgress = narration.duration > 0
     ? narration.position / narration.duration
     : narration.text.length > 0 ? narration.position / narration.text.length : 0;
+  const rosaryActiveSegment = rosarySequence.segments[rosaryAudio.segmentIndex];
+  const rosaryActiveClip = rosarySequence.clips[rosaryAudio.clipIndex];
+  const activeRosaryBeadIndex = rosaryAudio.status === "idle" ? null : rosaryActiveClip?.beadIndex ?? null;
+  const rosarySegmentClipCount = rosaryActiveSegment ? rosaryActiveSegment.endClipIndex - rosaryActiveSegment.firstClipIndex : 0;
+  const rosarySegmentProgress = rosaryActiveSegment && rosarySegmentClipCount > 0
+    ? (rosaryAudio.clipIndex - rosaryActiveSegment.firstClipIndex + journeyStoryProgress) / rosarySegmentClipCount
+    : 0;
   const isJourneyDetail = route === "journey" && Boolean(journeyPeriodId);
   const journeyIntroActive = isJourneyDetail && journeyAudioForPage.storyIndex === JOURNEY_INTRO_INDEX && journeyAudioForPage.status !== "idle";
   const isBreviaryDetail = route === "breviary" && breviaryDay !== null;
+  const isRosaryDetail = route === "rosary-prayer";
   const breviaryIntroActive = isBreviaryDetail && breviaryAudio.segmentIndex === BREVIARY_INTRO_INDEX && breviaryAudio.status !== "idle";
   const todayGospelReference = Object.entries(getTodaysMassReading().readings).find(([name]) => name.toLowerCase() === "gospel")?.[1].reference ?? "John 1:1-5";
   const journeyComplete = bibleJourney.every((period) => journeyProgress.completedIds.includes(period.id));
-  const mobileListenStatus = isBreviaryDetail ? breviaryAudio.status : isJourneyDetail ? journeyAudioForPage.status : narration.status;
+  const mobileListenStatus = isRosaryDetail ? rosaryAudio.status : isBreviaryDetail ? breviaryAudio.status : isJourneyDetail ? journeyAudioForPage.status : narration.status;
   const mobileListenLabel = mobileListenStatus === "playing"
-    ? isJourneyDetail || isBreviaryDetail ? "Pause prayer audio" : "Pause narration"
+    ? isJourneyDetail || isBreviaryDetail || isRosaryDetail ? "Pause prayer audio" : "Pause narration"
     : mobileListenStatus === "paused"
-      ? isJourneyDetail || isBreviaryDetail ? "Resume prayer audio" : "Resume narration"
+      ? isJourneyDetail || isBreviaryDetail || isRosaryDetail ? "Resume prayer audio" : "Resume narration"
+      : isRosaryDetail ? "Listen to the Rosary"
       : isBreviaryDetail ? "Listen to this hour of prayer"
       : isJourneyDetail
         ? `Listen to all stories in ${bibleJourney.find((period) => period.id === journeyPeriodId)?.title ?? "this period"}`
@@ -643,8 +781,9 @@ export default function App() {
   const mobileListenIcon = mobileListenStatus === "playing"
     ? <span className="audio-equalizer" aria-hidden="true"><i /><i /><i /><i /></span>
     : mobileListenStatus === "paused" ? <Play size={17} /> : <Headphones size={19} />;
+  const mobileListenElapsedSeconds = isRosaryDetail ? rosaryAudio.segmentElapsedSeconds + narration.elapsedSeconds : narration.elapsedSeconds;
   const mobileListenText = mobileListenStatus === "playing"
-    ? `${String(Math.floor(narration.elapsedSeconds / 60)).padStart(2, "0")}:${String(narration.elapsedSeconds % 60).padStart(2, "0")}`
+    ? `${String(Math.floor(mobileListenElapsedSeconds / 60)).padStart(2, "0")}:${String(mobileListenElapsedSeconds % 60).padStart(2, "0")}`
     : mobileListenStatus === "paused" ? "Resume" : "Listen";
   const page =
     route === "read" ? (
@@ -674,11 +813,13 @@ export default function App() {
         nextStep={<DailyNextStep
           page="mass"
           doneToday={getDoneToday(dailyStreak)}
+          streak={dailyStreak}
           hour={currentBreviaryHour()}
           journeyComplete={journeyComplete}
           gospelReference={todayGospelReference}
           onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
           onOpenBreviary={openCurrentBreviary}
+          onOpenRosary={() => { window.location.hash = "#/rosary"; }}
           onOpenJourney={() => { window.location.hash = "#/journey"; }}
           onOpenReference={openMassReference}
           onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
@@ -699,11 +840,13 @@ export default function App() {
         nextStep={<DailyNextStep
           page="breviary"
           doneToday={getDoneToday(dailyStreak)}
+          streak={dailyStreak}
           hour={isBreviaryHour(breviaryHour) ? breviaryHour : currentBreviaryHour()}
           journeyComplete={journeyComplete}
           gospelReference={todayGospelReference}
           onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
           onOpenBreviary={openCurrentBreviary}
+          onOpenRosary={() => { window.location.hash = "#/rosary"; }}
           onOpenJourney={() => { window.location.hash = "#/journey"; }}
           onOpenReference={openMassReference}
           onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
@@ -711,6 +854,23 @@ export default function App() {
       />
     ) : (
       <BreviaryLibrary date={breviaryDate} onDateChange={setBreviaryDate} {...breviaryDayInfo(breviaryDate)} />
+    ) : route === "rosary-prayer" ? (
+      <RosaryPrayerPage key={rosaryMysteryIndex} mysteryIndex={rosaryMysteryIndex} mode={rosaryMode} onModeChange={changeRosaryMode} audioStatus={rosaryAudio.status} activeSegmentIndex={rosaryAudio.segmentIndex} activePrayerGroupId={rosaryClipsRef.current[rosaryAudio.clipIndex]?.groupId ?? null} prayedBeadIndices={rosaryAudio.prayedBeadIndices} activeBeadIndex={activeRosaryBeadIndex} audioError={rosaryAudio.error} onToggleAudio={toggleRosaryAudio} onSelectSegment={playRosarySegment} nextStep={<DailyNextStep
+        page="rosary"
+        doneToday={getDoneToday(dailyStreak)}
+        streak={dailyStreak}
+        hour={currentBreviaryHour()}
+        journeyComplete={journeyComplete}
+        gospelReference={todayGospelReference}
+        onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
+        onOpenBreviary={openCurrentBreviary}
+        onOpenRosary={() => { window.location.hash = "#/rosary"; }}
+        onOpenJourney={() => { window.location.hash = "#/journey"; }}
+        onOpenReference={openMassReference}
+        onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
+      />} />
+    ) : route === "rosary" ? (
+      <RosaryLibrary />
     ) : route === "bookmarks" ? (
       <BookmarksPage
         bookmarks={bookmarks}
@@ -758,6 +918,7 @@ export default function App() {
         onChoose={() => { window.location.hash = "#/bible"; }}
         onJourney={() => { window.location.hash = "#/journey"; }}
         onBreviary={() => { window.location.hash = "#/breviary"; }}
+        onRosary={() => { window.location.hash = "#/rosary"; }}
         onMass={() => {
           setMassDate(getTodaysMassReading().date);
           window.location.hash = "#/mass";
@@ -772,6 +933,8 @@ export default function App() {
           if (item === "mass") {
             setMassDate(getTodaysMassReading().date);
             window.location.hash = "#/mass";
+          } else if (item === "rosary") {
+            window.location.hash = "#/rosary";
           } else {
             setBreviaryDate(new Date());
             window.location.hash = `#/breviary/${item}`;
@@ -788,6 +951,7 @@ export default function App() {
           <a href="#/bible" className={route === "read" || route === "bible" ? "active" : ""}>Bible</a>
           <a href="#/journey" className={route === "journey" || route === "journey-artwork" ? "active" : ""}>Bible Journey</a>
           <a href="#/breviary" className={route === "breviary" ? "active" : ""}>Breviary</a>
+          <a href="#/rosary" className={route === "rosary" || route === "rosary-prayer" ? "active" : ""}>Rosary</a>
           <a href="#/mass" className={route === "mass" ? "active" : ""}>Mass Reading</a>
         </nav>
         <nav
@@ -807,6 +971,7 @@ export default function App() {
           <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible</a>
           <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Compass size={17} />Bible Journey</a>
           <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BreviaryHourIcon size={17} />Breviary</a>
+          <a href="#/rosary" className="mobile-drawer-link" aria-current={route === "rosary" || route === "rosary-prayer" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />Rosary</a>
           <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><Church size={17} />Mass Reading</a>
           <a href="#/bookmarks" onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
           <a href="#/about" onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>
@@ -883,6 +1048,16 @@ export default function App() {
           status={breviaryAudio.status}
           onSelectStory={playBreviarySegment}
         />}
+        {isRosaryDetail && <JourneyNarrationProgress
+          className="narration-progress-mobile"
+          storyCount={rosarySequence.segments.length}
+          activeStoryIndex={rosaryAudio.segmentIndex}
+          activeStoryProgress={rosarySegmentProgress}
+          status={rosaryAudio.status}
+          onSelectStory={playRosarySegment}
+          itemLabel="Segment"
+          positionLabel="Rosary segment position"
+        />}
         {breviaryIntroActive && (
           <button type="button" className="journey-skip-intro journey-skip-intro-floating" onClick={skipBreviaryIntro}>
             <SkipForward size={12} aria-hidden="true" /> Skip intro
@@ -902,7 +1077,7 @@ export default function App() {
         </a>
         <button
           className="mobile-donate mobile-center-playback mobile-listen-button"
-          onClick={isBreviaryDetail ? toggleBreviaryAudio : isJourneyDetail ? toggleJourneyAudio : toggleNarration}
+          onClick={isRosaryDetail ? toggleRosaryAudio : isBreviaryDetail ? toggleBreviaryAudio : isJourneyDetail ? toggleJourneyAudio : toggleNarration}
           aria-label={mobileListenLabel}
         >
           {mobileListenIcon}<span>{mobileListenText}</span>

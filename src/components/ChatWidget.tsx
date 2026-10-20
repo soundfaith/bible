@@ -14,7 +14,7 @@ const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const BOT_NAME = ASSISTANT_NAME;
 
-export function SofiaAvatar({ size = 46 }: { size?: number }) {
+export function SofiAvatar({ size = 46 }: { size?: number }) {
   const id = useId();
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
@@ -223,7 +223,7 @@ export function ChatWidget({ onOpenVerse }: Props) {
       {open && (
         <section className="chat-panel" role="dialog" aria-label={`${BOT_NAME}, Scripture guide`}>
           <header className="chat-header">
-            <span className="chat-avatar"><SofiaAvatar size={46} /></span>
+            <span className="chat-avatar"><SofiAvatar size={46} /></span>
             <div>
               <strong>{BOT_NAME}</strong>
               <span>Your Scripture guide</span>

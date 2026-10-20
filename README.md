@@ -211,6 +211,43 @@ python scripts/breviary_intro_narration.py --voice af_heart --upload-github --ex
 ```
 
 
+## Rosary
+
+The Rosary is available from the home page and `#/rosary`. It includes the four
+mystery sets, a guided prayer, and Traditional and Gospel modes. The audio
+progress bar has seven selectable parts: the opening, five mysteries, and the
+ending. Each prayer plays from its own MP3, with repeated prayers reusing the
+same track; Gospel mode adds one reading before each decade. Playback tries the
+selected voice's GitHub release, then the other supported voice, and falls back
+to browser speech.
+
+Generate the eight shared prayer recordings, twenty mystery announcements, and
+twenty Gospel readings per voice with Kokoro and FFmpeg, then upload each voice
+to its own GitHub Release. Existing local WAV/MP3 files are reused by default.
+Uploads require `--execute` and a typed confirmation:
+
+```powershell
+python scripts/rosary_narration.py --list
+python scripts/rosary_narration.py --voice am_michael
+python scripts/rosary_narration.py --voice af_heart
+python scripts/rosary_narration.py --voice am_michael --upload-github --execute
+python scripts/rosary_narration.py --voice af_heart --upload-github --execute
+```
+
+If a narration run for the original clips is already in progress, let it finish,
+then add just the new mystery announcements without revisiting the existing
+clips:
+
+```powershell
+python scripts/rosary_narration.py --voice am_michael --only mystery- --upload-github --execute
+python scripts/rosary_narration.py --voice af_heart --only mystery- --upload-github --execute
+```
+
+Install `kokoro`, `soundfile`, and `numpy`, make FFmpeg available on PATH, and
+authenticate GitHub CLI with `gh auth login` before uploading. Recordings are
+stored under `narration/rosary/<voice>` and uploaded to
+`rosary-narration-<voice>` releases.
+
 ## Journey intro
 python scripts/period_intro_narration.py --voice am_michael --upload-github --execute
 python scripts/period_intro_narration.py --voice af_heart --upload-github --execute

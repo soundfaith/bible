@@ -1,0 +1,42 @@
+{
+  "prayers": {
+    "signOfCross": "In the name of the Father, and of the Son, and of the Holy Spirit. Amen.",
+    "apostlesCreed": "I believe in God, the Father almighty, Creator of heaven and earth, and in Jesus Christ, his only Son, our Lord, who was conceived by the Holy Spirit, born of the Virgin Mary, suffered under Pontius Pilate, was crucified, died and was buried; he descended into hell; on the third day he rose again from the dead; he ascended into heaven, and is seated at the right hand of God the Father almighty; from there he will come to judge the living and the dead. I believe in the Holy Spirit, the holy catholic Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and life everlasting. Amen.",
+    "gloryBe": "Glory be to the Father, and to the Son, and to the Holy Spirit, as it was in the beginning, is now, and ever shall be, world without end. Amen.",
+    "fatima": "O my Jesus, forgive us our sins, save us from the fires of hell, lead all souls to heaven, especially those in most need of thy mercy. Amen.",
+    "hailHolyQueen": "Hail, holy Queen, mother of mercy, our life, our sweetness, and our hope. To thee do we cry, poor banished children of Eve. Turn then, most gracious advocate, thine eyes of mercy toward us, and after this our exile show unto us the blessed fruit of thy womb, Jesus. O clement, O loving, O sweet Virgin Mary. Pray for us, O holy Mother of God, that we may be made worthy of the promises of Christ. Amen.",
+    "memorare": "Remember, O most gracious Virgin Mary, that never was it known that anyone who fled to thy protection, implored thy help, or sought thine intercession was left unaided. Inspired by this confidence, I fly unto thee, O Virgin of virgins, my Mother; to thee do I come, before thee I stand, sinful and sorrowful. O Mother of the Word Incarnate, despise not my petitions, but in thy mercy hear and answer me. Amen.",
+    "ourFather": "Our Father, who art in heaven, hallowed be thy name; thy kingdom come; thy will be done on earth as it is in heaven. Give us this day our daily bread, and forgive us our trespasses, as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. Amen.",
+    "hailMary": "Hail Mary, full of grace, the Lord is with thee. Blessed art thou among women, and blessed is the fruit of thy womb, Jesus. Holy Mary, Mother of God, pray for us sinners, now and at the hour of our death. Amen."
+  },
+  "mysteries": [
+    {"title":"Joyful Mysteries","weekday":"Monday & Saturday","scenes":[
+      {"title":"The Annunciation","reference":"Luke 1:26–38","gospel":"The angel Gabriel was sent from God to a town of Galilee called Nazareth, to a virgin betrothed to a man named Joseph, of the house of David, and the virgin’s name was Mary. And coming to her, he said, “Hail, favored one! The Lord is with you.”"},
+      {"title":"The Visitation","reference":"Luke 1:39–45","gospel":"During those days Mary set out and traveled to the hill country in haste to a town of Judah, where she entered the house of Zechariah and greeted Elizabeth. When Elizabeth heard Mary’s greeting, the infant leaped in her womb."},
+      {"title":"The Nativity","reference":"Luke 2:1–20","gospel":"Joseph too went up from Galilee from the town of Nazareth to Judea, to the city of David that is called Bethlehem, because he was of the house and family of David, to be enrolled with Mary, his betrothed, who was with child."},
+      {"title":"The Presentation","reference":"Luke 2:22–38","gospel":"When the days were completed for their purification according to the law of Moses, they took him up to Jerusalem to present him to the Lord, just as it is written in the law of the Lord."},
+      {"title":"The Finding in the Temple","reference":"Luke 2:41–52","gospel":"After three days they found him in the temple, sitting in the midst of the teachers, listening to them and asking them questions, and all who heard him were astounded at his understanding and his answers."}
+    ]},
+    {"title":"Luminous Mysteries","weekday":"Thursday","scenes":[
+      {"title":"The Baptism of Jesus","reference":"Matthew 3:13–17","gospel":"After Jesus was baptized, he came up from the water and behold, the heavens were opened for him, and he saw the Spirit of God descending like a dove and coming upon him. And a voice came from the heavens, saying, “This is my beloved Son, with whom I am well pleased.”"},
+      {"title":"The Wedding at Cana","reference":"John 2:1–11","gospel":"The mother of Jesus said to him, “They have no wine.” Jesus told the servers, “Fill the jars with water.” So they filled them to the brim. When the headwaiter tasted the water that had become wine, he called the bridegroom."},
+      {"title":"The Kingdom of God","reference":"Mark 1:14–15","gospel":"Jesus came to Galilee proclaiming the gospel of God: “This is the time of fulfillment. The kingdom of God is at hand. Repent, and believe in the gospel.”"},
+      {"title":"The Transfiguration","reference":"Matthew 17:1–8","gospel":"He was transfigured before them; his face shone like the sun and his clothes became white as light. A bright cloud cast a shadow over them, then from the cloud came a voice that said, “This is my beloved Son, with whom I am well pleased; listen to him.”"},
+      {"title":"The Eucharist","reference":"Matthew 26:26–29","gospel":"While they were eating, Jesus took bread, said the blessing, broke it, and giving it to his disciples said, “Take and eat; this is my body.” Then he took a cup, gave thanks, and gave it to them, saying, “Drink from it, all of you.”"}
+    ]},
+    {"title":"Sorrowful Mysteries","weekday":"Tuesday & Friday","scenes":[
+      {"title":"The Agony in the Garden","reference":"Matthew 26:36–46","gospel":"He advanced a little and fell prostrate in prayer, saying, “My Father, if it is possible, let this cup pass from me; yet, not as I will, but as you will.”"},
+      {"title":"The Scourging at the Pillar","reference":"John 19:1","gospel":"Then Pilate took Jesus and had him scourged."},
+      {"title":"The Crowning with Thorns","reference":"Matthew 27:27–31","gospel":"They stripped off his clothes and threw a scarlet military cloak about him. Weaving a crown out of thorns, they placed it on his head, and a reed in his right hand."},
+      {"title":"The Carrying of the Cross","reference":"John 19:16–17","gospel":"Carrying the cross himself, he went out to what is called the Place of the Skull, in Hebrew, Golgotha."},
+      {"title":"The Crucifixion","reference":"Luke 23:33–46","gospel":"Jesus cried out in a loud voice, “Father, into your hands I commend my spirit”; and when he had said this he breathed his last."}
+    ]},
+    {"title":"Glorious Mysteries","weekday":"Wednesday & Sunday","scenes":[
+      {"title":"The Resurrection","reference":"Luke 24:1–12","gospel":"They found the stone rolled away from the tomb; but when they entered, they did not find the body of the Lord Jesus. Two men in dazzling garments said to them, “Why do you seek the living one among the dead? He is not here, but he has been raised.”"},
+      {"title":"The Ascension","reference":"Acts 1:6–11","gospel":"As they were looking on, he was lifted up, and a cloud took him from their sight. While they were looking intently at the sky as he was going, suddenly two men dressed in white garments stood beside them."},
+      {"title":"The Descent of the Holy Spirit","reference":"Acts 2:1–13","gospel":"Then there appeared to them tongues as of fire, which parted and came to rest on each one of them. And they were all filled with the holy Spirit."},
+      {"title":"The Assumption of Mary","reference":"Luke 1:46–55","gospel":"Mary said: “My soul proclaims the greatness of the Lord; my spirit rejoices in God my savior, for he has looked upon his lowly servant.”"},
+      {"title":"The Coronation of Mary","reference":"Revelation 12:1","gospel":"A great sign appeared in the sky, a woman clothed with the sun, with the moon under her feet, and on her head a crown of twelve stars."}
+    ]}
+  ]
+}

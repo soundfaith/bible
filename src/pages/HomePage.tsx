@@ -1,6 +1,6 @@
 import { ArrowRight, Share2 } from "lucide-react";
 import { useState, type ReactElement } from "react";
-import { SofiaAvatar } from "../components/ChatWidget";
+import { SofiAvatar } from "../components/ChatWidget";
 import { CardArt, SmallCard } from "../components/LandingSmallCard";
 import { NextStepPrompt } from "../components/NextStepPrompt";
 import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "../lib/assistant";
@@ -12,6 +12,7 @@ type HomePageProps = {
   onMass: () => void;
   onJourney: () => void;
   onBreviary: () => void;
+  onRosary: () => void;
   onResume: () => void;
   bible: { started: boolean; label: string };
   streak: DailyStreakState;
@@ -23,6 +24,7 @@ const primaryCards = [
   { art: "bible", title: "Bible", description: "Return to the Scriptures, one chapter at a time.", action: "Open Bible", onClick: "onChoose" },
   { art: "journey", title: "Bible Journey", description: "Follow the story of salvation through 12 periods.", action: "Continue Journey", onClick: "onJourney" },
   { art: "prayer", title: "Breviary", description: "Pray Lauds, Vespers, and Compline each day.", action: "Pray the Hours", onClick: "onBreviary" },
+  { art: "rosary", title: "Rosary", description: "Pray with the mysteries of Jesus’ life, one bead at a time.", action: "Pray the Rosary", onClick: "onRosary" },
   { art: "readings", title: "Mass Reading", description: "Pray with today’s liturgy.", action: "Today’s Readings", onClick: "onMass" },
 ] as const;
 
@@ -32,16 +34,18 @@ function streakText(days: number) {
   return "Welcome back. Begin again";
 }
 
-export function HomePage({ onChoose, onMass, onJourney, onBreviary, onResume, bible, streak, onOpenDaily, onShare }: HomePageProps) {
+export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, onResume, bible, streak, onOpenDaily, onShare }: HomePageProps) {
   const [shareNote, setShareNote] = useState("");
-  const actions = { onChoose, onMass, onJourney, onBreviary };
+  const actions = { onChoose, onMass, onJourney, onBreviary, onRosary };
   const hour = currentBreviaryHour();
   const hourName = breviaryHourInfo[hour].name;
   const done = doneToday(streak);
   const breviaryDone = done.includes(hour);
   const massDone = done.includes("mass");
+  const rosaryDone = done.includes("rosary");
   const breviaryEver = hasEverDone(streak, "breviary");
   const massEver = hasEverDone(streak, "mass");
+  const rosaryEver = hasEverDone(streak, "rosary");
 
   const routineCards: ReactElement[] = [];
   if (breviaryEver) {
@@ -70,8 +74,21 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onResume, bi
       />,
     );
   }
+  if (rosaryEver) {
+    routineCards.push(
+      <SmallCard
+        key="rosary"
+        art="rosary"
+        title="Rosary"
+        stat={streakText(routineStreak(streak, "rosary"))}
+        action={rosaryDone ? "Prayed today" : "Pray the Rosary"}
+        done={rosaryDone}
+        onClick={onRosary}
+      />,
+    );
+  }
 
-  const started = breviaryEver || massEver;
+  const started = breviaryEver || massEver || rosaryEver;
   const next =
     !started
       ? { heading: "Not sure where to start?", art: "prayer" as const, title: "Breviary", description: `Begin with a few quiet minutes of prayer. ${hourName} is ready for you.`, action: `Pray ${hourName}`, onClick: () => onOpenDaily(hour) }
@@ -79,7 +96,9 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onResume, bi
         ? { heading: massDone ? "Still have a little time?" : "Not sure what to do next?", art: "prayer" as const, title: "Breviary", description: `Pause and pray ${hourName} with the Church.`, action: `Pray ${hourName}`, onClick: () => onOpenDaily(hour) }
         : !massDone
           ? { heading: "Not sure what to do next?", art: "readings" as const, title: "Mass Reading", description: "Sit with today’s readings from the Mass.", action: "Today’s readings", onClick: () => onOpenDaily("mass") }
-          : { heading: "Ready to go a little deeper?", art: "journey" as const, title: "Bible Journey", description: "You’ve prayed and listened today. Walk through the story of salvation, one period at a time.", action: "Start the Journey", onClick: onJourney };
+          : !rosaryDone
+            ? { heading: "Ready for a moment of prayer?", art: "rosary" as const, title: "Rosary", description: "Pray with the mysteries of Jesus’ life.", action: "Pray the Rosary", onClick: onRosary }
+            : { heading: "Ready to go a little deeper?", art: "journey" as const, title: "Bible Journey", description: "You’ve prayed and listened today. Walk through the story of salvation, one period at a time.", action: "Start the Journey", onClick: onJourney };
 
   const share = async () => {
     try {
@@ -138,7 +157,7 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onResume, bi
           <h2 id="ask-title">Ask {ASSISTANT_NAME}</h2>
         </div>
         <button className="landing-ask-card" type="button" onClick={() => window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT))}>
-          <SofiaAvatar size={56} />
+          <SofiAvatar size={56} />
           <span className="landing-ask-copy">
             <strong>Bring {ASSISTANT_NAME} what is on your heart.</strong>
             <span>A question, a worry, or a verse you’re wondering about. {ASSISTANT_NAME} will point you to passages that speak to it.</span>

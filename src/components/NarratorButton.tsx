@@ -280,6 +280,8 @@ export function JourneyNarrationProgress({
   activeStoryProgress,
   status,
   onSelectStory,
+  itemLabel = "Story",
+  positionLabel = "Story position in period",
 }: {
   className: string;
   storyCount: number;
@@ -287,6 +289,8 @@ export function JourneyNarrationProgress({
   activeStoryProgress: number;
   status: NarrationStatus;
   onSelectStory: (storyIndex: number) => void;
+  itemLabel?: string;
+  positionLabel?: string;
 }) {
   const [sliderPosition, setSliderPosition] = useState(activeStoryIndex);
   const isDragging = useRef(false);
@@ -318,8 +322,8 @@ export function JourneyNarrationProgress({
         max={storyCount}
         step={0.01}
         value={Math.max(0, Math.min(sliderPosition, storyCount))}
-        aria-label="Story position in period"
-        aria-valuetext={`Story ${Math.max(1, Math.min(Math.round(sliderPosition) + 1, storyCount))} of ${storyCount}`}
+        aria-label={positionLabel}
+        aria-valuetext={`${itemLabel} ${Math.max(1, Math.min(Math.round(sliderPosition) + 1, storyCount))} of ${storyCount}`}
         onPointerDown={() => { isDragging.current = true; }}
         onChange={(event) => setSliderPosition(Number(event.currentTarget.value))}
         onPointerUp={selectStory}

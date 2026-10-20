@@ -34,3 +34,10 @@ export function breviaryIntroAudioUrls(hour: string, preference: NarrationGender
     `https://github.com/soundfaith/bible/releases/download/breviary-narration-${voice}/${hour}-intro.mp3`,
   );
 }
+
+export function rosaryAudioUrlsFor(asset: string, preference: NarrationGender): string[] {
+  const voices = preference === "male" ? ["am_michael", "af_heart"] : ["af_heart", "am_michael"];
+  return voices.map((voice) =>
+    `https://github.com/soundfaith/bible/releases/download/rosary-narration-${voice}/${asset}.mp3`,
+  );
+}
