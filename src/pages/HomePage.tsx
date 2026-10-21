@@ -6,6 +6,7 @@ import { NextStepPrompt } from "../components/NextStepPrompt";
 import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "../lib/assistant";
 import { breviaryHourInfo, currentBreviaryHour } from "../lib/breviary";
 import { doneToday, hasEverDone, routineStreak, type DailyItem, type DailyStreakState } from "../lib/dailyStreak";
+import { featuredSaintForDate } from "../data/saintsDaily";
 
 type HomePageProps = {
   onChoose: () => void;
@@ -13,6 +14,8 @@ type HomePageProps = {
   onJourney: () => void;
   onBreviary: () => void;
   onRosary: () => void;
+  onSaints: () => void;
+  onSaintToday: () => void;
   onResume: () => void;
   bible: { started: boolean; label: string };
   streak: DailyStreakState;
@@ -26,6 +29,7 @@ const primaryCards = [
   { art: "prayer", title: "Breviary", description: "Pray Lauds, Vespers, and Compline each day.", action: "Pray the Hours", onClick: "onBreviary" },
   { art: "rosary", title: "Rosary", description: "Pray with the mysteries of Jesus’ life, one bead at a time.", action: "Pray the Rosary", onClick: "onRosary" },
   { art: "readings", title: "Mass Reading", description: "Pray with today’s liturgy.", action: "Today’s Readings", onClick: "onMass" },
+  { art: "saints", title: "Saint of the day", description: "Meet a witness whose life points to Christ.", action: "Meet today's saint", onClick: "onSaints" },
 ] as const;
 
 function streakText(days: number) {
@@ -34,18 +38,22 @@ function streakText(days: number) {
   return "Welcome back. Begin again";
 }
 
-export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, onResume, bible, streak, onOpenDaily, onShare }: HomePageProps) {
+export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, onSaints, onSaintToday, onResume, bible, streak, onOpenDaily, onShare }: HomePageProps) {
   const [shareNote, setShareNote] = useState("");
-  const actions = { onChoose, onMass, onJourney, onBreviary, onRosary };
+  const actions = { onChoose, onMass, onJourney, onBreviary, onRosary, onSaints };
+  const featuredSaint = featuredSaintForDate();
+  const saintQuote = featuredSaint?.quotes[0];
   const hour = currentBreviaryHour();
   const hourName = breviaryHourInfo[hour].name;
   const done = doneToday(streak);
   const breviaryDone = done.includes(hour);
   const massDone = done.includes("mass");
   const rosaryDone = done.includes("rosary");
+  const saintsDone = done.includes("saints");
   const breviaryEver = hasEverDone(streak, "breviary");
   const massEver = hasEverDone(streak, "mass");
   const rosaryEver = hasEverDone(streak, "rosary");
+  const saintsEver = hasEverDone(streak, "saints");
 
   const routineCards: ReactElement[] = [];
   if (breviaryEver) {
@@ -87,8 +95,21 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, on
       />,
     );
   }
+  if (saintsEver) {
+    routineCards.push(
+      <SmallCard
+        key="saints"
+        art="saints"
+        title="Saint of the day"
+        stat={streakText(routineStreak(streak, "saints"))}
+        action={saintsDone ? "Visited today" : "Meet today's saint"}
+        done={saintsDone}
+        onClick={onSaintToday}
+      />,
+    );
+  }
 
-  const started = breviaryEver || massEver || rosaryEver;
+  const started = breviaryEver || massEver || rosaryEver || saintsEver;
   const next =
     !started
       ? { heading: "Not sure where to start?", art: "prayer" as const, title: "Breviary", description: `Begin with a few quiet minutes of prayer. ${hourName} is ready for you.`, action: `Pray ${hourName}`, onClick: () => onOpenDaily(hour) }
@@ -98,7 +119,9 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, on
           ? { heading: "Not sure what to do next?", art: "readings" as const, title: "Mass Reading", description: "Sit with today’s readings from the Mass.", action: "Today’s readings", onClick: () => onOpenDaily("mass") }
           : !rosaryDone
             ? { heading: "Ready for a moment of prayer?", art: "rosary" as const, title: "Rosary", description: "Pray with the mysteries of Jesus’ life.", action: "Pray the Rosary", onClick: onRosary }
-            : { heading: "Ready to go a little deeper?", art: "journey" as const, title: "Bible Journey", description: "You’ve prayed and listened today. Walk through the story of salvation, one period at a time.", action: "Start the Journey", onClick: onJourney };
+            : !saintsDone
+              ? { heading: "Meet a witness of faith", art: "saints" as const, title: "Saint of the day", description: "Spend a moment with the life and words of a saint remembered today.", action: "Meet today's saint", onClick: onSaintToday }
+              : { heading: "Ready to go a little deeper?", art: "journey" as const, title: "Bible Journey", description: "You’ve prayed and listened today. Walk through the story of salvation, one period at a time.", action: "Start the Journey", onClick: onJourney };
 
   const share = async () => {
     try {
@@ -120,6 +143,11 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, on
               {bible.started ? `Continue ${bible.label}` : "Start with Genesis"} <ArrowRight size={16} />
             </button>
           </div>
+          {featuredSaint && <aside className="home-saint-quote" aria-label="Quote from today's saint">
+            <p className="eyebrow">Saint of the day · {featuredSaint.name}</p>
+            {saintQuote ? <blockquote>“{saintQuote}”</blockquote> : <p className="home-saint-quote-title">{featuredSaint.title ?? `Remember the witness of ${featuredSaint.name}.`}</p>}
+            <button type="button" className="text-link" onClick={onSaintToday}>Meet today's saint <ArrowRight size={14} /></button>
+          </aside>}
         </div>
       </section>
 

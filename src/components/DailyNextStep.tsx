@@ -9,7 +9,7 @@ import type { SmallCardProps } from "./LandingSmallCard";
 type RandomSuggestion = { kind: "gospel" } | { kind: "psalm"; chapter: number } | { kind: "paul"; bookId: string; chapter: number } | { kind: "assistant" };
 
 type Props = {
-  page: "breviary" | "mass" | "rosary";
+  page: "breviary" | "mass" | "rosary" | "saints";
   doneToday: DailyItem[];
   streak: DailyStreakState;
   hour: BreviaryHour;
@@ -18,6 +18,7 @@ type Props = {
   onOpenMass: () => void;
   onOpenBreviary: () => void;
   onOpenRosary: () => void;
+  onOpenSaints: () => void;
   onOpenJourney: () => void;
   onOpenReference: (reference: string) => void;
   onOpenChapter: (bookId: string, chapter: number) => void;
@@ -44,11 +45,12 @@ function streakText(days: number) {
   return "1 day, a lovely start";
 }
 
-export function DailyNextStep({ page, doneToday, streak, hour, journeyComplete, gospelReference, onOpenMass, onOpenBreviary, onOpenRosary, onOpenJourney, onOpenReference, onOpenChapter }: Props) {
+export function DailyNextStep({ page, doneToday, streak, hour, journeyComplete, gospelReference, onOpenMass, onOpenBreviary, onOpenRosary, onOpenSaints, onOpenJourney, onOpenReference, onOpenChapter }: Props) {
   const [randomSuggestion] = useState(makeRandomSuggestion);
   const breviaryDone = doneToday.some((item) => item === "lauds" || item === "vespers" || item === "compline");
   const massDone = doneToday.includes("mass");
   const rosaryDone = doneToday.includes("rosary");
+  const saintsDone = doneToday.includes("saints");
   const routineOptions: { routine: Routine; complete: boolean; streakDays: number; card: SmallCardProps }[] = [
     {
       routine: "breviary", complete: breviaryDone, streakDays: routineStreak(streak, "breviary"),
@@ -62,6 +64,10 @@ export function DailyNextStep({ page, doneToday, streak, hour, journeyComplete, 
       routine: "rosary", complete: rosaryDone, streakDays: routineStreak(streak, "rosary"),
       card: { art: "rosary", title: "Rosary", description: "Pray with the mysteries of Jesus' life.", action: "Pray the Rosary", onClick: onOpenRosary },
     },
+    {
+      routine: "saints", complete: saintsDone, streakDays: routineStreak(streak, "saints"),
+      card: { art: "saints", title: "Saint of the day", description: "Spend a moment with a witness to the Gospel.", action: "Meet today's saint", onClick: onOpenSaints },
+    },
   ];
   const streakRoutine = routineOptions
     .filter((item) => !item.complete && item.streakDays > 0)
@@ -72,7 +78,7 @@ export function DailyNextStep({ page, doneToday, streak, hour, journeyComplete, 
   let card: SmallCardProps;
   if (nextRoutine) {
     const hasActiveStreak = nextRoutine.streakDays > 0;
-    heading = hasActiveStreak ? "Keep your prayer streak going" : nextRoutine.routine === "mass" ? "Continue with today's readings" : "Continue with prayer";
+    heading = hasActiveStreak ? "Keep your prayer streak going" : nextRoutine.routine === "mass" ? "Continue with today's readings" : nextRoutine.routine === "saints" ? "Meet a witness of faith" : "Continue with prayer";
     card = hasActiveStreak
       ? { ...nextRoutine.card, stat: streakText(nextRoutine.streakDays), description: "Keep this daily rhythm going today.", action: "Continue your streak" }
       : nextRoutine.card;

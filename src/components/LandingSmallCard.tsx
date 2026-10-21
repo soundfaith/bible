@@ -1,8 +1,9 @@
 import { ArrowRight, Check, Flame } from "lucide-react";
 import { LandingBibleArtwork, LandingBreviaryArtwork, LandingChurchArtwork } from "./LandingArtwork";
 import { RosaryArtwork } from "./RosaryArtwork";
+import { SaintArtwork } from "./SaintArtwork";
 
-export type CardArtKey = "bible" | "journey" | "prayer" | "readings" | "rosary";
+export type CardArtKey = "bible" | "journey" | "prayer" | "readings" | "rosary" | "saints";
 
 function JourneyArtwork() {
   return (
@@ -27,7 +28,7 @@ function JourneyArtwork() {
 
 export function CardArt({ art }: { art: CardArtKey }) {
   return <div className={`landing-card-art landing-card-art--${art}`} aria-hidden="true">
-    {art === "bible" ? <LandingBibleArtwork /> : art === "journey" ? <JourneyArtwork /> : art === "prayer" ? <LandingBreviaryArtwork /> : art === "rosary" ? <RosaryArtwork home /> : <LandingChurchArtwork />}
+    {art === "bible" ? <LandingBibleArtwork /> : art === "journey" ? <JourneyArtwork /> : art === "prayer" ? <LandingBreviaryArtwork /> : art === "rosary" ? <RosaryArtwork home /> : art === "saints" ? <SaintArtwork /> : <LandingChurchArtwork />}
   </div>;
 }
 

@@ -41,3 +41,10 @@ export function rosaryAudioUrlsFor(asset: string, preference: NarrationGender): 
     `https://github.com/soundfaith/bible/releases/download/rosary-narration-${voice}/${asset}.mp3`,
   );
 }
+
+export function saintNarrationAudioUrlsFor(slug: string, preference: NarrationGender): string[] {
+  const voices = preference === "male" ? ["am_michael", "af_heart"] : ["af_heart", "am_michael"];
+  return voices.map((voice) =>
+    `https://github.com/soundfaith/bible/releases/download/saints-narration-${voice}/${encodeURIComponent(slug)}.mp3`,
+  );
+}

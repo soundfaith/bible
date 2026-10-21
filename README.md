@@ -1,5 +1,44 @@
 # Atelier UI Template
 
+## Saints of the day
+
+The offline saints catalogue in `src/data/saints.json` is sourced from the
+[Torch & Lily saints dataset](https://github.com/joshx2415/torch-data). It
+includes feast days, biographies, ranks, patronage, and source quotations. The
+app uses those records for the daily saint, searchable grouped catalogue, and
+individual saint pages; it does not generate biographies. Torch & Lily asks
+projects to link back to its site when practical; the Saints pages include
+source and project links.
+
+Saint narration is one MP3 per saint slug. The script uses the app's male
+`am_michael` and female `af_heart` voices, skips existing local MP3s, and
+uploads each voice to its own `saints-narration-<voice>` GitHub Release. To
+generate and upload the full catalogue:
+
+```powershell
+python scripts/saint_narration.py --voice am_michael --upload-github --execute
+python scripts/saint_narration.py --voice af_heart --upload-github --execute
+```
+
+Generation requires Kokoro, SoundFile, NumPy, and FFmpeg. Uploading also
+requires GitHub CLI authenticated for `soundfaith/bible`.
+Install the Python packages with `python -m pip install kokoro soundfile numpy`,
+make FFmpeg available on PATH, and run `gh auth login` before uploading.
+
+The uploader asks for `UPLOAD SAINTS` before publishing. To process one saint,
+pass a slug prefix with `--only`, for example:
+
+```powershell
+python scripts/saint_narration.py --voice am_michael --only st-john-cantius --upload-github --execute
+```
+
+List available slugs or preview the number of files without generating audio:
+
+```powershell
+python scripts/saint_narration.py --list
+python scripts/saint_narration.py --voice af_heart --plan
+```
+
 ## Bible Journey period narrations
 
 The 12 narration scripts live in `scripts/period_narrations.json`; their
