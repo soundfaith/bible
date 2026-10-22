@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "android:build": "powershell -ExecutionPolicy Bypass -File scripts/build_android.ps1",
     "chat:validate": "node scripts/chat/validate-topics.mjs",
     "chat:index": "node scripts/chat/build-index.mjs",
     "chat:eval": "node scripts/chat/eval.mjs"

@@ -1,0 +1,9 @@
+{
+  "appId": "com.soundfaith.bible",
+  "appName": "Soundfaith Bible",
+  "webDir": "dist",
+  "backgroundColor": "#F5F2EC",
+  "android": {
+    "allowMixedContent": false
+  }
+}

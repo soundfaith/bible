@@ -1,5 +1,21 @@
 # Atelier UI Template
 
+## Build an Android APK
+
+The web app can be packaged as a native Android app with Capacitor. Install
+Android Studio with an Android SDK, then run this from PowerShell on Windows:
+
+```powershell
+npm run android:build
+```
+
+The script builds the web app, generates Android launcher icons from
+`assets/logo.svg`, and writes a debug APK to
+`artifacts/android/soundfaith-bible-debug.apk`. Copy that APK to your phone,
+open it, and allow installation from that source when Android asks. This is a
+debug build intended for direct installation; a Play Store release needs a
+separately signed release build.
+
 ## Saints of the day
 
 The offline saints catalogue in `src/data/saints.json` is sourced from the
@@ -300,3 +316,11 @@ python scripts/period_intro_narration.py --voice af_heart --upload-github --exec
 prompts
 - fix all mp3s for ios
 - fix artwork in pages, zoomed
+
+
+python scripts/saint_narration.py --voice am_michael --upload-github --execute
+python scripts/saint_narration.py --voice af_heart --upload-github --execute
+
+
+python -m pip install --upgrade torch-directml
+python -c "import torch_directml; print(torch_directml.device())"

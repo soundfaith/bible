@@ -82,6 +82,19 @@ def folder(voice: str) -> Path:
     return OUTPUT_ROOT / voice
 
 
+def narration_device():
+    """Prefer NVIDIA CUDA, then AMD/Windows DirectML, then CPU."""
+    import torch
+
+    if torch.cuda.is_available():
+        return "cuda", "CUDA"
+    try:
+        import torch_directml
+    except ImportError:
+        return "cpu", "CPU (install torch-directml to try an AMD GPU)"
+    return torch_directml.device(), "DirectML"
+
+
 def generate(clips: dict[str, str], voice: str, speed: float, overwrite: bool) -> None:
     try:
         import numpy as np
@@ -89,7 +102,9 @@ def generate(clips: dict[str, str], voice: str, speed: float, overwrite: bool) -
         from kokoro import KPipeline
     except ImportError as exc:
         raise RuntimeError("Kokoro dependencies missing. Install with: python -m pip install kokoro soundfile numpy") from exc
-    pipeline = KPipeline(lang_code=voice[0])
+    device, device_name = narration_device()
+    print(f"Kokoro inference device: {device_name}")
+    pipeline = KPipeline(lang_code=voice[0], device=device)
     destination_folder = folder(voice)
     destination_folder.mkdir(parents=True, exist_ok=True)
     for index, (slug, text) in enumerate(clips.items(), start=1):
@@ -98,7 +113,15 @@ def generate(clips: dict[str, str], voice: str, speed: float, overwrite: bool) -
             print(f"Already generated: {slug} ({voice})")
             continue
         print(f"[{index}/{len(clips)}] Generating {slug} with {voice}...")
-        chunks = [audio.numpy() for _, _, audio in pipeline(text, voice=voice, speed=speed, split_pattern=r"\n+") if audio is not None]
+        try:
+            chunks = [audio.numpy() for _, _, audio in pipeline(text, voice=voice, speed=speed, split_pattern=r"\n+") if audio is not None]
+        except (NotImplementedError, RuntimeError) as exc:
+            if device_name != "DirectML" or "_thnn_fused_lstm_cell" not in str(exc):
+                raise
+            print("DirectML does not support Kokoro's LSTM operator here; switching to CPU and retrying.", file=sys.stderr)
+            device, device_name = "cpu", "CPU (DirectML LSTM unsupported)"
+            pipeline = KPipeline(lang_code=voice[0], device=device)
+            chunks = [audio.numpy() for _, _, audio in pipeline(text, voice=voice, speed=speed, split_pattern=r"\n+") if audio is not None]
         if not chunks:
             raise RuntimeError(f"Kokoro returned no audio for {slug}")
         temporary = destination.with_name(destination.stem + ".tmp.wav")
