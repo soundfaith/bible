@@ -892,7 +892,7 @@ input,textarea,select { border-radius:var(--radius-sm); } .site-footer { positio
 .home-saint-quote .eyebrow { margin:0 0 9px; }
 .home-saint-quote blockquote,.home-saint-quote-title { max-width:540px; margin:0; color:var(--ink); font:normal clamp(18px,2vw,22px)/1.5 var(--font-display); }
 .home-saint-quote .text-link { display:inline-flex; align-items:center; gap:7px; margin-top:14px; color:var(--accent-deep); font-size:9px; font-weight:800; }
-.android-download-badge { display:flex; width:min(280px,100%); min-height:76px; align-items:center; gap:13px; padding:11px 17px; border:1px solid #1b4930; border-radius:12px; background:#173b2b; color:#fff; text-align:left; box-shadow:0 5px 14px rgb(23 59 43 / 16%); transition:transform .18s ease,box-shadow .18s ease,background .18s ease; }
+.android-download-badge { display:flex; width:min(280px,100%); min-height:76px; align-items:center; gap:13px; margin-top:16px; padding:11px 17px; border:1px solid #1b4930; border-radius:12px; background:#173b2b; color:#fff; text-align:left; box-shadow:0 5px 14px rgb(23 59 43 / 16%); transition:transform .18s ease,box-shadow .18s ease,background .18s ease; }
 .android-download-badge:hover { transform:translateY(-2px); background:#204c35; box-shadow:0 8px 20px rgb(23 59 43 / 21%); }
 .android-download-badge:focus-visible { outline:3px solid #3ddc84; outline-offset:3px; }
 .android-download-badge-icon { flex:none; width:39px; height:39px; color:#3ddc84; }
