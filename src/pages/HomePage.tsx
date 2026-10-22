@@ -1,4 +1,4 @@
-import { ArrowRight, Share2 } from "lucide-react";
+import { ArrowDownToLine, ArrowRight, Share2, Smartphone } from "lucide-react";
 import { useState, type ReactElement } from "react";
 import { SofiAvatar } from "../components/ChatWidget";
 import { CardArt, SmallCard } from "../components/LandingSmallCard";
@@ -201,6 +201,21 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, on
           <Share2 size={15} /> Share Soundfaith
         </button>
         <p className="landing-share-note" role="status">{shareNote}</p>
+      </section>
+
+      <section className="home-android-download section-wrap" aria-labelledby="home-android-title">
+        <div className="home-android-icon" aria-hidden="true">
+          <img src="/favicon.svg" alt="" />
+        </div>
+        <div className="home-android-copy">
+          <p className="eyebrow"><Smartphone size={14} /> Soundfaith for Android</p>
+          <h2 id="home-android-title">Carry a quiet moment with you.</h2>
+          <p>Read Scripture and pray with Soundfaith Bible on your Android phone.</p>
+          <a className="button button-coral home-android-download-button" href="/downloads/soundfaith-bible.apk" download>
+            <ArrowDownToLine size={16} /> Download for Android
+          </a>
+          <small>Download the APK, open it on your phone, and follow Android’s install prompts.</small>
+        </div>
       </section>
     </main>
   );
