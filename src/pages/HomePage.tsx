@@ -1,4 +1,4 @@
-import { ArrowDownToLine, ArrowRight, Share2, Smartphone } from "lucide-react";
+import { ArrowRight, Share2 } from "lucide-react";
 import { useState, type ReactElement } from "react";
 import { SofiAvatar } from "../components/ChatWidget";
 import { CardArt, SmallCard } from "../components/LandingSmallCard";
@@ -200,22 +200,28 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, on
         <button className="button button-outline" type="button" onClick={share}>
           <Share2 size={15} /> Share Soundfaith
         </button>
+        <a className="android-download-badge" href="/downloads/soundfaith-bible.apk" download aria-label="Download Soundfaith Bible for Android">
+          <svg className="android-download-badge-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <g fill="currentColor">
+              <path d="M12 20a12 12 0 0 1 24 0H12Z" />
+              <path d="M12 22h24v13a3 3 0 0 1-3 3H15a3 3 0 0 1-3-3V22Z" />
+              <path d="M5 22a3 3 0 0 1 6 0v10a3 3 0 0 1-6 0V22Zm32 0a3 3 0 0 1 6 0v10a3 3 0 0 1-6 0V22ZM15 37h6v6a3 3 0 0 1-6 0v-6Zm12 0h6v6a3 3 0 0 1-6 0v-6Z" />
+            </g>
+            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5">
+              <path d="m16 8-3-4m19 4 3-4" />
+            </g>
+            <g fill="#173b2b">
+              <circle cx="19" cy="14" r="1.2" />
+              <circle cx="29" cy="14" r="1.2" />
+            </g>
+          </svg>
+          <span className="android-download-badge-copy">
+            <small>DOWNLOAD THE APP</small>
+            <strong>For Android</strong>
+          </span>
+          <span className="android-download-badge-format">APK</span>
+        </a>
         <p className="landing-share-note" role="status">{shareNote}</p>
-      </section>
-
-      <section className="home-android-download section-wrap" aria-labelledby="home-android-title">
-        <div className="home-android-icon" aria-hidden="true">
-          <img src="/favicon.svg" alt="" />
-        </div>
-        <div className="home-android-copy">
-          <p className="eyebrow"><Smartphone size={14} /> Soundfaith for Android</p>
-          <h2 id="home-android-title">Carry a quiet moment with you.</h2>
-          <p>Read Scripture and pray with Soundfaith Bible on your Android phone.</p>
-          <a className="button button-coral home-android-download-button" href="/downloads/soundfaith-bible.apk" download>
-            <ArrowDownToLine size={16} /> Download for Android
-          </a>
-          <small>Download the APK, open it on your phone, and follow Android’s install prompts.</small>
-        </div>
       </section>
     </main>
   );
