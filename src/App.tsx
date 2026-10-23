@@ -74,8 +74,9 @@ import {
 const SaintPage = lazy(() => import("./pages/SaintsPage").then((module) => ({ default: module.SaintPage })));
 const SaintsLibrary = lazy(() => import("./pages/SaintsPage").then((module) => ({ default: module.SaintsLibrary })));
 const CatechismPage = lazy(() => import("./pages/CatechismPage").then((module) => ({ default: module.CatechismPage })));
+const SummaPage = lazy(() => import("./pages/SummaPage").then((module) => ({ default: module.SummaPage })));
 
-type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork" | "breviary" | "rosary" | "rosary-prayer" | "saints" | "saint-profile" | "catechism";
+type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork" | "breviary" | "rosary" | "rosary-prayer" | "saints" | "saint-profile" | "catechism" | "summa";
 type PendingNarration = "start" | "pause" | "resume" | null;
 type JourneyAudioStatus = "idle" | "playing" | "paused";
 type JourneyAudioState = {
@@ -123,6 +124,7 @@ function getLastJourneyPeriodId() {
 function readRoute(): Route {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
   return path === "journey-artwork" ? "journey-artwork"
+    : path === "summa" || path.startsWith("summa/") ? "summa"
     : path === "catechism" || path.startsWith("catechism/") ? "catechism"
     : path.startsWith("rosary/") ? "rosary-prayer"
     : path === "rosary" ? "rosary"
@@ -842,6 +844,8 @@ export default function App() {
         onOpenReference={openMassReference}
         onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
       />} /></Suspense>
+    ) : route === "summa" ? (
+      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Summa Theologiae…</p></main>}><SummaPage /></Suspense>
     ) : route === "mass" ? (
       <MassReadingPage
         onOpenReference={openMassReference}
@@ -1010,17 +1014,8 @@ export default function App() {
     <div className="app-shell">
       <header className="site-header" ref={menuRef}>
         <Brand />
-        <nav className="desktop-nav" aria-label="Primary navigation">
-          <a href="#/" className={route === "home" ? "active" : ""}>Home</a>
-          <a href="#/bible" className={route === "read" || route === "bible" ? "active" : ""}>Bible</a>
-          <a href="#/journey" className={route === "journey" || route === "journey-artwork" ? "active" : ""}>Bible Journey</a>
-          <a href="#/breviary" className={route === "breviary" ? "active" : ""}>Breviary</a>
-          <a href="#/rosary" className={route === "rosary" || route === "rosary-prayer" ? "active" : ""}>Rosary</a>
-          <a href="#/saints" className={route === "saints" || route === "saint-profile" ? "active" : ""}>Saints</a>
-          <a href="#/catechism" className={route === "catechism" ? "active" : ""}>Catechism</a>
-          <a href="#/mass" className={route === "mass" ? "active" : ""}>Mass Reading</a>
-        </nav>
         <nav
+          id="primary-navigation"
           className={menuOpen ? "main-nav nav-open" : "main-nav"}
           aria-label="Primary navigation"
         >
@@ -1033,16 +1028,17 @@ export default function App() {
               <X size={18} />
             </button>
           </div>
-          <a href="#/" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><House size={17} />Home</a>
-          <a href="#/read" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible</a>
+          <a href="#/" className="mobile-drawer-link" aria-current={route === "home" ? "page" : undefined} onClick={() => setMenuOpen(false)}><House size={17} />Home</a>
+          <a href="#/read" className="mobile-drawer-link" aria-current={route === "read" || route === "bible" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible</a>
           <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Compass size={17} />Bible Journey</a>
           <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BreviaryHourIcon size={17} />Breviary</a>
           <a href="#/rosary" className="mobile-drawer-link" aria-current={route === "rosary" || route === "rosary-prayer" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />Rosary</a>
           <a href="#/saints" className="mobile-drawer-link" aria-current={route === "saints" || route === "saint-profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sparkles size={17} />Saints</a>
           <a href="#/catechism" className="mobile-drawer-link" aria-current={route === "catechism" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Catechism</a>
-          <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><Church size={17} />Mass Reading</a>
-          <a href="#/bookmarks" onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
-          <a href="#/about" onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>
+          <a href="#/summa" className="mobile-drawer-link" aria-current={route === "summa" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Summa Theologiae</a>
+          <a href="#/mass" className="mobile-drawer-link" aria-current={route === "mass" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Church size={17} />Mass Reading</a>
+          <a href="#/bookmarks" className="mobile-drawer-link" aria-current={route === "bookmarks" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
+          <a href="#/about" className="mobile-drawer-link" aria-current={route === "about" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>
           <section className="font-size-control" aria-label="Reading font size">
             <div className="font-size-heading"><span>Text size</span><span>{fontSize}px</span></div>
             <div className="font-size-preview">The Lord is my shepherd; I shall not want.</div>
@@ -1079,6 +1075,8 @@ export default function App() {
           <button
             className="icon-button mobile-toggle"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="primary-navigation"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}

@@ -400,14 +400,11 @@ input,textarea,select { border-radius:var(--radius-sm); } .site-footer { positio
 .bible-reading-copy,
 .mass-reading-text { font-size:var(--reader-font-size,22px); }
 .mobile-toggle { display:grid; margin-left:12px; }
-.desktop-nav { display:flex; align-items:center; gap:26px; margin-left:auto; margin-right:18px; color:var(--muted); font-size:12px; font-weight:700; }
-.desktop-nav a { display:flex; align-items:center; gap:7px; white-space:nowrap; }
-.desktop-nav a.active,.desktop-nav a:hover { color:var(--accent); }
 .main-nav { display:none; }
 .main-nav.nav-open { display:flex; position:absolute; top:calc(100% + 10px); right:0; z-index:14; width:310px; max-height:calc(100vh - 110px); overflow-y:auto; margin:0; padding:18px 22px; border:1px solid var(--line); background:var(--white); box-shadow:var(--shadow-soft); flex-direction:column; gap:0; }
 .main-nav > a { display:flex; align-items:center; gap:11px; padding:12px 0; border-bottom:1px solid var(--line); }
+.main-nav > a[aria-current="page"] { color:var(--accent-deep); }
 .main-nav > a[href="#/bookmarks"] { border-bottom:0; }
-.main-nav > .mobile-drawer-link { display:none; }
 .menu-heading { display:none; }
 .mobile-menu-theme { display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; }
 .mobile-menu-theme .theme-toggle { margin:0; }
@@ -425,7 +422,6 @@ input,textarea,select { border-radius:var(--radius-sm); } .site-footer { positio
 .voice-preference-control > p { flex-basis:100%; margin:0; color:var(--accent-deep); font-size:10px; line-height:1.5; }
 
 @media (max-width:760px) {
-	.desktop-nav { display:none; }
 	.main-nav.nav-open { position:fixed; top:0; right:0; left:auto; width:min(82vw,330px); height:100dvh; max-height:100dvh; margin:0; padding:20px 28px 24px; border:0; gap:0; transform:translateX(0); }
 	.main-nav { transform:translateX(105%); transition:transform .28s var(--ease-out); }
 	.menu-heading { display:flex; justify-content:flex-end; margin-bottom:8px; }
@@ -2509,3 +2505,75 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
   .catechism-rights-note { text-align:left; }
 }
 
+/* Summa Theologiae uses the Catechism's library and reader patterns. */
+.summa-page { min-height:60vh; }
+.summa-library-hero { padding-bottom:42px; }
+.summa-library-hero h1 { max-width:800px; }
+.summa-library-hero .journey-intro { max-width:690px; }
+.summa-parts { margin-top:46px; }
+.summa-part-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.summa-part-card { min-height:235px; padding:22px; }
+.summa-part-mark { display:grid; width:48px; height:48px; place-items:center; border:1px solid var(--line); border-radius:50%; background:var(--paper); color:var(--accent-deep); }
+.summa-part-card .journey-library-copy { min-height:0; padding:17px 0 0; }
+.summa-part-card .journey-library-copy > strong { font-size:27px; }
+.summa-part-card .journey-library-teaser { max-width:250px; }
+.summa-question-library { margin-top:66px; }
+.summa-question-library .catechism-lesson-card { min-height:156px; }
+.summa-detail-page { padding-top:48px; }
+.summa-detail-nav { margin-bottom:32px; }
+.summa-detail-heading { max-width:900px; }
+.summa-detail-heading h1 { max-width:900px; }
+.summa-reading { max-width:900px; margin:0 auto; }
+.summa-article { scroll-margin-top:34px; border-top:1px solid var(--line); }
+.summa-article:last-child { border-bottom:1px solid var(--line); }
+.summa-article > summary { display:grid; grid-template-columns:105px minmax(0,1fr) 20px; align-items:start; gap:12px; padding:20px 3px; cursor:pointer; list-style:none; }
+.summa-article > summary::-webkit-details-marker { display:none; }
+.summa-article > summary::after { content:"+"; justify-self:center; color:var(--accent-deep); font:normal 23px/1 var(--font-display); }
+.summa-article[open] > summary::after { content:"−"; }
+.summa-article-label { color:var(--accent-deep); font-size:9px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
+.summa-article-title { color:var(--ink); font:normal 21px/1.3 var(--font-display); }
+.summa-article-content { padding:0 34px 30px 120px; }
+.summa-article-body { color:var(--ink); font:400 14px/1.85 var(--font-body); }
+.summa-article-body section + section { margin-top:23px; padding-top:20px; border-top:1px solid var(--line); }
+.summa-article-body h3 { margin:0 0 10px; color:var(--accent-deep); font-size:9px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.summa-article-body p { margin:0 0 12px; }
+.summa-article-permalink { display:inline-flex; align-items:center; gap:5px; margin-top:5px; color:var(--accent-deep); font-size:9px; font-weight:800; text-decoration:none; }
+.summa-article-permalink:hover { text-decoration:underline; text-underline-offset:3px; }
+.summa-objections,.summa-replies ol { display:grid; gap:15px; margin:0; padding:0; list-style:none; }
+.summa-objections li,.summa-replies li { display:grid; grid-template-columns:130px minmax(0,1fr); gap:12px; }
+.summa-objections li > span,.summa-replies li > span { color:var(--muted); font-size:10px; font-weight:800; }
+.summa-question-attribution { margin:25px 0 0; }
+.summa-attribution { max-width:900px; margin:26px auto 0; color:var(--muted); font-size:9px; line-height:1.7; }
+.summa-attribution a { color:var(--accent-deep); text-decoration:underline; text-underline-offset:2px; }
+.summa-load-error { margin:12px 0 18px; color:var(--muted); }
+.summa-not-found { margin-top:65px; }
+
+@media (max-width:900px) {
+	.summa-part-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+	.summa-part-card { min-height:215px; }
+}
+@media (max-width:760px) {
+	.summa-library-hero { padding-bottom:31px; }
+	.summa-library-hero h1 { font-size:clamp(44px,11vw,62px); }
+	.summa-library-hero .journey-intro { font-size:12px; }
+	.summa-parts { margin-top:35px; }
+	.summa-part-grid { grid-template-columns:1fr; gap:10px; }
+	.summa-part-card { min-height:0; grid-template-columns:48px minmax(0,1fr); grid-template-rows:1fr; align-items:center; gap:0 14px; padding:15px; }
+	.summa-part-mark { grid-row:1; }
+	.summa-part-card .journey-library-copy { padding:0; }
+	.summa-part-card .journey-library-copy > strong { font-size:22px; }
+	.summa-part-card .journey-library-teaser { margin-top:5px; font-size:9px; }
+	.summa-part-card .journey-library-meta { padding-top:9px; font-size:8px; }
+	.summa-question-library { margin-top:49px; }
+	.summa-question-library .catechism-lesson-card { min-height:0; }
+	.summa-detail-page { padding-top:27px; }
+	.summa-detail-heading { margin-bottom:20px; text-align:left; }
+	.summa-detail-heading .eyebrow { justify-content:flex-start; }
+	.summa-detail-heading h1 { font-size:clamp(36px,9vw,49px); }
+	.summa-article > summary { grid-template-columns:74px minmax(0,1fr) 16px; gap:8px; padding:16px 0; }
+	.summa-article-title { font-size:17px; }
+	.summa-article-content { padding:0 1px 20px 0; }
+	.summa-article-body { font-size:13px; }
+	.summa-objections li,.summa-replies li { grid-template-columns:1fr; gap:3px; }
+	.summa-attribution { margin-top:20px; }
+}

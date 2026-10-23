@@ -25,6 +25,17 @@ the implementation decisions are documented in the
 Rebuild the normalized text with `python scripts/catechism/build_data.py` and
 the Sofi search vectors with `npm run chat:catechism-index`.
 
+## Summa Theologiae
+
+The Summa reader at `#/summa` follows the Torch & Lily data structure through
+all five parts, 611 questions, and 3,076 articles. It presents each article's
+objections, *sed contra*, *respondeo*, and replies, with links to individual
+questions and articles. The source snapshots are the compressed JSON files in
+`public/data/summa/` from the
+[Torch & Lily open data repository](https://github.com/joshx2415/torch-data).
+The reader loads and decompresses those files when opened, keeping them out of
+the app's initial bundle.
+
 ## Saints of the day
 
 The offline saints catalogue in `src/data/saints.json` is sourced from the
