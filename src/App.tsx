@@ -73,8 +73,9 @@ import {
 
 const SaintPage = lazy(() => import("./pages/SaintsPage").then((module) => ({ default: module.SaintPage })));
 const SaintsLibrary = lazy(() => import("./pages/SaintsPage").then((module) => ({ default: module.SaintsLibrary })));
+const CatechismPage = lazy(() => import("./pages/CatechismPage").then((module) => ({ default: module.CatechismPage })));
 
-type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork" | "breviary" | "rosary" | "rosary-prayer" | "saints" | "saint-profile";
+type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork" | "breviary" | "rosary" | "rosary-prayer" | "saints" | "saint-profile" | "catechism";
 type PendingNarration = "start" | "pause" | "resume" | null;
 type JourneyAudioStatus = "idle" | "playing" | "paused";
 type JourneyAudioState = {
@@ -122,6 +123,7 @@ function getLastJourneyPeriodId() {
 function readRoute(): Route {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
   return path === "journey-artwork" ? "journey-artwork"
+    : path === "catechism" || path.startsWith("catechism/") ? "catechism"
     : path.startsWith("rosary/") ? "rosary-prayer"
     : path === "rosary" ? "rosary"
     : path.startsWith("saints/") ? "saint-profile"
@@ -824,6 +826,8 @@ export default function App() {
         onResume={() => openReader(readingPosition)}
         onChoose={(position) => openReader(position)}
       />
+    ) : route === "catechism" ? (
+      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Baltimore Catechism…</p></main>}><CatechismPage /></Suspense>
     ) : route === "mass" ? (
       <MassReadingPage
         onOpenReference={openMassReference}
@@ -962,6 +966,7 @@ export default function App() {
         onRosary={() => { window.location.hash = todaysRosaryPath(); }}
         onSaints={() => { window.location.hash = "#/saints"; }}
         onSaintToday={() => { window.location.hash = "#/saints/today"; }}
+        onCatechism={() => { window.location.hash = "#/catechism"; }}
         onMass={() => {
           setMassDate(getTodaysMassReading().date);
           window.location.hash = "#/mass";
@@ -998,6 +1003,7 @@ export default function App() {
           <a href="#/breviary" className={route === "breviary" ? "active" : ""}>Breviary</a>
           <a href="#/rosary" className={route === "rosary" || route === "rosary-prayer" ? "active" : ""}>Rosary</a>
           <a href="#/saints" className={route === "saints" || route === "saint-profile" ? "active" : ""}>Saints</a>
+          <a href="#/catechism" className={route === "catechism" ? "active" : ""}>Catechism</a>
           <a href="#/mass" className={route === "mass" ? "active" : ""}>Mass Reading</a>
         </nav>
         <nav
@@ -1019,6 +1025,7 @@ export default function App() {
           <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BreviaryHourIcon size={17} />Breviary</a>
           <a href="#/rosary" className="mobile-drawer-link" aria-current={route === "rosary" || route === "rosary-prayer" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />Rosary</a>
           <a href="#/saints" className="mobile-drawer-link" aria-current={route === "saints" || route === "saint-profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sparkles size={17} />Saints</a>
+          <a href="#/catechism" className="mobile-drawer-link" aria-current={route === "catechism" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Catechism</a>
           <a href="#/mass" className="mobile-drawer-link" onClick={() => setMenuOpen(false)}><Church size={17} />Mass Reading</a>
           <a href="#/bookmarks" onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
           <a href="#/about" onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>

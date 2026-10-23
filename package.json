@@ -10,6 +10,7 @@
     "android:build": "powershell -ExecutionPolicy Bypass -File scripts/build_android.ps1",
     "chat:validate": "node scripts/chat/validate-topics.mjs",
     "chat:index": "node scripts/chat/build-index.mjs",
+    "chat:catechism-index": "node scripts/chat/build-catechism-index.mjs",
     "chat:eval": "node scripts/chat/eval.mjs"
   },
   "dependencies": {

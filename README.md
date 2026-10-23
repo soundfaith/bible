@@ -16,6 +16,15 @@ open it, and allow installation from that source when Android asks. This is a
 debug build intended for direct installation; a Play Store release needs a
 separately signed release build.
 
+## Baltimore Catechism
+
+The app includes Baltimore Catechism Nos. 1–3 as a searchable, offline reader
+and as a local reference source for Sofi. Source coverage, import details, and
+the implementation decisions are documented in the
+[Baltimore Catechism implementation plan](docs/baltimore-catechism-implementation-plan.md).
+Rebuild the normalized text with `python scripts/catechism/build_data.py` and
+the Sofi search vectors with `npm run chat:catechism-index`.
+
 ## Saints of the day
 
 The offline saints catalogue in `src/data/saints.json` is sourced from the

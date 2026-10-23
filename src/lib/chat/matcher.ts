@@ -3,7 +3,7 @@ import { chatTopics, type ChatTopic } from "./topics";
 type ChatIndex = { model: string; dim: number; owners: string[]; vectors: string };
 type Loaded = { model: string; dim: number; owners: string[]; vectors: Int8Array };
 export type TopicMatch = { topic: ChatTopic; score: number };
-export type MatchResult = { mode: "semantic" | "lexical"; matches: TopicMatch[] };
+export type MatchResult = { mode: "semantic" | "lexical"; matches: TopicMatch[]; vector?: Float32Array };
 
 // Thresholds were measured with scripts/chat/eval.mjs: off-topic questions score <= 0.66, on-topic mostly >= 0.70.
 export const THRESHOLDS = {
@@ -109,7 +109,7 @@ export async function matchTopics(query: string): Promise<MatchResult> {
     if (!modelReady) await Promise.race([ready, new Promise((resolve) => setTimeout(resolve, MODEL_WAIT_MS))]);
     if (modelReady) {
       const vector = await call("embed", index.model, query);
-      if (vector) return { mode: "semantic", matches: rankSemantic(index, vector) };
+      if (vector) return { mode: "semantic", matches: rankSemantic(index, vector), vector };
     }
   } catch {
     // fall through to lexical matching

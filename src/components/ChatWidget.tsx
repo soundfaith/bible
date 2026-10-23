@@ -87,7 +87,7 @@ function Chips({ ids, onPick, label }: { ids: string[]; onPick: (id: string) => 
   );
 }
 
-function AssistantBubble({ message, onOpen, onPick }: { message: ChatMessage; onOpen: Props["onOpenVerse"]; onPick: (id: string) => void }) {
+function AssistantBubble({ message, onOpen, onOpenCatechism, onPick }: { message: ChatMessage; onOpen: Props["onOpenVerse"]; onOpenCatechism: (edition: number, question: number) => void; onPick: (id: string) => void }) {
   const topic = message.topicId ? getTopic(message.topicId) : undefined;
   if (message.kind === "welcome") {
     return (
@@ -118,6 +118,27 @@ function AssistantBubble({ message, onOpen, onPick }: { message: ChatMessage; on
             <Chips ids={message.optionIds} onPick={onPick} label="Related topics" />
           </>
         )}
+      </div>
+    );
+  }
+  if (message.kind === "catechism" && message.catechismEdition && message.catechismQuestionNumber) {
+    return (
+      <div className="chat-bubble assistant">
+        <p className="chat-lead">{message.lead}</p>
+        <article className="chat-catechism-card">
+          <span className="chat-catechism-source">{message.catechismEditionTitle} · {message.catechismGroupTitle} · Question {message.catechismQuestionNumber}</span>
+          <h3>{message.catechismQuestion}</h3>
+          <p className="chat-catechism-answer-label">Answer</p>
+          {message.catechismAnswer?.split(/\n\s*\n/).filter(Boolean).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+          {message.catechismSourceNote && <p className="chat-catechism-note">{message.catechismSourceNote}</p>}
+          <p className="chat-catechism-context">A historical Baltimore Catechism reference, separate from the Catechism of the Catholic Church.</p>
+          <button type="button" className="chat-catechism-open" onClick={() => onOpenCatechism(message.catechismEdition!, message.catechismQuestionNumber!)}>Read in the catechism <ArrowRight size={13} /></button>
+        </article>
+        {topic && <div className="chat-catechism-scripture">
+          <p className="chat-related">Related Scripture</p>
+          <p>{topic.intro}</p>
+          <div className="chat-verses">{topic.verses.map((verse: ChatVerse) => <VerseCard key={verse.ref} reference={verse.ref} why={verse.why} onOpen={onOpen} />)}</div>
+        </div>}
       </div>
     );
   }
@@ -207,6 +228,11 @@ export function ChatWidget({ onOpenVerse }: Props) {
     onOpenVerse(bookId, chapter, verse);
   };
 
+  const openCatechism = (edition: number, question: number) => {
+    setOpen(false);
+    window.location.hash = `#/catechism/${edition}/q-${question}`;
+  };
+
   const reset = () => {
     clearChatHistory();
     setMessages([welcomeMessage()]);
@@ -237,7 +263,7 @@ export function ChatWidget({ onOpenVerse }: Props) {
           }}>
             {messages.map((message) => message.role === "user"
               ? <div key={message.id} className="chat-bubble user">{message.text}</div>
-              : <AssistantBubble key={message.id} message={message} onOpen={openVerse} onPick={(id) => void ask(getTopic(id)?.title ?? "", id)} />)}
+              : <AssistantBubble key={message.id} message={message} onOpen={openVerse} onOpenCatechism={openCatechism} onPick={(id) => void ask(getTopic(id)?.title ?? "", id)} />)}
             {busy && <div className="chat-bubble assistant chat-typing" aria-label="Searching Scripture"><i /><i /><i /></div>}
           </div>
           <form className="chat-form" onSubmit={(event) => { event.preventDefault(); void ask(draft); }}>

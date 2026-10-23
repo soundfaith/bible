@@ -37,6 +37,15 @@
 .chat-verse-why { font-size:13px; line-height:1.6; color:var(--muted); font-weight:400; }
 .chat-verse-text { font-family:var(--font-body); font-weight:400; font-size:calc(var(--reader-font-size,22px) * .8); line-height:1.75; color:var(--ink); }
 .chat-verse-open { display:inline-flex; align-items:center; gap:6px; margin-top:2px; font-size:13px; font-weight:700; color:var(--accent); }
+.chat-catechism-card { display:grid; gap:10px; margin-top:15px; padding:17px; border:1px solid var(--line); border-radius:14px; background:var(--paper); }
+.chat-catechism-source { color:var(--accent-deep); font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; line-height:1.5; }
+.chat-catechism-card h3 { margin:0; font:400 23px/1.25 var(--font-display); }
+.chat-catechism-card > p { margin:0; font-size:14px; line-height:1.75; }
+.chat-catechism-card .chat-catechism-answer-label { color:var(--accent); font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.chat-catechism-card .chat-catechism-note,.chat-catechism-card .chat-catechism-context { color:var(--muted); font-size:10px; line-height:1.6; }
+.chat-catechism-open { display:inline-flex; justify-self:start; align-items:center; gap:7px; min-height:35px; padding:0 12px; border:1px solid var(--line); border-radius:999px; background:var(--white); color:var(--accent); cursor:pointer; font:700 10px var(--font-body); }
+.chat-catechism-scripture { margin-top:20px; }
+.chat-catechism-scripture > p:not(.chat-related) { color:var(--muted); font-size:13px; line-height:1.65; }
 
 .chat-chips { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
 .chat-chips button { padding:10px 16px; border:1px solid var(--line); border-radius:999px; background:var(--paper); color:var(--ink); font:600 13px/1.4 var(--font-body); cursor:pointer; transition:border-color .2s,background .2s; }

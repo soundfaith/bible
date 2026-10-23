@@ -3,7 +3,7 @@ import { LandingBibleArtwork, LandingBreviaryArtwork, LandingChurchArtwork } fro
 import { RosaryArtwork } from "./RosaryArtwork";
 import { SaintArtwork } from "./SaintArtwork";
 
-export type CardArtKey = "bible" | "journey" | "prayer" | "readings" | "rosary" | "saints";
+export type CardArtKey = "bible" | "journey" | "prayer" | "readings" | "rosary" | "saints" | "catechism";
 
 function JourneyArtwork() {
   return (
@@ -28,8 +28,20 @@ function JourneyArtwork() {
 
 export function CardArt({ art }: { art: CardArtKey }) {
   return <div className={`landing-card-art landing-card-art--${art}`} aria-hidden="true">
-    {art === "bible" ? <LandingBibleArtwork /> : art === "journey" ? <JourneyArtwork /> : art === "prayer" ? <LandingBreviaryArtwork /> : art === "rosary" ? <RosaryArtwork home /> : art === "saints" ? <SaintArtwork /> : <LandingChurchArtwork />}
+    {art === "bible" ? <LandingBibleArtwork /> : art === "journey" ? <JourneyArtwork /> : art === "prayer" ? <LandingBreviaryArtwork /> : art === "rosary" ? <RosaryArtwork home /> : art === "saints" ? <SaintArtwork /> : art === "catechism" ? <CatechismArtwork /> : <LandingChurchArtwork />}
   </div>;
+}
+
+function CatechismArtwork() {
+  return <svg className="landing-card-artwork catechism-card-artwork" viewBox="0 0 400 200">
+    <path className="catechism-art-glow" d="M0 0h400v200H0z" />
+    <path className="catechism-art-book" d="M67 49q55-19 133 7v104q-76-26-133-7z" />
+    <path className="catechism-art-book catechism-art-book-right" d="M333 49q-55-19-133 7v104q76-26 133-7z" />
+    <path className="catechism-art-spine" d="M200 56v104" />
+    <path className="catechism-art-rule" d="M91 76q42-10 84 4m-84 13q42-10 84 4m-84 13q42-10 84 4m44-24q42-14 84-4m-84 17q42-14 84-4m-84 17q42-14 84-4" />
+    <path className="catechism-art-cross" d="M200 20v27m-13-14h26" />
+    <circle className="catechism-art-star" cx="200" cy="22" r="3" />
+  </svg>;
 }
 
 export type SmallCardProps = {
