@@ -6,10 +6,10 @@ import { bibleBooks, getChapterCount } from "../lib/bible";
 import { routineStreak, type DailyItem, type DailyStreakState, type Routine } from "../lib/dailyStreak";
 import type { SmallCardProps } from "./LandingSmallCard";
 
-type RandomSuggestion = { kind: "gospel" } | { kind: "psalm"; chapter: number } | { kind: "paul"; bookId: string; chapter: number } | { kind: "assistant" };
+type RandomSuggestion = { kind: "gospel" } | { kind: "psalm"; chapter: number } | { kind: "paul"; bookId: string; chapter: number } | { kind: "assistant" } | { kind: "catechism" };
 
 type Props = {
-  page: "breviary" | "mass" | "rosary" | "saints";
+  page: "breviary" | "mass" | "rosary" | "saints" | "catechism";
   doneToday: DailyItem[];
   streak: DailyStreakState;
   hour: BreviaryHour;
@@ -31,7 +31,7 @@ function randomItem<T>(items: T[]): T {
 }
 
 function makeRandomSuggestion(): RandomSuggestion {
-  const kind = randomItem(["gospel", "psalm", "paul", "assistant"] as const);
+  const kind = randomItem(["gospel", "psalm", "paul", "assistant", "catechism"] as const);
   if (kind === "psalm") return { kind, chapter: 1 + Math.floor(Math.random() * 150) };
   if (kind === "paul") {
     const bookId = randomItem(paulineBookIds);
@@ -91,6 +91,8 @@ export function DailyNextStep({ page, doneToday, streak, hour, journeyComplete, 
     } else if (randomSuggestion.kind === "paul") {
       const book = bibleBooks.find((item) => item.id === randomSuggestion.bookId);
       card = { art: "journey", title: book ? `${book.name} ${randomSuggestion.chapter}` : "A letter from Paul", description: "Read a chapter from one of Paul's letters.", action: "Open this letter", onClick: () => onOpenChapter(randomSuggestion.bookId, randomSuggestion.chapter) };
+    } else if (randomSuggestion.kind === "catechism") {
+      card = { art: "catechism", title: "Baltimore Catechism", description: "Explore a lesson from the historic Baltimore Catechism.", action: "Browse the lessons", onClick: () => { window.location.hash = "#/catechism"; } };
     } else {
       card = { art: "journey", title: `Ask ${ASSISTANT_NAME}`, description: "Bring a question, a worry, or a verse you're wondering about.", action: "Start a conversation", onClick: () => window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT)) };
     }

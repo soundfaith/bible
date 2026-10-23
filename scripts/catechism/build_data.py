@@ -38,6 +38,16 @@ EDITION_INFO = {
     3: (14553, "Baltimore Catechism No. 3", "For a Two Years' Course for Post-Confirmation Classes"),
 }
 
+# The No. 1 and No. 2 Gutenberg texts append prayers after the final numbered
+# catechism question. No. 3's final numbered answer is followed by Gutenberg's
+# end note and license. These sections remain in the source snapshots but are
+# outside the Q&A reader's content scope.
+POST_QA_MARKERS = {
+    1: re.compile(r"(?mi)^\s*MORNING PRAYERS\s*$"),
+    2: re.compile(r"(?mi)^\s*MORNING PRAYERS\s*$"),
+    3: re.compile(r"(?mi)^\s*End of Project Gutenberg's Baltimore Catechism No\.\s*3\b"),
+}
+
 
 def read_gutenberg(number: int) -> str:
     ebook_id, _, _ = EDITION_INFO[number]
@@ -109,6 +119,10 @@ def extract_questions(number: int, text: str) -> list[dict]:
     for index, match in enumerate(matches):
         end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
         block = text[match.end():end]
+        if index + 1 == len(matches):
+            post_qa = POST_QA_MARKERS[number].search(block)
+            if post_qa:
+                block = block[:post_qa.start()]
         # The next lesson heading occurs between the last answer in one lesson
         # and the next question. It belongs to the group, not that answer.
         block = re.split(r"(?m)^\s*LESSON\s+", block, maxsplit=1)[0]

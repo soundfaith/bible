@@ -827,7 +827,21 @@ export default function App() {
         onChoose={(position) => openReader(position)}
       />
     ) : route === "catechism" ? (
-      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Baltimore Catechism…</p></main>}><CatechismPage /></Suspense>
+      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Baltimore Catechism…</p></main>}><CatechismPage nextStep={<DailyNextStep
+        page="catechism"
+        doneToday={getDoneToday(dailyStreak)}
+        streak={dailyStreak}
+        hour={currentBreviaryHour()}
+        journeyComplete={journeyComplete}
+        gospelReference={todayGospelReference}
+        onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
+        onOpenBreviary={openCurrentBreviary}
+        onOpenRosary={() => { window.location.hash = "#/rosary"; }}
+        onOpenSaints={() => { window.location.hash = "#/saints/today"; }}
+        onOpenJourney={() => { window.location.hash = "#/journey"; }}
+        onOpenReference={openMassReference}
+        onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
+      />} /></Suspense>
     ) : route === "mass" ? (
       <MassReadingPage
         onOpenReference={openMassReference}

@@ -2391,3 +2391,121 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
 	.rosary-floating-beads { right:-43px; bottom:calc(190px + env(safe-area-inset-bottom)); width:min(210px,56vw); height:auto; aspect-ratio:300/465; }
 }
 
+/* Catechism follows the Breviary library and lesson detail patterns. */
+.catechism-page { padding-top:70px; padding-bottom:100px; }
+.catechism-library-hero { padding-bottom:42px; }
+.catechism-library-hero h1 { max-width:760px; }
+.catechism-library-hero .journey-intro { max-width:680px; }
+.catechism-context { display:flex; align-items:flex-start; gap:12px; max-width:760px; margin-top:20px; padding:14px 16px; border:1px solid var(--line); border-radius:12px; background:var(--white); color:var(--muted); font-size:10px; line-height:1.7; }
+.catechism-context svg { flex:none; color:var(--accent); }
+.catechism-editions { margin-top:46px; }
+.catechism-edition-list { grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
+.catechism-edition-card { width:100%; padding:0; font:inherit; text-align:left; cursor:pointer; }
+.catechism-edition-card[aria-pressed="true"] { border-color:var(--accent-deep); box-shadow:0 0 0 1px var(--accent-deep),0 10px 26px rgb(35 38 34 / 10%); }
+.catechism-edition-card[aria-pressed="true"] .journey-library-meta { color:var(--accent-deep); }
+.catechism-edition-card .journey-library-copy { min-height:150px; }
+.catechism-artwork { width:100%; aspect-ratio:2/1; min-height:125px; max-height:175px; overflow:hidden; border-radius:17px 17px 0 0; background:var(--paper); }
+.catechism-artwork svg { display:block; width:100%; height:100%; }
+.catechism-lesson-library { max-width:1080px; margin:70px auto 0; }
+.catechism-lesson-library-heading { display:flex; align-items:end; justify-content:space-between; gap:20px; padding-bottom:22px; border-bottom:1px solid var(--line); }
+.catechism-lesson-library-heading .eyebrow { margin-bottom:9px; }
+.catechism-lesson-library-heading h2 { font:normal 37px/1.05 var(--font-display); letter-spacing:-.03em; }
+.catechism-lesson-count { padding-bottom:3px; color:var(--muted); font-size:10px; font-weight:700; }
+.catechism-lesson-library .catechism-search { max-width:470px; margin-top:20px; }
+.catechism-lesson-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:20px 0 0; padding:0; list-style:none; }
+.catechism-lesson-grid li { min-width:0; }
+.catechism-lesson-card { display:grid; grid-template-rows:auto 1fr auto; min-height:142px; height:100%; gap:9px; padding:16px 17px; border:1px solid var(--line); border-radius:12px; background:var(--white); color:var(--ink); box-shadow:0 4px 14px rgb(23 25 22 / 3%); transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+.catechism-lesson-card:hover { transform:translateY(-2px); border-color:var(--accent); box-shadow:var(--shadow-soft); }
+.catechism-lesson-card-number { color:var(--accent-deep); font-size:8px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.catechism-lesson-card strong { font:normal 18px/1.24 var(--font-display); }
+.catechism-lesson-card-footer { display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top:10px; border-top:1px solid var(--line); color:var(--muted); font-size:9px; }
+.catechism-lesson-card-footer svg { flex:none; color:var(--accent); transition:transform .2s ease; }
+.catechism-lesson-card:hover .catechism-lesson-card-footer svg { transform:translateX(3px); }
+.catechism-ask-sofi { max-width:1080px; margin:63px auto 0; }
+.catechism-ask-sofi .landing-next-card { width:min(100%,320px); }
+.catechism-detail-page { padding-top:58px; }
+.catechism-detail-nav { margin-bottom:35px; }
+.catechism-detail-nav > .button { min-height:38px; padding:0 13px; font-size:10px; }
+.catechism-detail-edition { color:var(--muted); font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.catechism-detail-heading { margin-bottom:29px; }
+.catechism-detail-heading h1 { margin-bottom:8px; }
+.catechism-detail-heading .journey-detail-overview { font:normal 20px/1.35 var(--font-display); }
+.catechism-audience { margin-top:10px; color:var(--muted); font-size:10px; }
+.catechism-edition-note { max-width:690px; margin:16px auto 0; padding:10px 13px; border-left:2px solid var(--accent); background:var(--white); color:var(--muted); font-size:10px; line-height:1.65; text-align:left; }
+.catechism-reading { max-width:850px; margin:0 auto; }
+.catechism-question { scroll-margin-top:28px; }
+.catechism-question-list .catechism-question:last-child { border-bottom:0; }
+.catechism-answer-controls { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:0 0 15px; color:var(--muted); font-size:9px; }
+.catechism-answer-controls .button { min-height:36px; padding-inline:13px; font-size:9px; }
+.catechism-question summary { grid-template-columns:42px minmax(0,1fr) 20px; align-items:start; gap:12px; padding:19px 2px; font-size:20px; }
+.catechism-question summary::after { grid-column:3; grid-row:1; justify-self:center; }
+.catechism-answer { padding:0 28px 23px 56px; font-size:14px; }
+.catechism-answer p { line-height:1.8; }
+.catechism-answer-label { line-height:1.5; }
+.catechism-source-note { line-height:1.7; }
+.catechism-attribution { align-items:center; font-size:9px; }
+.catechism-rights-note { max-width:850px; margin:20px auto 0; text-align:left; line-height:1.7; }
+.catechism-detail-rights { margin-top:24px; }
+.catechism-detail-footer { max-width:850px; margin-top:25px; }
+.catechism-detail-actions .button { flex:0 1 calc(50% - 6px); min-width:0; min-height:43px; padding:8px 13px; gap:9px; white-space:normal; }
+.catechism-detail-actions .journey-previous-action { justify-content:flex-start; }
+.catechism-detail-actions .journey-next-action { justify-content:flex-end; }
+.catechism-detail-action-copy { display:grid; gap:3px; min-width:0; text-align:left; }
+.catechism-detail-action-copy small { color:var(--muted); font-size:8px; font-weight:700; }
+.catechism-detail-action-copy strong { overflow:hidden; font-size:9px; line-height:1.35; text-overflow:ellipsis; }
+.journey-next-action .catechism-detail-action-copy { text-align:right; }
+.catechism-edition-next { max-width:850px; margin:52px auto 0; }
+.catechism-not-found { margin-top:65px; }
+
+@media (max-width:900px) {
+  .catechism-edition-list { grid-template-columns:1fr; gap:14px; }
+  .catechism-edition-card { grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); grid-template-rows:1fr; min-height:145px; }
+  .catechism-artwork { height:100%; min-height:145px; max-height:none; aspect-ratio:auto; border-radius:17px 0 0 17px; }
+  .catechism-edition-card .journey-library-copy { min-height:0; padding:17px 18px; }
+  .catechism-lesson-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:760px) {
+  .catechism-page { padding-top:35px; padding-bottom:70px; }
+  .catechism-library-hero { padding-bottom:31px; }
+  .catechism-library-hero h1 { font-size:clamp(44px,11vw,62px); }
+  .catechism-library-hero .journey-intro { font-size:12px; }
+  .catechism-editions { margin-top:35px; }
+  .catechism-edition-card { grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); min-height:136px; }
+  .catechism-artwork { min-height:136px; }
+  .catechism-edition-card .journey-library-copy { padding:13px 12px; }
+  .catechism-edition-card .journey-library-copy > strong { font-size:19px; }
+  .catechism-edition-card .journey-library-teaser { font-size:9px; }
+  .catechism-edition-card .journey-library-meta { gap:5px; padding-top:9px; font-size:8px; }
+  .catechism-lesson-library { margin-top:49px; }
+  .catechism-lesson-library-heading { align-items:flex-start; flex-direction:column; gap:8px; }
+  .catechism-lesson-library-heading h2 { font-size:31px; }
+  .catechism-lesson-library .catechism-search { max-width:none; }
+  .catechism-lesson-grid { grid-template-columns:1fr; gap:9px; margin-top:15px; }
+  .catechism-lesson-card { min-height:0; grid-template-columns:1fr auto; grid-template-rows:auto auto; gap:7px 12px; padding:13px 14px; }
+  .catechism-lesson-card-number { grid-column:1; }
+  .catechism-lesson-card strong { grid-column:1; font-size:17px; }
+  .catechism-lesson-card-footer { grid-column:2; grid-row:1/3; align-self:center; padding:0; border:0; }
+  .catechism-lesson-card-footer svg { display:none; }
+  .catechism-ask-sofi { margin-top:45px; }
+  .catechism-detail-page { padding-top:27px; }
+  .catechism-detail-nav { margin-bottom:29px; }
+  .catechism-detail-nav > .button { min-height:36px; padding-inline:10px; }
+  .catechism-detail-edition { font-size:8px; }
+  .catechism-detail-heading { margin-bottom:20px; text-align:left; }
+  .catechism-detail-heading .eyebrow { justify-content:flex-start; }
+  .catechism-detail-heading h1 { font-size:49px; }
+  .catechism-detail-heading .journey-detail-overview { margin:0; font-size:17px; }
+  .catechism-question summary { grid-template-columns:34px minmax(0,1fr) 17px; gap:9px; padding:15px 0; font-size:17px; }
+  .catechism-question-number { width:30px; height:27px; }
+  .catechism-answer { padding:0 4px 18px 43px; font-size:13px; }
+  .catechism-answer-controls { align-items:flex-start; flex-direction:column; }
+  .catechism-answer-controls .button { min-height:35px; }
+  .catechism-detail-actions .button { min-height:38px; padding:7px 9px; gap:6px; font-size:8px; }
+  .catechism-detail-action-copy small { font-size:7px; }
+  .catechism-detail-action-copy strong { font-size:8px; }
+  .catechism-detail-actions svg { width:13px; flex:none; }
+  .catechism-attribution { align-items:flex-start; flex-direction:column; gap:7px; }
+  .catechism-edition-next { margin-top:37px; }
+  .catechism-rights-note { text-align:left; }
+}
+
