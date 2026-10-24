@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, BookOpen, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { SummaArtwork, type SummaArtworkVariant } from "../components/SummaArtwork";
 import {
   loadSummaData,
   summaArticleHref,
@@ -11,6 +12,14 @@ import {
 } from "../lib/summa";
 
 type Address = { partSlug: string | null; questionNumber: number | null; articleNumber: number | null };
+
+const summaArtworkVariants: readonly SummaArtworkVariant[] = [
+  "prima-pars",
+  "prima-secundae",
+  "secunda-secundae",
+  "tertia-pars",
+  "supplementum",
+];
 
 function readAddress(): Address {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
@@ -95,7 +104,7 @@ function SummaLibrary({ data, selectedPart }: { data: SummaDataset; selectedPart
       <ol className="journey-library-list catechism-edition-list summa-part-grid">
         {data.parts.map((part, index) => <li className="journey-library-item" key={part.id}>
           <a className="journey-library-card summa-part-card" href={`#/summa/${encodeURIComponent(part.slug)}`}>
-            <span className="summa-part-mark"><BookOpen size={22} aria-hidden="true" /></span>
+            <SummaArtwork variant={summaArtworkVariants[index] ?? "supplementum"} />
             <span className="journey-library-copy">
               <span className="journey-period-label"><span>Part {index + 1}</span></span>
               <strong>{part.name}</strong>

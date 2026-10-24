@@ -1,0 +1,37 @@
+/* Apply the menu's reading-size preference to long-form page content. */
+.bible-reading-copy,
+.mass-reading-text,
+.saint-biography-copy,
+.journey-scripture-verses,
+.journey-story-summary,
+.journey-intro-text p,
+.journey-detail-overview {
+  font-size: var(--reader-font-size, 22px);
+}
+
+.saint-quote p {
+  font-size: var(--reader-font-size, 22px);
+}
+
+.saint-patronage,
+.breviary-saint > p:not(.eyebrow) {
+  font-size: var(--reader-font-size, 22px);
+}
+
+.catechism-detail-page .catechism-detail-heading .journey-detail-overview {
+  font-size: var(--reader-font-size, 22px);
+}
+
+.catechism-detail-page .catechism-question summary {
+  font-size: var(--reader-font-size, 22px);
+}
+
+.catechism-detail-page .catechism-answer {
+  font-size: var(--reader-font-size, 22px);
+  line-height: 1.8;
+}
+
+.summa-detail-page .summa-article-title,
+.summa-detail-page .summa-article-body {
+  font-size: var(--reader-font-size, 22px);
+}
