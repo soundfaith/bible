@@ -101,19 +101,18 @@ function SummaLibrary({ data, selectedPart }: { data: SummaDataset; selectedPart
         </div>
         <p>Begin with a division of the Summa, then browse its questions and articles.</p>
       </div>
-      <ol className="journey-library-list catechism-edition-list summa-part-grid">
-        {data.parts.map((part, index) => <li className="journey-library-item" key={part.id}>
-          <a className="journey-library-card summa-part-card" href={`#/summa/${encodeURIComponent(part.slug)}`}>
-            <SummaArtwork variant={summaArtworkVariants[index] ?? "supplementum"} />
-            <span className="journey-library-copy">
-              <span className="journey-period-label"><span>Part {index + 1}</span></span>
-              <strong>{part.name}</strong>
-              <span className="journey-library-teaser">Aquinas’s questions and articles, in their original order.</span>
-              <span className="journey-library-meta">{partQuestionCount(data, part)} questions · {partArticleCount(data, part)} articles <ArrowRight size={14} aria-hidden="true" /></span>
-            </span>
-          </a>
-        </li>)}
-      </ol>
+      <nav className="summa-part-selector" aria-label="Summa parts">
+        {data.parts.map((part, index) => <a
+          className="summa-part-pill"
+          href={`#/summa/${encodeURIComponent(part.slug)}`}
+          key={part.id}
+          aria-current={selectedPart?.id === part.id ? "page" : undefined}
+        >
+          <span className="summa-part-pill-label">Part {index + 1}</span>
+          <strong>{part.name}</strong>
+          <span className="summa-part-pill-count">{partQuestionCount(data, part)} questions · {partArticleCount(data, part)} articles</span>
+        </a>)}
+      </nav>
     </section>
 
     {selectedPart && <section className="catechism-lesson-library summa-question-library" aria-labelledby="summa-questions-title">
@@ -210,6 +209,8 @@ function QuestionReader({ part, question, articleNumber }: { part: SummaPart; qu
       <h1>{question.title}</h1>
       <p className="catechism-audience">{question.articles.length} {question.articles.length === 1 ? "article" : "articles"}</p>
     </header>
+
+    <SummaArtwork variant={summaArtworkVariants[part.sort_order - 1] ?? "supplementum"} hero />
 
     <article className="summa-reading" aria-label={`${part.name}, Question ${question.number}: ${question.title}`}>
       <div className="summa-article-list">

@@ -22,12 +22,12 @@ const palettes: Record<SummaArtworkVariant, Palette> = {
   supplementum: { sky: "#d1c9bb", ground: "#7d8179", ink: "#394750", gold: "#e8c987", light: "#fff0d3", accent: "#86546a" },
 };
 
-export function SummaArtwork({ variant }: { variant: SummaArtworkVariant }) {
+export function SummaArtwork({ variant, hero = false }: { variant: SummaArtworkVariant; hero?: boolean }) {
   const colors = palettes[variant];
   const id = `summa-art-${variant}`;
 
   return (
-    <div className={`summa-artwork summa-artwork--${variant}`} aria-hidden="true">
+    <div className={`summa-artwork summa-artwork--${variant}${hero ? " summa-artwork--hero" : ""}`} aria-hidden="true">
       <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" focusable="false">
         <defs>
           <linearGradient id={`${id}-backdrop`} x1="0" y1="0" x2="0" y2="1">
@@ -129,9 +129,6 @@ export function SummaArtwork({ variant }: { variant: SummaArtworkVariant }) {
           <path d="M159 145q19-13 36 0m10 0q17-13 36 0" fill="none" stroke={colors.gold} strokeOpacity=".62" strokeWidth="1" />
         </>}
 
-        <rect x="13" y="13" width="374" height="174" rx="3" fill="none" stroke={colors.gold} strokeOpacity=".62" />
-        <path d="M22 39V22h17m322 0h17v17M22 161v17h17m322 0h17v-17" fill="none" stroke={colors.light} strokeOpacity=".7" strokeWidth="1.4" />
-        <path d="M32 29l3 3-3 3-3-3zm336 0 3 3-3 3-3-3zM32 165l3 3-3 3-3-3zm336 0 3 3-3 3-3-3z" fill={colors.gold} opacity=".9" />
       </svg>
     </div>
   );

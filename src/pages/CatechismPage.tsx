@@ -97,27 +97,25 @@ function EditionLibrary({ edition, onChooseEdition }: { edition: CatechismEditio
         </div>
         <p>Three editions meet students at different stages, from First Communion through more advanced study.</p>
       </div>
-      <ol className="journey-library-list catechism-edition-list">
-        {catechismEditions.map((item) => <li className="journey-library-item" key={item.id}>
-          <button
-            type="button"
-            className="journey-library-card catechism-edition-card"
-            aria-pressed={item.number === edition.number}
-            onClick={() => onChooseEdition(item.number)}
-          >
-            <CatechismArtwork edition={item.number} />
-      <span className="journey-library-copy">
-              <span className="journey-period-label"><span>No. {item.number}</span></span>
-              <strong>{item.title}</strong>
-              <span className="journey-library-teaser">{item.audience}</span>
-              <span className="journey-library-meta">{item.lessonCount} lessons · {item.questionCount} questions <ArrowRight size={14} aria-hidden="true" /></span>
-            </span>
-          </button>
-        </li>)}
-      </ol>
+      <div className="catechism-edition-pills" role="group" aria-label="Choose a catechism edition">
+        {catechismEditions.map((item) => <button
+          className="catechism-edition-pill"
+          key={item.id}
+          type="button"
+          aria-pressed={item.number === edition.number}
+          aria-controls="catechism-lessons"
+          onClick={() => onChooseEdition(item.number)}
+        >
+          <span className="catechism-edition-pill-mark"><BookOpen size={19} aria-hidden="true" /><small>No. {item.number}</small></span>
+          <span className="catechism-edition-pill-copy">
+            <strong>{item.title}</strong>
+            <small>{item.audience}</small>
+          </span>
+        </button>)}
+      </div>
     </section>
 
-    <section className="catechism-lesson-library" aria-labelledby="catechism-lessons-title">
+    <section className="catechism-lesson-library" id="catechism-lessons" aria-labelledby="catechism-lessons-title">
       <div className="catechism-lesson-library-heading">
         <div>
           <p className="eyebrow">Baltimore Catechism No. {edition.number}</p>
@@ -198,6 +196,8 @@ function LessonReader({ edition, group, questionNumber, nextStep }: { edition: C
       <p className="catechism-audience">{edition.audience}</p>
       {edition.note && <p className="catechism-edition-note">{edition.note}</p>}
     </header>
+
+    <CatechismArtwork edition={edition.number} hero />
 
     <article className="catechism-reading" aria-label={`${edition.title}, ${isLesson ? `Lesson ${group.number}: ${lessonTitle}` : lessonTitle}`}>
       {group.questions.length ? <>

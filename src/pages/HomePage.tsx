@@ -17,6 +17,7 @@ type HomePageProps = {
   onSaints: () => void;
   onSaintToday: () => void;
   onCatechism: () => void;
+  onSumma: () => void;
   onResume: () => void;
   bible: { started: boolean; label: string };
   streak: DailyStreakState;
@@ -32,6 +33,7 @@ const primaryCards = [
   { art: "readings", title: "Mass Reading", description: "Pray with today’s liturgy.", action: "Today’s Readings", onClick: "onMass" },
   { art: "saints", title: "Saint of the day", description: "Meet a witness whose life points to Christ.", action: "Meet today's saint", onClick: "onSaints" },
   { art: "catechism", title: "Baltimore Catechism", description: "Explore this historic series by edition, lesson, and question.", action: "Browse the catechism", onClick: "onCatechism" },
+  { art: "catechism", title: "Summa Theologiae", description: "Read St. Thomas Aquinas by part, question, and article.", action: "Browse the Summa", onClick: "onSumma" },
 ] as const;
 
 function streakText(days: number) {
@@ -40,9 +42,9 @@ function streakText(days: number) {
   return "Welcome back. Begin again";
 }
 
-export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, onSaints, onSaintToday, onCatechism, onResume, bible, streak, onOpenDaily, onShare }: HomePageProps) {
+export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, onSaints, onSaintToday, onCatechism, onSumma, onResume, bible, streak, onOpenDaily, onShare }: HomePageProps) {
   const [shareNote, setShareNote] = useState("");
-  const actions = { onChoose, onMass, onJourney, onBreviary, onRosary, onSaints, onCatechism };
+  const actions = { onChoose, onMass, onJourney, onBreviary, onRosary, onSaints, onCatechism, onSumma };
   const featuredSaint = featuredSaintForDate();
   const saintQuote = featuredSaint?.quotes[0];
   const hour = currentBreviaryHour();

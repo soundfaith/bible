@@ -2395,12 +2395,19 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
 .catechism-context { display:flex; align-items:flex-start; gap:12px; max-width:760px; margin-top:20px; padding:14px 16px; border:1px solid var(--line); border-radius:12px; background:var(--white); color:var(--muted); font-size:10px; line-height:1.7; }
 .catechism-context svg { flex:none; color:var(--accent); }
 .catechism-editions { margin-top:46px; }
-.catechism-edition-list { grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
-.catechism-edition-card { width:100%; padding:0; font:inherit; text-align:left; cursor:pointer; }
-.catechism-edition-card[aria-pressed="true"] { border-color:var(--accent-deep); box-shadow:0 0 0 1px var(--accent-deep),0 10px 26px rgb(35 38 34 / 10%); }
-.catechism-edition-card[aria-pressed="true"] .journey-library-meta { color:var(--accent-deep); }
-.catechism-edition-card .journey-library-copy { min-height:150px; }
-.catechism-artwork { width:100%; aspect-ratio:2/1; min-height:125px; max-height:175px; overflow:hidden; border-radius:17px 17px 0 0; background:var(--paper); }
+.catechism-edition-pills { display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+.catechism-edition-pill { display:flex; align-items:center; flex:1 1 235px; min-width:0; gap:12px; min-height:74px; padding:11px 14px; border:1px solid var(--line); border-radius:14px; background:var(--white); color:var(--ink); cursor:pointer; text-align:left; transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease; }
+.catechism-edition-pill:hover { transform:translateY(-2px); border-color:var(--accent); box-shadow:var(--shadow-soft); }
+.catechism-edition-pill:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.catechism-edition-pill[aria-pressed="true"] { border-color:var(--accent-deep); background:var(--accent-deep); color:var(--white); box-shadow:0 0 0 1px var(--accent-deep),0 10px 26px rgb(35 38 34 / 14%); }
+.catechism-edition-pill-mark { display:grid; flex:none; justify-items:center; align-content:center; gap:2px; width:42px; height:46px; border:1px solid var(--line); border-radius:10px; background:var(--paper); color:var(--accent-deep); }
+.catechism-edition-pill-mark small { font-size:7px; font-weight:800; letter-spacing:.04em; }
+.catechism-edition-pill[aria-pressed="true"] .catechism-edition-pill-mark { border-color:rgb(255 255 255 / 22%); background:rgb(255 255 255 / 12%); color:var(--white); }
+.catechism-edition-pill-copy { display:grid; gap:4px; min-width:0; }
+.catechism-edition-pill-copy strong { font:normal 15px/1.15 var(--font-display); }
+.catechism-edition-pill-copy small { color:var(--muted); font-size:9px; line-height:1.4; }
+.catechism-edition-pill[aria-pressed="true"] .catechism-edition-pill-copy small { color:rgb(255 255 255 / 80%); }
+.catechism-artwork { display:block; width:100%; aspect-ratio:2.2/1; min-height:200px; max-height:460px; margin:0 auto 25px; overflow:hidden; border:1px solid var(--line); border-radius:18px; background:var(--paper); }
 .catechism-artwork svg { display:block; width:100%; height:100%; }
 .catechism-lesson-library { max-width:1080px; margin:70px auto 0; }
 .catechism-lesson-library-heading { display:flex; align-items:end; justify-content:space-between; gap:20px; padding-bottom:22px; border-bottom:1px solid var(--line); }
@@ -2454,10 +2461,6 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
 .catechism-not-found { margin-top:65px; }
 
 @media (max-width:900px) {
-  .catechism-edition-list { grid-template-columns:1fr; gap:14px; }
-  .catechism-edition-card { grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); grid-template-rows:1fr; min-height:145px; }
-  .catechism-artwork { height:100%; min-height:145px; max-height:none; aspect-ratio:auto; border-radius:17px 0 0 17px; }
-  .catechism-edition-card .journey-library-copy { min-height:0; padding:17px 18px; }
   .catechism-lesson-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 @media (max-width:760px) {
@@ -2466,12 +2469,9 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
   .catechism-library-hero h1 { font-size:clamp(44px,11vw,62px); }
   .catechism-library-hero .journey-intro { font-size:12px; }
   .catechism-editions { margin-top:35px; }
-  .catechism-edition-card { grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); min-height:136px; }
-  .catechism-artwork { min-height:136px; }
-  .catechism-edition-card .journey-library-copy { padding:13px 12px; }
-  .catechism-edition-card .journey-library-copy > strong { font-size:19px; }
-  .catechism-edition-card .journey-library-teaser { font-size:9px; }
-  .catechism-edition-card .journey-library-meta { gap:5px; padding-top:9px; font-size:8px; }
+  .catechism-edition-pills { gap:8px; }
+  .catechism-edition-pill { flex-basis:100%; min-height:66px; padding:9px 11px; }
+  .catechism-artwork { aspect-ratio:1.7/1; min-height:190px; margin-bottom:18px; border-radius:14px; }
   .catechism-lesson-library { margin-top:49px; }
   .catechism-lesson-library-heading { align-items:flex-start; flex-direction:column; gap:8px; }
   .catechism-lesson-library-heading h2 { font-size:31px; }
@@ -2511,13 +2511,19 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
 .summa-library-hero h1 { max-width:800px; }
 .summa-library-hero .journey-intro { max-width:690px; }
 .summa-parts { margin-top:46px; }
-.summa-part-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
-.summa-part-card { min-height:0; grid-template-columns:minmax(0,1fr); grid-template-rows:auto 1fr; padding:0; }
+.summa-part-selector { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin-top:24px; }
+.summa-part-pill { display:grid; align-content:center; gap:4px; min-width:0; min-height:88px; padding:10px 12px; border:1px solid var(--line); border-radius:13px; background:var(--white); color:var(--ink); text-decoration:none; transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease; }
+.summa-part-pill:hover { transform:translateY(-2px); border-color:var(--accent); box-shadow:var(--shadow-soft); }
+.summa-part-pill:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.summa-part-pill[aria-current="page"] { border-color:var(--accent-deep); background:var(--accent-deep); color:var(--white); box-shadow:0 0 0 1px var(--accent-deep),0 10px 26px rgb(35 38 34 / 14%); }
+.summa-part-pill-label { color:var(--accent-deep); font-size:8px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.summa-part-pill[aria-current="page"] .summa-part-pill-label { color:rgb(255 255 255 / 75%); }
+.summa-part-pill strong { overflow-wrap:anywhere; font:normal 14px/1.15 var(--font-display); }
+.summa-part-pill-count { color:var(--muted); font-size:8px; line-height:1.35; }
+.summa-part-pill[aria-current="page"] .summa-part-pill-count { color:rgb(255 255 255 / 82%); }
 .summa-artwork { display:block; width:100%; aspect-ratio:2/1; overflow:hidden; background:var(--paper); }
 .summa-artwork svg { display:block; width:100%; height:100%; }
-.summa-part-card .journey-library-copy { min-height:170px; padding:17px 22px 20px; }
-.summa-part-card .journey-library-copy > strong { font-size:25px; }
-.summa-part-card .journey-library-teaser { max-width:250px; }
+.summa-artwork--hero { aspect-ratio:2.2/1; min-height:200px; max-height:460px; margin:0 auto 25px; border:1px solid var(--line); border-radius:18px; }
 .summa-question-library { margin-top:66px; }
 .summa-question-library .catechism-lesson-card { min-height:156px; }
 .summa-detail-page { padding-top:48px; }
@@ -2550,20 +2556,17 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
 .summa-not-found { margin-top:65px; }
 
 @media (max-width:900px) {
-	.summa-part-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
-	.summa-part-card { min-height:0; }
+	.summa-part-selector { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
 @media (max-width:760px) {
 	.summa-library-hero { padding-bottom:31px; }
 	.summa-library-hero h1 { font-size:clamp(44px,11vw,62px); }
 	.summa-library-hero .journey-intro { font-size:12px; }
 	.summa-parts { margin-top:35px; }
-	.summa-part-grid { grid-template-columns:1fr; gap:10px; }
-	.summa-part-card { min-height:0; grid-template-columns:minmax(0,1fr); grid-template-rows:auto 1fr; align-items:stretch; gap:0; padding:0; }
-	.summa-part-card .journey-library-copy { min-height:0; padding:15px 17px 17px; }
-	.summa-part-card .journey-library-copy > strong { font-size:22px; }
-	.summa-part-card .journey-library-teaser { margin-top:5px; font-size:9px; }
-	.summa-part-card .journey-library-meta { padding-top:9px; font-size:8px; }
+	.summa-part-selector { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-top:18px; }
+	.summa-part-pill { min-height:80px; padding:9px 10px; }
+	.summa-part-pill strong { font-size:13px; }
+	.summa-artwork--hero { aspect-ratio:1.7/1; min-height:190px; margin-bottom:18px; border-radius:14px; }
 	.summa-question-library { margin-top:49px; }
 	.summa-question-library .catechism-lesson-card { min-height:0; }
 	.summa-detail-page { padding-top:27px; }

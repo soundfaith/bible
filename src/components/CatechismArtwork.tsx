@@ -1,4 +1,4 @@
-type CatechismArtworkProps = { edition: number };
+type CatechismArtworkProps = { edition: number; hero?: boolean };
 
 const palettes: Record<number, { sky: string; ground: string; cover: string; coverLight: string; gold: string; ink: string }> = {
   1: { sky: "#e7dfcf", ground: "#b5a78c", cover: "#547565", coverLight: "#78917d", gold: "#efd8a8", ink: "#314b40" },
@@ -6,11 +6,11 @@ const palettes: Record<number, { sky: string; ground: string; cover: string; cov
   3: { sky: "#d8d4c5", ground: "#8a887b", cover: "#34485c", coverLight: "#536a7a", gold: "#e7c47d", ink: "#233849" },
 };
 
-export function CatechismArtwork({ edition }: CatechismArtworkProps) {
+export function CatechismArtwork({ edition, hero = false }: CatechismArtworkProps) {
   const colors = palettes[edition] ?? palettes[2];
   const id = `catechism-edition-${edition}`;
 
-  return <div className={`catechism-artwork catechism-artwork--${edition}`} aria-hidden="true">
+  return <div className={`catechism-artwork catechism-artwork--${edition}${hero ? " catechism-artwork--hero" : ""}`} aria-hidden="true">
     <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" focusable="false">
       <defs>
         <linearGradient id={`${id}-backdrop`} x1="0" y1="0" x2="0" y2="1">

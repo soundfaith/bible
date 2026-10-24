@@ -985,6 +985,7 @@ export default function App() {
         onSaints={() => { window.location.hash = "#/saints"; }}
         onSaintToday={() => { window.location.hash = "#/saints/today"; }}
         onCatechism={() => { window.location.hash = "#/catechism"; }}
+        onSumma={() => { window.location.hash = "#/summa"; }}
         onMass={() => {
           setMassDate(getTodaysMassReading().date);
           window.location.hash = "#/mass";
