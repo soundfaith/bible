@@ -11,6 +11,8 @@ import {
   type CatechismEdition,
   type CatechismGroup,
 } from "../lib/catechism";
+import { NarrationProgress, NarratorButton, stopSpeaking } from "../components/NarratorButton";
+import type { NarrationGender } from "../lib/narrationVoice";
 
 type Address = { edition: number; groupId: string | null; questionNumber: number | null };
 
@@ -152,7 +154,7 @@ function EditionLibrary({ edition, onChooseEdition }: { edition: CatechismEditio
   </>;
 }
 
-function LessonReader({ edition, group, questionNumber, nextStep }: { edition: CatechismEdition; group: CatechismGroup; questionNumber: number | null; nextStep?: ReactNode }) {
+function LessonReader({ edition, group, questionNumber, nextStep, voicePreference }: { edition: CatechismEdition; group: CatechismGroup; questionNumber: number | null; nextStep?: ReactNode; voicePreference: NarrationGender }) {
   const lessons = edition.groups.filter((item) => item.kind === "lesson");
   const lessonIndex = lessons.findIndex((item) => item.id === group.id);
   const previous = lessonIndex > 0 ? lessons[lessonIndex - 1] : undefined;
@@ -172,6 +174,12 @@ function LessonReader({ edition, group, questionNumber, nextStep }: { edition: C
     return { ...current, [group.id]: nextCollapsed };
   });
   const lessonTitle = displayLessonTitle(group.title);
+  const narrationText = useMemo(() => [
+    `${lessonTitle}.`,
+    ...group.questions.map((question) => `Question ${question.number}. ${question.question}\n${splitParagraphs(question.answer).join("\n")}`),
+  ].join("\n\n"), [group, lessonTitle]);
+
+  useEffect(() => () => stopSpeaking(), [group.id]);
 
   useEffect(() => {
     if (questionNumber === null) return;
@@ -195,6 +203,8 @@ function LessonReader({ edition, group, questionNumber, nextStep }: { edition: C
       <h1>{lessonTitle}</h1>
       <p className="catechism-audience">{edition.audience}</p>
       {edition.note && <p className="catechism-edition-note">{edition.note}</p>}
+      {group.questions.length > 0 && <div className="journey-audio-controls"><NarratorButton text={narrationText} voicePreference={voicePreference} /></div>}
+      <NarrationProgress className="narration-progress-desktop narration-progress-centered" />
     </header>
 
     <CatechismArtwork edition={edition.number} hero />
@@ -245,7 +255,7 @@ function LessonReader({ edition, group, questionNumber, nextStep }: { edition: C
   </>;
 }
 
-export function CatechismPage({ nextStep }: { nextStep?: ReactNode }) {
+export function CatechismPage({ nextStep, voicePreference }: { nextStep?: ReactNode; voicePreference: NarrationGender }) {
   const [address, setAddress] = useState<Address>(readAddress);
 
   useEffect(() => {
@@ -293,7 +303,7 @@ export function CatechismPage({ nextStep }: { nextStep?: ReactNode }) {
         </div>
       </header>
       <EditionLibrary key={edition.id} edition={edition} onChooseEdition={chooseEdition} />
-    </> : selectedGroup ? <LessonReader edition={edition} group={selectedGroup} questionNumber={address.questionNumber} nextStep={nextStep} /> : <section className="journey-not-found catechism-not-found">
+    </> : selectedGroup ? <LessonReader edition={edition} group={selectedGroup} questionNumber={address.questionNumber} nextStep={nextStep} voicePreference={voicePreference} /> : <section className="journey-not-found catechism-not-found">
       <p className="eyebrow">Baltimore Catechism No. {edition.number}</p>
       <h1>{missingQuestion ? "Question not found" : missingGroup ? "Lesson not found" : "Section not found"}</h1>
       <p>Choose a lesson from this edition to continue reading.</p>

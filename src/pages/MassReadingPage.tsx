@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { ArrowRight, BookOpen, CalendarDays, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { getParagraphs } from "../lib/bible";
 import { getAvailableMassReadingDates, getMassReadingForDate, getTodaysMassReading, referenceLabel, resolveReference } from "../lib/readings";
-import { NarratorButton } from "../components/NarratorButton";
+import { NarratorButton, stopSpeaking } from "../components/NarratorButton";
 import type { NarrationGender } from "../lib/narrationVoice";
 
 const labels: Record<string, string> = { firstReading: "First reading", secondReading: "Second reading", psalm: "Responsorial psalm", gospel: "Gospel" };
@@ -15,6 +15,7 @@ export function MassReadingPage({ onOpenReference, selectedDate, onSelectedDateC
   const entry = getMassReadingForDate(selectedDate) || getTodaysMassReading();
   const narrationText = Object.values(entry.readings).map((reading) => reading.text).join("\n\n");
   const changeDate = (date: string) => { onSelectedDateChange(date); setCalendarOpen(false); };
+  useEffect(() => () => stopSpeaking(), [entry.date]);
   return <main className={`journey-page journey-detail-page mass-page section-wrap${nextStep ? " has-next-step" : ""}`}>
     <nav className="journey-detail-nav mass-detail-nav" aria-label="Mass reading actions">
       <button className="mass-calendar-trigger" onClick={() => setCalendarOpen(true)}><CalendarDays size={17} /><span>Choose date</span></button>

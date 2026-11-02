@@ -10,6 +10,8 @@ import {
   type SummaPart,
   type SummaQuestion,
 } from "../lib/summa";
+import { NarrationProgress, NarratorButton, stopSpeaking } from "../components/NarratorButton";
+import type { NarrationGender } from "../lib/narrationVoice";
 
 type Address = { partSlug: string | null; questionNumber: number | null; articleNumber: number | null };
 
@@ -180,10 +182,28 @@ function ArticleText({ article, partSlug, questionNumber }: { article: SummaArti
   </div>;
 }
 
-function QuestionReader({ part, question, articleNumber }: { part: SummaPart; question: SummaQuestion; articleNumber: number | null }) {
+function articleNarrationText(question: SummaQuestion, article: SummaArticle | undefined) {
+  if (!article) return "";
+  const plain = (text: string) => splitParagraphs(text).map((paragraph) => paragraph.replace(/\*+/g, "")).join("\n");
+  return [
+    `${question.title}. Article ${article.number}. ${article.title}.`,
+    ...(article.objections.length ? ["The objections."] : []),
+    ...article.objections.map((objection) => `Objection ${objection.n}. ${plain(objection.text)}`),
+    ...(article.sed_contra ? ["On the contrary.", plain(article.sed_contra)] : []),
+    ...(article.respondeo ? ["I answer that.", plain(article.respondeo)] : []),
+    ...(article.replies.length ? ["Replies to the objections."] : []),
+    ...article.replies.map((reply) => `Reply to objection ${reply.n}. ${plain(reply.text)}`),
+  ].join("\n\n");
+}
+
+function QuestionReader({ part, question, articleNumber, voicePreference }: { part: SummaPart; question: SummaQuestion; articleNumber: number | null; voicePreference: NarrationGender }) {
   const [expandedArticleId, setExpandedArticleId] = useState<number | null>(null);
   const directArticle = articleNumber === null ? undefined : question.articles.find((article) => article.number === articleNumber);
   const defaultArticle = directArticle ?? question.articles[0];
+  const narratedArticle = question.articles.find((article) => article.id === expandedArticleId) ?? defaultArticle;
+  const narrationText = useMemo(() => articleNarrationText(question, narratedArticle), [question, narratedArticle]);
+
+  useEffect(() => () => stopSpeaking(), [question.id]);
 
   useEffect(() => {
     setExpandedArticleId(defaultArticle?.id ?? null);
@@ -208,6 +228,9 @@ function QuestionReader({ part, question, articleNumber }: { part: SummaPart; qu
       <p className="eyebrow"><span className="eyebrow-dot" /> {part.name} <span aria-hidden="true">/</span> Question {question.number}</p>
       <h1>{question.title}</h1>
       <p className="catechism-audience">{question.articles.length} {question.articles.length === 1 ? "article" : "articles"}</p>
+      {narratedArticle && <div className="journey-audio-controls"><NarratorButton text={narrationText} voicePreference={voicePreference} /></div>}
+      {narratedArticle && <p className="catechism-audience">Listening to Article {narratedArticle.number}. Open another article to hear it instead.</p>}
+      <NarrationProgress className="narration-progress-desktop narration-progress-centered" />
     </header>
 
     <SummaArtwork variant={summaArtworkVariants[part.sort_order - 1] ?? "supplementum"} hero />
@@ -237,7 +260,7 @@ function QuestionReader({ part, question, articleNumber }: { part: SummaPart; qu
   </>;
 }
 
-export function SummaPage() {
+export function SummaPage({ voicePreference }: { voicePreference: NarrationGender }) {
   const [address, setAddress] = useState<Address>(readAddress);
   const [data, setData] = useState<SummaDataset | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -278,7 +301,7 @@ export function SummaPage() {
 
   return <main className={`journey-page section-wrap catechism-page summa-page${isDetail ? " catechism-detail-page summa-detail-page" : ""}`}>
     {!isDetail ? <SummaLibrary key={selectedPart?.id ?? "parts"} data={data} selectedPart={selectedPart} />
-      : selectedPart && selectedQuestion ? <QuestionReader part={selectedPart} question={selectedQuestion} articleNumber={address.articleNumber} />
+      : selectedPart && selectedQuestion ? <QuestionReader part={selectedPart} question={selectedQuestion} articleNumber={address.articleNumber} voicePreference={voicePreference} />
         : <section className="journey-not-found catechism-not-found summa-not-found">
           <p className="eyebrow">Summa Theologiae</p>
           <h1>{selectedPart ? "Question not found" : "Part not found"}</h1>

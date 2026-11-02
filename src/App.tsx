@@ -58,6 +58,7 @@ import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress"
 import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor, rosaryAudioUrlsFor } from "./lib/narrationAudio";
 import { requestSaintNarrationToggle } from "./lib/saintsAudio";
 import { getNarrationGender, saveNarrationGender, type NarrationGender } from "./lib/narrationVoice";
+import { enableKokoro, isKokoroEnabled, kokoroSupported, removeKokoroModel } from "./lib/tts/kokoroEngine";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
 import {
@@ -191,6 +192,7 @@ export default function App() {
   );
   const [voicePreference, setVoicePreference] = useState<NarrationGender>(getNarrationGender);
   const [voicePreferenceError, setVoicePreferenceError] = useState(false);
+  const [hdVoice, setHdVoice] = useState(isKokoroEnabled);
   const [rosaryMode, setRosaryModeState] = useState<RosaryMode>(readRosaryMode);
   const [readingPosition, setReadingPosition] =
     useState<ReadingPosition>(getLastReading);
@@ -829,7 +831,7 @@ export default function App() {
         onChoose={(position) => openReader(position)}
       />
     ) : route === "catechism" ? (
-      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Baltimore Catechism…</p></main>}><CatechismPage nextStep={<DailyNextStep
+      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Baltimore Catechism…</p></main>}><CatechismPage voicePreference={voicePreference} nextStep={<DailyNextStep
         page="catechism"
         doneToday={getDoneToday(dailyStreak)}
         streak={dailyStreak}
@@ -845,7 +847,7 @@ export default function App() {
         onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
       />} /></Suspense>
     ) : route === "summa" ? (
-      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Summa Theologiae…</p></main>}><SummaPage /></Suspense>
+      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Summa Theologiae…</p></main>}><SummaPage voicePreference={voicePreference} /></Suspense>
     ) : route === "mass" ? (
       <MassReadingPage
         onOpenReference={openMassReference}
@@ -1063,6 +1065,18 @@ export default function App() {
               ))}
             </div>
             {voicePreferenceError && <p role="status">Could not save this preference. It will apply until you close the app.</p>}
+            {kokoroSupported() && (
+              <button
+                type="button"
+                className="voice-download-toggle"
+                onClick={() => {
+                  if (hdVoice) void removeKokoroModel().then(() => setHdVoice(false));
+                  else { enableKokoro(); setHdVoice(true); }
+                }}
+              >
+                {hdVoice ? "Remove natural voice download" : "Use natural voice (~90 MB, Wi-Fi recommended)"}
+              </button>
+            )}
           </section>
           <div className="mobile-menu-theme">
             <span>Theme</span>
