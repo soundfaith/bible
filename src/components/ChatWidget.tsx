@@ -224,7 +224,16 @@ export function ChatWidget({ onOpenVerse }: Props) {
     inputRef.current?.focus();
   }, [open]);
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+    const list = listRef.current;
+    if (!list) return;
+    const last = messages[messages.length - 1];
+    const bubble = list.lastElementChild as HTMLElement | null;
+    // Show a fresh answer from its beginning instead of its end.
+    if (!busy && last?.role !== "user" && bubble && messages.length > 1) {
+      list.scrollTo({ top: Math.max(0, bubble.offsetTop - 16), behavior: "smooth" });
+    } else {
+      list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
+    }
   }, [messages, busy, open]);
   useEffect(() => {
     if (!open) return;
@@ -284,7 +293,7 @@ export function ChatWidget({ onOpenVerse }: Props) {
             <span className="chat-avatar"><SofiAvatar size={46} /></span>
             <div>
               <strong>{BOT_NAME}</strong>
-              <span>Scripture and Catholic teaching</span>
+              <span>Scripture &amp; Catholic teaching</span>
             </div>
             <button type="button" aria-label="Clear conversation" title="Clear conversation" onClick={reset}><Trash2 size={16} /></button>
             <button type="button" aria-label="Close" onClick={() => setOpen(false)}><X size={18} /></button>
