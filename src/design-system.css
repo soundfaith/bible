@@ -886,3 +886,72 @@ select {
     border-radius: 18px;
   }
 }
+
+/* Edge-to-edge app window: content may draw under the system bars, but chrome keeps clear of them. */
+.android-download-badge {
+  position: relative;
+}
+
+.android-update-pill {
+  position: absolute;
+  top: -9px;
+  right: 14px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #3ddc84;
+  color: #08261a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgb(61 220 132 / 34%);
+  animation: update-pill-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes update-pill-pulse {
+  50% { transform: translateY(-2px); box-shadow: 0 8px 18px rgb(61 220 132 / 40%); }
+}
+
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 19;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--paper);
+  pointer-events: none;
+}
+
+.site-header {
+  top: env(safe-area-inset-top, 0px);
+}
+
+@media (max-width: 760px) {
+  .main-nav.nav-open {
+    padding-top: calc(20px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-bottom-nav {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .site-footer {
+    padding-bottom: calc(105px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body .chat-fab {
+    bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body .chat-panel {
+    height: calc(100dvh - 40px - env(safe-area-inset-top, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}

@@ -1,5 +1,6 @@
 import { ArrowRight, Share2 } from "lucide-react";
 import { useState, type ReactElement } from "react";
+import { AndroidDownload } from "../components/AndroidDownload";
 import { SofiAvatar } from "../components/ChatWidget";
 import { CardArt, SmallCard } from "../components/LandingSmallCard";
 import { NextStepPrompt } from "../components/NextStepPrompt";
@@ -204,27 +205,7 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, on
         <button className="button button-outline" type="button" onClick={share}>
           <Share2 size={15} /> Share SoundFaith
         </button>
-        <a className="android-download-badge" href="/downloads/soundfaith.apk" download aria-label="Download SoundFaith for Android">
-          <svg className="android-download-badge-icon" viewBox="0 0 48 48" aria-hidden="true">
-            <g fill="currentColor">
-              <path d="M12 20a12 12 0 0 1 24 0H12Z" />
-              <path d="M12 22h24v13a3 3 0 0 1-3 3H15a3 3 0 0 1-3-3V22Z" />
-              <path d="M5 22a3 3 0 0 1 6 0v10a3 3 0 0 1-6 0V22Zm32 0a3 3 0 0 1 6 0v10a3 3 0 0 1-6 0V22ZM15 37h6v6a3 3 0 0 1-6 0v-6Zm12 0h6v6a3 3 0 0 1-6 0v-6Z" />
-            </g>
-            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5">
-              <path d="m16 8-3-4m19 4 3-4" />
-            </g>
-            <g fill="#173b2b">
-              <circle cx="19" cy="14" r="1.2" />
-              <circle cx="29" cy="14" r="1.2" />
-            </g>
-          </svg>
-          <span className="android-download-badge-copy">
-            <small>DOWNLOAD THE APP</small>
-            <strong>For Android</strong>
-          </span>
-          <span className="android-download-badge-format">APK</span>
-        </a>
+        <AndroidDownload />
         <p className="landing-share-note" role="status">{shareNote}</p>
       </section>
     </main>

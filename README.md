@@ -22,6 +22,26 @@ Repeat the same command whenever you want to package newer site changes. This
 debug build is intended for direct installation; a Play Store release needs a
 separately signed release build.
 
+Every build gets a new version code and name, and the script writes
+`public\downloads\soundfaith-apk.json` with them. Commit that file together with
+the APK: visitors who downloaded an earlier build see an **Update** badge on the
+landing page's Android button until they download the new one. The button is
+hidden inside the installed app and only shows in a browser.
+
+Android only installs an update over an existing app when both builds are signed
+with the same key. The script keeps its debug key at
+`%USERPROFILE%\.soundfaith\android\debug.keystore`, so back that file up and
+rebuild on the same machine (or copy the file to a new one) to keep updates
+installable. If you ever lose the key, uninstall the old app once before
+installing a build signed with a new key.
+
+The app runs edge-to-edge: the web content draws behind the transparent status
+and navigation bars, and the header, bottom navigation, and chat sheet pad
+themselves with `env(safe-area-inset-*)`. This relies on `viewport-fit=cover` in
+`index.html` and the `SystemBars` settings in `capacitor.config.json`. Android's
+build strips the `.gz` extension from bundled assets, so the Summa loader falls
+back to the plain `.json` files when a `.json.gz` file is missing.
+
 ## Baltimore Catechism
 
 The app includes Baltimore Catechism Nos. 1–3 as a searchable, offline reader

@@ -90,7 +90,16 @@ try {
   }
   if ($env:ANDROID_HOME -and -not $env:ANDROID_SDK_ROOT) { $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME }
   if (-not $env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME = Join-Path $env:TEMP 'soundfaith-gradle-v2' }
-  if (-not $env:ANDROID_USER_HOME) { $env:ANDROID_USER_HOME = Join-Path $env:TEMP 'soundfaith-android' }
+  if (-not $env:ANDROID_USER_HOME) {
+    # A stable location keeps the debug signing key, so new APKs install over the old one.
+    $env:ANDROID_USER_HOME = Join-Path $env:USERPROFILE '.soundfaith\android'
+    $legacyKeystore = Join-Path $env:TEMP 'soundfaith-android\debug.keystore'
+    $stableKeystore = Join-Path $env:ANDROID_USER_HOME 'debug.keystore'
+    New-Item -ItemType Directory -Path $env:ANDROID_USER_HOME -Force | Out-Null
+    if (-not (Test-Path -LiteralPath $stableKeystore) -and (Test-Path -LiteralPath $legacyKeystore)) {
+      Copy-Item -LiteralPath $legacyKeystore -Destination $stableKeystore
+    }
+  }
   if ($env:USERPROFILE -and $env:JAVA_TOOL_OPTIONS -notmatch '(?:^|\s)-Duser\.home=') {
     $env:JAVA_TOOL_OPTIONS = (($env:JAVA_TOOL_OPTIONS + ' -Duser.home="' + $env:USERPROFILE + '"').Trim())
   }
@@ -130,7 +139,10 @@ try {
   & npx.cmd cap sync android
   if ($LASTEXITCODE -ne 0) { throw 'Could not sync the web app into Android.' }
 
-  & .\android\gradlew.bat -p android assembleDebug
+  $buildTime = Get-Date
+  $versionCode = [int][math]::Floor(([DateTimeOffset]$buildTime).ToUnixTimeSeconds() / 60)
+  $versionName = $buildTime.ToString('yyyy.MM.dd.HHmm')
+  & .\android\gradlew.bat -p android assembleDebug "-PsfVersionCode=$versionCode" "-PsfVersionName=$versionName"
   if ($LASTEXITCODE -ne 0) { throw 'Gradle could not build the APK.' }
 
   $artifactDirectory = Join-Path $repoRoot 'artifacts\android'
@@ -143,6 +155,16 @@ try {
   $distDownloadPath = Join-Path $repoRoot 'dist\downloads\soundfaith.apk'
   New-Item -ItemType Directory -Path (Split-Path -Parent $distDownloadPath) -Force | Out-Null
   Copy-Item -LiteralPath $apkPath -Destination $distDownloadPath -Force
+  # The landing page compares this version with the one a visitor last downloaded to show an "Update" badge.
+  $manifestJson = [ordered]@{
+    version = $versionName
+    versionCode = $versionCode
+    builtAt = $buildTime.ToUniversalTime().ToString('o')
+    sizeBytes = (Get-Item -LiteralPath $apkPath).Length
+  } | ConvertTo-Json
+  foreach ($manifestDirectory in @((Split-Path -Parent $downloadPath), (Split-Path -Parent $distDownloadPath))) {
+    [IO.File]::WriteAllText((Join-Path $manifestDirectory 'soundfaith-apk.json'), $manifestJson, (New-Object Text.UTF8Encoding($false)))
+  }
   $buildSucceeded = $true
   Write-Host "APK ready: $artifactPath"
   Write-Host "Downloadable APK updated: $downloadPath"

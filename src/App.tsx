@@ -49,6 +49,7 @@ import { featuredSaintForDate, hasSaintSlug } from "./data/saintsDaily";
 import { assembleBreviary, breviaryDayInfo, currentBreviaryHour, isBreviaryHour } from "./lib/breviary";
 import { useScrollReveal } from "./lib/reveal";
 import { doneToday as getDoneToday, loadDailyStreak, localDateKey, recordDailyItem } from "./lib/dailyStreak";
+import { syncSystemBars } from "./lib/platform";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
 import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
@@ -568,6 +569,7 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem("template-theme", theme);
+    syncSystemBars(theme);
   }, [theme]);
   useEffect(() => {
     document.documentElement.style.setProperty("--reader-font-size", `${fontSize}px`);

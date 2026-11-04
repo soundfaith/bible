@@ -36,13 +36,7 @@ export type SummaDataset = {
 
 let datasetPromise: Promise<SummaDataset> | null = null;
 
-async function readCompressedJson<T>(filename: string): Promise<T> {
-  const response = await fetch(`${import.meta.env.BASE_URL}data/summa/${filename}`);
-  if (!response.ok || !response.body) {
-    throw new Error(`Could not load ${filename}.`);
-  }
-
-  const bytes = await response.arrayBuffer();
+async function parseJsonBytes<T>(bytes: ArrayBuffer): Promise<T> {
   const signature = new Uint8Array(bytes, 0, Math.min(bytes.byteLength, 2));
   const isGzip = signature[0] === 0x1f && signature[1] === 0x8b;
   if (!isGzip) return await new Response(bytes).json() as T;
@@ -52,6 +46,22 @@ async function readCompressedJson<T>(filename: string): Promise<T> {
 
   const decompressed = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
   return await new Response(decompressed).json() as T;
+}
+
+async function readCompressedJson<T>(filename: string): Promise<T> {
+  // The Android build strips ".gz" from assets and ships plain JSON, so fall back to it.
+  const candidates = [filename, filename.replace(/\.gz$/, "")];
+  let lastError: unknown = null;
+  for (const candidate of new Set(candidates)) {
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}data/summa/${candidate}`);
+      if (!response.ok) throw new Error(`Could not load ${candidate}.`);
+      return await parseJsonBytes<T>(await response.arrayBuffer());
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(`Could not load ${filename}.`);
 }
 
 async function loadDataset(): Promise<SummaDataset> {
