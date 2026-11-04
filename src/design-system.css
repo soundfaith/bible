@@ -1,0 +1,888 @@
+:root {
+  --paper: #f7f6f1;
+  --ink: #1b2929;
+  --muted: #647572;
+  --line: #e1e7e2;
+  --accent: #18776e;
+  --accent-deep: #125b55;
+  --accent-button: #176d64;
+  --accent-button-text: #f8fcfa;
+  --sage: #e5eeea;
+  --white: #fffefa;
+  --yellow: #d3aa67;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --shadow-soft: 0 14px 40px rgb(22 46 42 / 7%);
+  --shadow-lift: 0 24px 64px rgb(16 38 35 / 14%);
+  --ease-out: cubic-bezier(.2, .75, .25, 1);
+}
+
+:root[data-theme='dark'] {
+  --paper: #0c1518;
+  --ink: #eaf0ed;
+  --muted: #a4b2ae;
+  --line: #263638;
+  --accent: #80c6b8;
+  --accent-deep: #a7d9ce;
+  --accent-button: #286f65;
+  --accent-button-text: #f4fbf8;
+  --sage: #1a2a2a;
+  --white: #132023;
+  --yellow: #e0bd7d;
+  --shadow-soft: 0 14px 40px rgb(0 0 0 / 22%);
+  --shadow-lift: 0 24px 64px rgb(0 0 0 / 36%);
+  color-scheme: dark;
+}
+
+:root:not([data-theme='dark']) {
+  color-scheme: light;
+}
+
+html {
+  scroll-padding-top: 92px;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+  color: var(--ink);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  transition:
+    color .2s var(--ease-out),
+    background-color .2s var(--ease-out),
+    border-color .2s var(--ease-out),
+    box-shadow .2s var(--ease-out),
+    transform .2s var(--ease-out),
+    opacity .2s var(--ease-out);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  outline-offset: 3px;
+}
+
+.section-wrap,
+.site-header,
+.site-footer {
+  width: min(1200px, calc(100% - 72px));
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 76px;
+  border-bottom-color: color-mix(in srgb, var(--line) 78%, transparent);
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.wordmark {
+  gap: 11px;
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -.055em;
+}
+
+.wordmark-mark {
+  flex-basis: 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  box-shadow: 0 4px 12px rgb(14 48 45 / 16%);
+}
+
+.wordmark:hover .wordmark-mark {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.mobile-toggle {
+  width: 42px;
+  height: 42px;
+  margin-left: 8px;
+  border-radius: 14px;
+  background: var(--white);
+}
+
+.mobile-toggle:hover {
+  background: var(--sage);
+  color: var(--accent);
+}
+
+.main-nav.nav-open {
+  border-color: var(--line);
+  border-radius: 20px;
+  background: var(--white);
+  box-shadow: var(--shadow-lift);
+}
+
+.main-nav > a[aria-current="page"] {
+  color: var(--accent-deep);
+}
+
+.button,
+.icon-button,
+.picker-pill,
+.theme-toggle,
+.voice-preference-options {
+  border-radius: var(--radius-sm);
+}
+
+.button {
+  min-height: 46px;
+  border-radius: 999px;
+  letter-spacing: -.01em;
+}
+
+.button-coral {
+  box-shadow: 0 7px 18px color-mix(in srgb, var(--accent-button) 20%, transparent);
+}
+
+.button-coral:hover {
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent-button) 28%, transparent);
+}
+
+.button-outline {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--white) 52%, transparent);
+}
+
+.icon-button {
+  border-radius: 12px;
+}
+
+.theme-toggle {
+  padding: 4px;
+  background: color-mix(in srgb, var(--white) 72%, transparent);
+}
+
+.theme-toggle button[aria-pressed="true"] {
+  background: var(--accent-button);
+  color: var(--accent-button-text);
+}
+
+.landing-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 480px;
+  padding-top: 92px;
+}
+
+.landing-page {
+  overflow-x: clip;
+}
+
+.landing-hero::before {
+  position: absolute;
+  z-index: -1;
+  top: 20px;
+  left: calc(50% + 18vw);
+  width: min(56vw, 780px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 8%, transparent), transparent 68%);
+  content: "";
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.landing-hero h1 {
+  max-width: 900px;
+  font-size: clamp(62px, 7vw, 90px);
+  letter-spacing: -.055em;
+  line-height: .96;
+}
+
+.landing-hero h1 em {
+  color: var(--accent-deep);
+}
+
+.hero-description {
+  max-width: 500px;
+  font-size: 15px;
+  line-height: 1.85;
+}
+
+.landing-section-heading h2 {
+  font-size: clamp(36px, 4vw, 48px);
+}
+
+.landing-card {
+  border-radius: var(--radius-md);
+  background: var(--white);
+  box-shadow: 0 2px 8px rgb(21 45 42 / 3%);
+}
+
+.landing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-soft);
+}
+
+.landing-ask-card {
+  border-radius: 22px;
+  background: var(--white);
+}
+
+.journey-page {
+  padding-top: 62px;
+}
+
+.journey-detail-page,
+.catechism-detail-page,
+.summa-detail-page {
+  max-width: 1000px;
+}
+
+.journey-detail-page .journey-detail-heading,
+.catechism-detail-page .journey-detail-heading,
+.summa-detail-page .journey-detail-heading {
+  max-width: 780px;
+}
+
+.journey-detail-page .journey-detail-overview,
+.catechism-detail-page .journey-detail-overview,
+.summa-detail-page .journey-detail-overview {
+  max-width: 650px;
+}
+
+.journey-detail-page .journey-detail-heading h1,
+.catechism-detail-page .journey-detail-heading h1,
+.summa-detail-page .journey-detail-heading h1 {
+  font-size: clamp(46px, 6vw, 68px);
+}
+
+.journey-detail-page .narration-progress-desktop,
+.catechism-detail-page .narration-progress-desktop,
+.summa-detail-page .narration-progress-desktop {
+  margin: 0 auto 24px;
+}
+
+.journey-detail-page > .journey-artwork--hero,
+.journey-detail-page > .breviary-artwork--hero,
+.journey-detail-page > .rosary-art--hero,
+.catechism-detail-page > .catechism-artwork--hero,
+.summa-detail-page > .summa-artwork--hero {
+  width: min(100%, 900px);
+  aspect-ratio: 3.2 / 1;
+  min-height: 0;
+  max-height: 280px;
+  margin: 26px auto 30px;
+  border-radius: 22px;
+}
+
+.journey-detail-page > .journey-artwork--hero {
+  min-height: 210px;
+}
+
+.journey-detail-page > .breviary-artwork--hero,
+.journey-detail-page > .rosary-art--hero {
+  min-height: 210px;
+}
+
+.journey-detail-page > .rosary-art--hero {
+  height: auto;
+}
+
+.journey-detail-page > .breviary-artwork--hero {
+  border: 1px solid var(--line);
+}
+
+.journey-detail-page > .journey-story-list,
+.catechism-detail-page > .catechism-reading,
+.summa-detail-page > .summa-reading {
+  width: min(100%, 900px);
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.journey-detail-page > .journey-story-list {
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.journey-detail-page .journey-story.breviary-segment {
+  padding: 26px clamp(18px, 4vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--white);
+  box-shadow: 0 4px 18px rgb(22 46 42 / 3%);
+}
+
+.journey-detail-page .journey-story.breviary-segment:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.journey-detail-page .journey-scripture-heading {
+  min-height: 42px;
+  border-bottom-color: color-mix(in srgb, var(--line) 75%, transparent);
+}
+
+.journey-detail-page .journey-scripture-verses,
+.journey-detail-page .rosary-prayer-reading,
+.mass-page .mass-reading-text,
+.catechism-detail-page .catechism-answer,
+.summa-detail-page .summa-article-body {
+  font-size: var(--reader-font-size, 22px);
+  line-height: 1.82;
+}
+
+.journey-detail-page .journey-scripture-verses {
+  width: min(100%, 740px);
+  padding-top: 18px;
+}
+
+.journey-detail-page .journey-scripture-verses p,
+.journey-detail-page .rosary-prayer-reading p,
+.mass-page .mass-reading-text p,
+.catechism-detail-page .catechism-answer p,
+.summa-detail-page .summa-article-body p {
+  margin-bottom: 1.1em;
+}
+
+.mass-page .mass-reading-list {
+  width: min(100%, 900px);
+  gap: 14px;
+  margin: 24px auto 0;
+}
+
+.mass-page .mass-reading-card,
+.mass-page .mass-reading-card + .mass-reading-card {
+  padding: 24px clamp(18px, 4vw, 32px);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--white);
+  box-shadow: 0 4px 18px rgb(22 46 42 / 3%);
+}
+
+.mass-page .mass-reading-meta {
+  padding-bottom: 15px;
+}
+
+.mass-page .mass-reading-meta strong {
+  font-size: 24px;
+}
+
+.mass-page .mass-reading-text {
+  width: min(100%, 740px);
+  padding: 20px 0 8px;
+}
+
+.mass-page .mass-reading-text sup {
+  font-family: var(--font-body);
+}
+
+.mass-page .mass-source {
+  width: min(100%, 900px);
+  margin-inline: auto;
+}
+
+.rosary-page > .journey-story-list {
+  gap: 14px;
+}
+
+.rosary-page .journey-story.breviary-segment {
+  padding-top: 23px;
+  padding-bottom: 23px;
+}
+
+.rosary-page .rosary-scripture-reference {
+  width: min(100%, 740px);
+  margin: 14px auto 0;
+}
+
+.rosary-page .rosary-prayer-reading {
+  width: min(100%, 740px);
+  margin: 12px auto 0;
+}
+
+.rosary-page .rosary-prayer-part {
+  padding-block: 16px 13px;
+  border-bottom-color: color-mix(in srgb, var(--line) 75%, transparent);
+}
+
+.catechism-detail-page > .catechism-artwork--hero,
+.summa-detail-page > .summa-artwork--hero {
+  border: 1px solid var(--line);
+}
+
+.catechism-detail-page > .catechism-reading {
+  padding: 24px clamp(18px, 4vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--white);
+  box-shadow: 0 4px 18px rgb(22 46 42 / 3%);
+}
+
+.catechism-detail-page .catechism-question {
+  overflow: clip;
+  margin-bottom: 10px;
+  padding-inline: 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--paper) 48%, var(--white));
+}
+
+.catechism-detail-page .catechism-question summary {
+  min-height: 64px;
+}
+
+.catechism-detail-page .catechism-answer {
+  padding-bottom: 22px;
+}
+
+.summa-detail-page > .summa-reading {
+  padding: 8px clamp(18px, 4vw, 34px) 28px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--white);
+  box-shadow: 0 4px 18px rgb(22 46 42 / 3%);
+}
+
+.summa-detail-page .summa-article-list {
+  display: grid;
+  gap: 10px;
+}
+
+.summa-detail-page .summa-article,
+.summa-detail-page .summa-article:last-child {
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--paper) 48%, var(--white));
+}
+
+.summa-detail-page .summa-article > summary {
+  min-height: 72px;
+  padding: 20px 17px;
+}
+
+.summa-detail-page .summa-article-content {
+  padding: 0 24px 26px 139px;
+}
+
+.summa-detail-page .summa-article-body {
+  line-height: 1.82;
+}
+
+.catechism-detail-page .catechism-attribution,
+.summa-detail-page .catechism-attribution {
+  padding-top: 20px;
+}
+
+.catechism-detail-page .catechism-rights-note,
+.summa-detail-page .summa-attribution {
+  width: min(100%, 900px);
+}
+
+.bible-chapter-page .journey-detail-heading {
+  text-align: center;
+}
+
+.bible-chapter-page .journey-detail-heading .eyebrow {
+  margin-bottom: 16px;
+}
+
+.bible-chapter-page .journey-detail-heading h1 {
+  font-size: clamp(48px, 6vw, 68px);
+}
+
+.bible-chapter-page .journey-audio-controls {
+  justify-content: center;
+}
+
+.app-shell--reader .chat-fab {
+  display: none;
+}
+
+.bible-reading-panel {
+  width: min(100%, 960px);
+  margin: 8px auto 0;
+  padding: clamp(28px, 5vw, 56px) clamp(20px, 7vw, 88px);
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 26px;
+  background: color-mix(in srgb, var(--white) 62%, transparent);
+  box-shadow: 0 10px 34px rgb(20 43 40 / 3%);
+}
+
+.bible-reading-panel::after {
+  display: none;
+}
+
+.bible-reading-copy {
+  width: min(100%, 700px);
+  font-size: var(--reader-font-size, 22px);
+  line-height: 1.9;
+  letter-spacing: .003em;
+}
+
+.bible-reading-copy p {
+  margin-bottom: 1.35em;
+}
+
+.bible-reading-copy sup {
+  margin-right: 5px;
+  font-size: .48em;
+  font-variant-numeric: tabular-nums;
+}
+
+.bible-chapter-nav {
+  width: min(100%, 960px);
+  margin: 30px auto 0;
+}
+
+.site-footer {
+  color: var(--muted);
+}
+
+.mobile-bottom-nav {
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  box-shadow: var(--shadow-lift);
+}
+
+.mobile-bottom-nav a.active,
+.mobile-bottom-nav .mobile-donate {
+  color: var(--accent-button-text);
+}
+
+.mobile-bottom-nav a.active {
+  color: var(--accent);
+}
+
+.mobile-bottom-nav .mobile-donate {
+  background: var(--accent-button);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-button) 28%, transparent);
+}
+
+.journey-library-card,
+.bookmark-item,
+.mass-reading-card {
+  border-radius: var(--radius-md);
+}
+
+.modal,
+.search-modal-shell {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--white);
+  box-shadow: var(--shadow-lift);
+}
+
+input,
+textarea,
+select {
+  border-radius: 12px;
+}
+
+@media (max-width: 760px) {
+  .section-wrap,
+  .site-header,
+  .site-footer {
+    width: calc(100% - 36px);
+  }
+
+  .site-header {
+    height: 68px;
+  }
+
+  .wordmark {
+    font-size: 18px;
+  }
+
+  .wordmark-mark {
+    flex-basis: 34px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .main-nav.nav-open {
+    border-radius: 22px 0 0 22px;
+    background: var(--white);
+  }
+
+  .landing-hero {
+    padding: 58px 0 66px;
+  }
+
+  .landing-hero::before {
+    top: 8px;
+    left: calc(50% + 12vw);
+    width: 82vw;
+  }
+
+  .landing-hero h1 {
+    max-width: 540px;
+    font-size: clamp(52px, 13vw, 72px);
+    line-height: .98;
+  }
+
+  .hero-description {
+    max-width: 390px;
+    font-size: 14px;
+  }
+
+  .landing-card-grid {
+    gap: 13px;
+  }
+
+  .landing-card {
+    border-radius: 17px;
+  }
+
+  .journey-detail-page,
+  .catechism-detail-page,
+  .summa-detail-page {
+    width: calc(100% - 36px);
+    padding-top: 30px;
+  }
+
+  .journey-detail-page .journey-detail-heading,
+  .catechism-detail-page .journey-detail-heading,
+  .summa-detail-page .journey-detail-heading {
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  .journey-detail-page .journey-detail-heading .eyebrow,
+  .catechism-detail-page .journey-detail-heading .eyebrow,
+  .summa-detail-page .journey-detail-heading .eyebrow {
+    justify-content: center;
+  }
+
+  .journey-detail-page .journey-detail-heading h1,
+  .catechism-detail-page .journey-detail-heading h1,
+  .summa-detail-page .journey-detail-heading h1 {
+    font-size: clamp(40px, 10vw, 54px);
+  }
+
+  .journey-detail-page .journey-detail-nav,
+  .catechism-detail-page .journey-detail-nav,
+  .summa-detail-page .journey-detail-nav {
+    margin-bottom: 25px;
+  }
+
+  .journey-detail-page > .journey-artwork--hero,
+  .journey-detail-page > .breviary-artwork--hero,
+  .journey-detail-page > .rosary-art--hero,
+  .catechism-detail-page > .catechism-artwork--hero,
+  .summa-detail-page > .summa-artwork--hero {
+    aspect-ratio: 2.15 / 1;
+    min-height: 145px;
+    max-height: 205px;
+    margin: 22px auto 24px;
+    border-radius: 18px;
+  }
+
+  .journey-detail-page .journey-detail-overview,
+  .catechism-detail-page .journey-detail-overview,
+  .summa-detail-page .journey-detail-overview {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .journey-detail-page > .journey-story-list,
+  .catechism-detail-page > .catechism-reading,
+  .summa-detail-page > .summa-reading,
+  .mass-page .mass-reading-list {
+    width: 100%;
+  }
+
+  .journey-detail-page .journey-story.breviary-segment {
+    padding: 19px 16px;
+    border-radius: 17px;
+  }
+
+  .journey-detail-page .journey-scripture-verses,
+  .journey-detail-page .rosary-prayer-reading,
+  .mass-page .mass-reading-text,
+  .catechism-detail-page .catechism-answer,
+  .summa-detail-page .summa-article-body {
+    font-size: var(--reader-font-size, 22px);
+    line-height: 1.78;
+  }
+
+  .mass-page .mass-reading-list {
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .mass-page .mass-reading-card,
+  .mass-page .mass-reading-card + .mass-reading-card {
+    padding: 18px 16px;
+    border-radius: 17px;
+  }
+
+  .mass-page .mass-reading-meta strong {
+    font-size: 21px;
+  }
+
+  .mass-page .mass-reading-text {
+    padding-top: 16px;
+  }
+
+  .rosary-page .journey-story.breviary-segment {
+    padding-block: 18px;
+  }
+
+  .catechism-detail-page > .catechism-reading {
+    padding: 17px 12px;
+    border-radius: 18px;
+  }
+
+  .catechism-detail-page .catechism-question {
+    padding-inline: 10px;
+    border-radius: 13px;
+  }
+
+  .catechism-detail-page .catechism-question summary {
+    min-height: 58px;
+  }
+
+  .catechism-detail-page .catechism-answer {
+    padding: 0 2px 18px 42px;
+  }
+
+  .summa-detail-page > .summa-reading {
+    padding: 6px 12px 20px;
+    border-radius: 18px;
+  }
+
+  .summa-detail-page .summa-article > summary {
+    grid-template-columns: 74px minmax(0, 1fr) 16px;
+    min-height: 64px;
+    gap: 8px;
+    padding: 16px 10px;
+  }
+
+  .summa-detail-page .summa-article-content {
+    padding: 0 12px 20px;
+  }
+
+  .journey-page {
+    padding-top: 34px;
+    padding-bottom: 96px;
+  }
+
+  .bible-chapter-page .journey-detail-heading h1 {
+    font-size: clamp(42px, 12vw, 58px);
+  }
+
+  .bible-reading-panel {
+    margin-top: 4px;
+    padding: 20px 16px 14px;
+    border-radius: 20px;
+  }
+
+  .bible-reading-copy {
+    font-size: var(--reader-font-size, 22px) !important;
+    line-height: 1.82;
+  }
+
+  .bible-reading-copy p {
+    margin-bottom: 1.2em;
+  }
+
+  .bible-chapter-nav {
+    gap: 7px;
+  }
+
+  .bible-chapter-nav .button {
+    min-height: 42px;
+    padding-inline: 12px;
+    font-size: 10px;
+  }
+
+  .mobile-bottom-nav {
+    border-radius: 22px;
+    padding: 7px 5px;
+    backdrop-filter: blur(18px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+.saints-detail-art {
+  width: min(100%, 620px);
+  aspect-ratio: 2.14 / 1;
+  min-height: 170px;
+  max-height: 300px;
+  margin: 0 auto 30px;
+}
+
+.saint-biography {
+  max-width: 840px;
+  padding: clamp(22px, 5vw, 48px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  box-shadow: var(--shadow-soft);
+}
+
+.saint-biography-copy {
+  max-width: 68ch;
+  margin: 0 auto;
+  font-size: var(--reader-font-size, 22px);
+  line-height: 1.82;
+}
+
+.saint-quote {
+  max-width: 68ch;
+  margin-bottom: 30px;
+  padding-bottom: 24px;
+}
+
+.landing-card-art--summa {
+  background: linear-gradient(145deg, #1a3039, #3c555a 58%, #9a805e);
+}
+
+.landing-card-art--summa .summa-artwork {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+@media (max-width: 760px) {
+  .saints-detail-art {
+    aspect-ratio: 2.2 / 1;
+    min-height: 140px;
+    max-height: 200px;
+    margin-bottom: 20px;
+    border-radius: 16px;
+  }
+
+  .saint-biography {
+    padding: 22px 18px;
+    border-radius: 18px;
+  }
+}

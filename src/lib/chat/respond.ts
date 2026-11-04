@@ -1,13 +1,14 @@
 import { bibleBooks } from "../bible";
 import { THRESHOLDS, matchTopics, type TopicMatch } from "./matcher";
 import { getTopic, parseRef, passageLabel, type ChatTopic } from "./topics";
+import { searchSumma } from "./summaSearch";
 import { searchVerses } from "./verseSearch";
 
 export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   text?: string;
-  kind?: "welcome" | "answer" | "suggest" | "passage" | "fallback" | "verses" | "catechism";
+  kind?: "welcome" | "answer" | "suggest" | "passage" | "fallback" | "verses" | "catechism" | "summa" | "error";
   lead?: string;
   topicId?: string;
   optionIds?: string[];
@@ -23,6 +24,14 @@ export type ChatMessage = {
   catechismQuestion?: string;
   catechismAnswer?: string;
   catechismSourceNote?: string;
+  summaPartSlug?: string;
+  summaPartName?: string;
+  summaQuestionNumber?: number;
+  summaQuestionTitle?: string;
+  summaArticleNumber?: number;
+  summaArticleTitle?: string;
+  summaResponse?: string;
+  errorText?: string;
 };
 
 const CRISIS = /\b(kill myself|end my life|suicid\w*|want to die|self[- ]?harm\w*|hurt myself|don'?t want to live|better off dead)\b/i;
@@ -75,31 +84,46 @@ export async function respondTo(query: string): Promise<ChatMessage> {
   const { mode, matches, vector } = await matchTopics(text);
   const limits = THRESHOLDS[mode];
   const top = matches[0];
-  try {
-    const { searchCatechism } = await import("./catechismSearch");
-    const catechism = await searchCatechism(text, vector);
-    if (catechism) {
-      const scriptureTopic = top && top.score >= limits.answer ? top.topic : undefined;
-      const sourceNotes = [
-        catechism.question.parallelNo2Question ? `No. 3 source note: parallel to No. 2, question ${catechism.question.parallelNo2Question}.` : "",
-        catechism.question.sourceAnnotation && !catechism.question.parallelNo2Question ? `No. 3 source annotation: ${catechism.question.sourceAnnotation}.` : "",
-        catechism.question.sourceNote ?? "",
-      ].filter(Boolean).join(" ");
-      return {
-        id: uid(), role: "assistant", kind: "catechism",
-        lead: "Here is a related question and answer from the historical Baltimore Catechism.",
-        topicId: scriptureTopic?.id,
-        catechismEdition: catechism.edition.number,
-        catechismEditionTitle: catechism.edition.title,
-        catechismQuestionNumber: catechism.question.number,
-        catechismGroupTitle: catechism.group.kind === "lesson" ? `Lesson ${catechism.group.number}: ${catechism.group.title}` : catechism.group.title,
-        catechismQuestion: catechism.question.question,
-        catechismAnswer: catechism.question.answer,
-        catechismSourceNote: sourceNotes || undefined,
-      };
-    }
-  } catch {
-    // If the catechism data or index cannot load, continue with Sofi's existing Scripture response.
+  const [catechism, summa] = await Promise.all([
+    import("./catechismSearch").then(({ searchCatechism }) => searchCatechism(text, vector)),
+    searchSumma(text, vector),
+  ]);
+  if (summa && (!catechism || summa.score > catechism.score)) {
+    const scriptureTopic = top && top.score >= limits.answer ? top.topic : undefined;
+    const answer = summa.article.respondeo.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").trim();
+    const excerpt = answer.length > 900 ? `${answer.slice(0, 897).trimEnd()}…` : answer;
+    return {
+      id: uid(), role: "assistant", kind: "summa",
+      lead: "Here is a related article from St. Thomas Aquinas’s Summa Theologiae.",
+      topicId: scriptureTopic?.id,
+      summaPartSlug: summa.part.slug,
+      summaPartName: summa.part.name,
+      summaQuestionNumber: summa.question.number,
+      summaQuestionTitle: summa.question.title,
+      summaArticleNumber: summa.article.number,
+      summaArticleTitle: summa.article.title,
+      summaResponse: excerpt,
+    };
+  }
+  if (catechism) {
+    const scriptureTopic = top && top.score >= limits.answer ? top.topic : undefined;
+    const sourceNotes = [
+      catechism.question.parallelNo2Question ? `No. 3 source note: parallel to No. 2, question ${catechism.question.parallelNo2Question}.` : "",
+      catechism.question.sourceAnnotation && !catechism.question.parallelNo2Question ? `No. 3 source annotation: ${catechism.question.sourceAnnotation}.` : "",
+      catechism.question.sourceNote ?? "",
+    ].filter(Boolean).join(" ");
+    return {
+      id: uid(), role: "assistant", kind: "catechism",
+      lead: "Here is a related question and answer from the historical Baltimore Catechism.",
+      topicId: scriptureTopic?.id,
+      catechismEdition: catechism.edition.number,
+      catechismEditionTitle: catechism.edition.title,
+      catechismQuestionNumber: catechism.question.number,
+      catechismGroupTitle: catechism.group.kind === "lesson" ? `Lesson ${catechism.group.number}: ${catechism.group.title}` : catechism.group.title,
+      catechismQuestion: catechism.question.question,
+      catechismAnswer: catechism.question.answer,
+      catechismSourceNote: sourceNotes || undefined,
+    };
   }
   if (top && top.score >= limits.answer) {
     return { id: uid(), role: "assistant", kind: "answer", lead: pick(LEADS), topicId: top.topic.id, followUpIds: followUps(top.topic, matches.slice(1, 3), limits.suggest) };

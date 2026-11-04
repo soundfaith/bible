@@ -20,10 +20,9 @@ export function SofiAvatar({ size = 46 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`${id}-bg`} x1="6" y1="44" x2="42" y2="4" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#3b82f6" />
-          <stop offset="0.45" stopColor="#8b5cf6" />
-          <stop offset="0.8" stopColor="#ec4899" />
-          <stop offset="1" stopColor="#fb923c" />
+          <stop offset="0" stopColor="#125b55" />
+          <stop offset="0.65" stopColor="#18776e" />
+          <stop offset="1" stopColor="#d3aa67" />
         </linearGradient>
         <radialGradient id={`${id}-glow`} cx="0.3" cy="0.2" r="0.8">
           <stop offset="0" stopColor="#fff" stopOpacity="0.55" />
@@ -33,7 +32,7 @@ export function SofiAvatar({ size = 46 }: { size?: number }) {
       <circle cx="24" cy="24" r="24" fill={`url(#${id}-bg)`} />
       <circle cx="24" cy="24" r="24" fill={`url(#${id}-glow)`} />
       <path fill="#fff" fillOpacity="0.95" d="M24 24.500c-3.500-2.400-7.300-3.200-11.500-2.700v10.700c4.200-.4 8 .4 11.500 2.800 3.500-2.400 7.300-3.200 11.500-2.800V21.800c-4.200-.5-8 .3-11.500 2.700Z" />
-      <path stroke="#8b5cf6" strokeOpacity="0.45" strokeWidth="1.200" d="M24 24.500v10.800" />
+      <path stroke="#125b55" strokeOpacity="0.45" strokeWidth="1.200" d="M24 24.500v10.800" />
       <path fill="#fff" d="M24 6.500c.4 3.300 1.900 4.800 5.200 5.200-3.300.4-4.800 1.900-5.200 5.200-.4-3.300-1.900-4.800-5.200-5.200 3.300-.4 4.800-1.900 5.200-5.200Z" />
       <circle cx="36.500" cy="14" r="1.500" fill="#fff" fillOpacity="0.85" />
       <circle cx="11.500" cy="13" r="1" fill="#fff" fillOpacity="0.7" />
@@ -49,10 +48,9 @@ function SparkleIcon({ size = 22, tone = "gradient" }: { size?: number; tone?: "
       {tone === "gradient" && (
         <defs>
           <linearGradient id={id} x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#4f8cff" />
-            <stop offset="0.4" stopColor="#9b6bff" />
-            <stop offset="0.75" stopColor="#ff6fae" />
-            <stop offset="1" stopColor="#ffb347" />
+            <stop offset="0" stopColor="#125b55" />
+            <stop offset="0.65" stopColor="#18776e" />
+            <stop offset="1" stopColor="#d3aa67" />
           </linearGradient>
         </defs>
       )}
@@ -87,15 +85,18 @@ function Chips({ ids, onPick, label }: { ids: string[]; onPick: (id: string) => 
   );
 }
 
-function AssistantBubble({ message, onOpen, onOpenCatechism, onPick }: { message: ChatMessage; onOpen: Props["onOpenVerse"]; onOpenCatechism: (edition: number, question: number) => void; onPick: (id: string) => void }) {
+function AssistantBubble({ message, onOpen, onOpenCatechism, onOpenSumma, onPick }: { message: ChatMessage; onOpen: Props["onOpenVerse"]; onOpenCatechism: (edition: number, question: number) => void; onOpenSumma: (partSlug: string, questionNumber: number, articleNumber: number) => void; onPick: (id: string) => void }) {
   const topic = message.topicId ? getTopic(message.topicId) : undefined;
   if (message.kind === "welcome") {
     return (
       <div className="chat-bubble assistant">
-        <p>Peace be with you. I am {BOT_NAME}, your guide through Scripture. Tell me what you are carrying or wondering about, and I will bring you the passages that speak to it.</p>
+        <p>Peace be with you. I am {BOT_NAME}, your guide through Scripture and Catholic teaching. Ask a question, share a worry, or name a verse; I can draw on the Bible, the Baltimore Catechism, and St. Thomas Aquinas’s Summa Theologiae.</p>
         <div className="chat-chips">{SUGGESTED_PROMPTS.map((prompt) => <button type="button" key={prompt} data-prompt={prompt}>{prompt}</button>)}</div>
       </div>
     );
+  }
+  if (message.kind === "error") {
+    return <div className="chat-bubble assistant"><p>{message.errorText}</p></div>;
   }
   if (message.kind === "passage" && message.passageRef) {
     return (
@@ -133,6 +134,26 @@ function AssistantBubble({ message, onOpen, onOpenCatechism, onPick }: { message
           {message.catechismSourceNote && <p className="chat-catechism-note">{message.catechismSourceNote}</p>}
           <p className="chat-catechism-context">A historical Baltimore Catechism reference, separate from the Catechism of the Catholic Church.</p>
           <button type="button" className="chat-catechism-open" onClick={() => onOpenCatechism(message.catechismEdition!, message.catechismQuestionNumber!)}>Read in the catechism <ArrowRight size={13} /></button>
+        </article>
+        {topic && <div className="chat-catechism-scripture">
+          <p className="chat-related">Related Scripture</p>
+          <p>{topic.intro}</p>
+          <div className="chat-verses">{topic.verses.map((verse: ChatVerse) => <VerseCard key={verse.ref} reference={verse.ref} why={verse.why} onOpen={onOpen} />)}</div>
+        </div>}
+      </div>
+    );
+  }
+  if (message.kind === "summa" && message.summaPartSlug && message.summaQuestionNumber && message.summaArticleNumber) {
+    return (
+      <div className="chat-bubble assistant">
+        <p className="chat-lead">{message.lead}</p>
+        <article className="chat-summa-card">
+          <span className="chat-summa-source">{message.summaPartName} · Question {message.summaQuestionNumber}, Article {message.summaArticleNumber}</span>
+          <h3>{message.summaQuestionTitle}</h3>
+          <p className="chat-summa-article-title">{message.summaArticleTitle}</p>
+          <p className="chat-summa-answer-label">Aquinas’s response</p>
+          <p>{message.summaResponse}</p>
+          <button type="button" className="chat-catechism-open" onClick={() => onOpenSumma(message.summaPartSlug!, message.summaQuestionNumber!, message.summaArticleNumber!)}>Read the full article <ArrowRight size={13} /></button>
         </article>
         {topic && <div className="chat-catechism-scripture">
           <p className="chat-related">Related Scripture</p>
@@ -218,7 +239,13 @@ export function ChatWidget({ onOpenVerse }: Props) {
     setMessages((current) => [...current, { id: uid(), role: "user", text: question }]);
     setDraft("");
     setBusy(true);
-    const [reply] = await Promise.all([direct ? Promise.resolve(topicReply(direct)) : respondTo(question), wait(MIN_TYPING_MS)]);
+    let reply: ChatMessage;
+    try {
+      [reply] = await Promise.all([direct ? Promise.resolve(topicReply(direct)) : respondTo(question), wait(MIN_TYPING_MS)]);
+    } catch (error) {
+      console.error("Sofi could not search the reading sources.", error);
+      reply = { id: uid(), role: "assistant", kind: "error", errorText: "I couldn’t search the reading sources just now. Please try again." };
+    }
     setMessages((current) => [...current, reply]);
     setBusy(false);
   };
@@ -233,6 +260,11 @@ export function ChatWidget({ onOpenVerse }: Props) {
     window.location.hash = `#/catechism/${edition}/q-${question}`;
   };
 
+  const openSumma = (partSlug: string, questionNumber: number, articleNumber: number) => {
+    setOpen(false);
+    window.location.hash = `#/summa/${encodeURIComponent(partSlug)}/q-${questionNumber}/a-${articleNumber}`;
+  };
+
   const reset = () => {
     clearChatHistory();
     setMessages([welcomeMessage()]);
@@ -241,18 +273,18 @@ export function ChatWidget({ onOpenVerse }: Props) {
   return (
     <>
       {!open && (
-        <button type="button" className="chat-fab" aria-label={`Ask ${BOT_NAME} about Scripture`} onClick={() => setOpen(true)} onPointerEnter={() => warmUpChatModel()}>
+        <button type="button" className="chat-fab" aria-label={`Ask ${BOT_NAME} about Scripture and Catholic teaching`} onClick={() => setOpen(true)} onPointerEnter={() => warmUpChatModel()}>
           <SparkleIcon size={22} tone="white" />
           <span>Ask {BOT_NAME}</span>
         </button>
       )}
       {open && (
-        <section className="chat-panel" role="dialog" aria-label={`${BOT_NAME}, Scripture guide`}>
+        <section className="chat-panel" role="dialog" aria-label={`${BOT_NAME}, Scripture and Catholic teaching guide`}>
           <header className="chat-header">
             <span className="chat-avatar"><SofiAvatar size={46} /></span>
             <div>
               <strong>{BOT_NAME}</strong>
-              <span>Your Scripture guide</span>
+              <span>Scripture and Catholic teaching</span>
             </div>
             <button type="button" aria-label="Clear conversation" title="Clear conversation" onClick={reset}><Trash2 size={16} /></button>
             <button type="button" aria-label="Close" onClick={() => setOpen(false)}><X size={18} /></button>
@@ -263,7 +295,7 @@ export function ChatWidget({ onOpenVerse }: Props) {
           }}>
             {messages.map((message) => message.role === "user"
               ? <div key={message.id} className="chat-bubble user">{message.text}</div>
-              : <AssistantBubble key={message.id} message={message} onOpen={openVerse} onOpenCatechism={openCatechism} onPick={(id) => void ask(getTopic(id)?.title ?? "", id)} />)}
+              : <AssistantBubble key={message.id} message={message} onOpen={openVerse} onOpenCatechism={openCatechism} onOpenSumma={openSumma} onPick={(id) => void ask(getTopic(id)?.title ?? "", id)} />)}
             {busy && <div className="chat-bubble assistant chat-typing" aria-label="Searching Scripture"><i /><i /><i /></div>}
           </div>
           <form className="chat-form" onSubmit={(event) => { event.preventDefault(); void ask(draft); }}>

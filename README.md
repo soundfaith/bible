@@ -1,19 +1,25 @@
-# Atelier UI Template
+# SoundFaith
 
 ## Build an Android APK
 
 The web app can be packaged as a native Android app with Capacitor. Install
-Android Studio with an Android SDK, then run this from PowerShell on Windows:
+Android Studio with its Android SDK, then open PowerShell at the repository
+root and run:
 
 ```powershell
 npm run android:build
 ```
 
-The script builds the web app, generates Android launcher icons from
-`assets/logo.svg`, and writes a debug APK to
-`artifacts/android/soundfaith-bible-debug.apk`. Copy that APK to your phone,
-open it, and allow installation from that source when Android asks. This is a
-debug build intended for direct installation; a Play Store release needs a
+The script finds a local JDK or downloads and verifies JDK 21, builds the web
+app, generates Android launcher icons from `assets/logo.svg`, syncs Capacitor,
+and builds a debug APK. The previous download is temporarily excluded so the
+APK does not contain its own previous build. It writes the APK to
+`artifacts\android\soundfaith-debug.apk` and updates the site's downloadable
+copy at `public\downloads\soundfaith.apk` and the built site's copy in
+`dist\downloads\soundfaith.apk`. Copy the artifact to your
+phone, open it, and allow installation from that source when Android asks.
+Repeat the same command whenever you want to package newer site changes. This
+debug build is intended for direct installation; a Play Store release needs a
 separately signed release build.
 
 ## Baltimore Catechism
@@ -22,8 +28,8 @@ The app includes Baltimore Catechism Nos. 1–3 as a searchable, offline reader
 and as a local reference source for Sofi. Source coverage, import details, and
 the implementation decisions are documented in the
 [Baltimore Catechism implementation plan](docs/baltimore-catechism-implementation-plan.md).
-Rebuild the normalized text with `python scripts/catechism/build_data.py` and
-the Sofi search vectors with `npm run chat:catechism-index`.
+Rebuild the normalized text with `python scripts/catechism/build_data.py`, then
+rebuild Sofi's search vectors with `npm run chat:catechism-index`.
 
 ## Summa Theologiae
 
@@ -34,7 +40,8 @@ questions and articles. The source snapshots are the compressed JSON files in
 `public/data/summa/` from the
 [Torch & Lily open data repository](https://github.com/joshx2415/torch-data).
 The reader loads and decompresses those files when opened, keeping them out of
-the app's initial bundle.
+the app's initial bundle. Rebuild Sofi's local semantic search index with
+`node scripts/chat/build-summa-index.mjs`.
 
 ## Saints of the day
 

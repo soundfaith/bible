@@ -1,8 +1,8 @@
 export function Brand() {
   return (
-    <a className="wordmark" href="#/" aria-label="Soundfaith Bible home">
+    <a className="wordmark" href="#/" aria-label="SoundFaith home">
       <span className="wordmark-mark"><img src="/favicon.svg" alt="" /></span>
-      <span>soundfaith bible</span>
+      <span>SoundFaith</span>
     </a>
   );
 }

@@ -81,7 +81,7 @@ export function ChapterPage({ position, voicePreference, onPositionChange, onSel
       </div>
     </nav>
     <header className="journey-detail-heading">
-      <p className="eyebrow"><span className="eyebrow-dot" /> Soundfaith Bible <span aria-hidden="true">/</span> Chapter {position.chapter} of {getChapterCount(position.bookId)}</p>
+      <p className="eyebrow"><span className="eyebrow-dot" /> SoundFaith <span aria-hidden="true">/</span> Chapter {position.chapter} of {getChapterCount(position.bookId)}</p>
       <h1>{book.name} <em>{position.chapter}</em></h1>
       <div className="journey-audio-controls"><NarratorButton text={narrationText} audioUrls={narrationAudioUrls} voicePreference={voicePreference} onEnded={onNarrationEnded} /></div>
     </header>

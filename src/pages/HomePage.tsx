@@ -33,7 +33,7 @@ const primaryCards = [
   { art: "readings", title: "Mass Reading", description: "Pray with today’s liturgy.", action: "Today’s Readings", onClick: "onMass" },
   { art: "saints", title: "Saint of the day", description: "Meet a witness whose life points to Christ.", action: "Meet today's saint", onClick: "onSaints" },
   { art: "catechism", title: "Baltimore Catechism", description: "Explore this historic series by edition, lesson, and question.", action: "Browse the catechism", onClick: "onCatechism" },
-  { art: "catechism", title: "Summa Theologiae", description: "Read St. Thomas Aquinas by part, question, and article.", action: "Browse the Summa", onClick: "onSumma" },
+  { art: "summa", title: "Summa Theologiae", description: "Read St. Thomas Aquinas by part, question, and article.", action: "Browse the Summa", onClick: "onSumma" },
 ] as const;
 
 function streakText(days: number) {
@@ -200,11 +200,11 @@ export function HomePage({ onChoose, onMass, onJourney, onBreviary, onRosary, on
 
       <NextStepPrompt heading={next.heading} card={{ art: next.art, title: next.title, description: next.description, action: next.action, onClick: next.onClick }} />
 
-      <section className="landing-share section-wrap" aria-label="Share Soundfaith">
+      <section className="landing-share section-wrap" aria-label="Share SoundFaith">
         <button className="button button-outline" type="button" onClick={share}>
-          <Share2 size={15} /> Share Soundfaith
+          <Share2 size={15} /> Share SoundFaith
         </button>
-        <a className="android-download-badge" href="/downloads/soundfaith-bible.apk" download aria-label="Download Soundfaith Bible for Android">
+        <a className="android-download-badge" href="/downloads/soundfaith.apk" download aria-label="Download SoundFaith for Android">
           <svg className="android-download-badge-icon" viewBox="0 0 48 48" aria-hidden="true">
             <g fill="currentColor">
               <path d="M12 20a12 12 0 0 1 24 0H12Z" />

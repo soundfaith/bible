@@ -11,17 +11,17 @@ const features = [
 ];
 
 const soundfaithApps = [
-  { name: "Soundfaith Catechism", description: "Explore the teachings of the Catholic faith.", href: "https://catechism.soundfaith.app" },
+  { name: "SoundFaith Catechism", description: "Explore the teachings of the Catholic faith.", href: "https://catechism.soundfaith.app" },
   { name: "Catechist Corner", description: "Find support and resources for catechesis.", href: "https://catechistcorner.soundfaith.app" },
-  { name: "Soundfaith Giving", description: "Support faith communities through digital giving.", href: "https://giving.soundfaith.app" },
+  { name: "SoundFaith Giving", description: "Support faith communities through digital giving.", href: "https://giving.soundfaith.app" },
 ];
 
 export function AboutPage() {
   return (
     <main className="about-page section-wrap">
       <header className="about-heading">
-        <img className="about-logo" src="/favicon.svg" alt="Soundfaith Bible logo" />
-        <p className="eyebrow"><span className="eyebrow-dot" /> About Soundfaith Bible</p>
+        <img className="about-logo" src="/favicon.svg" alt="SoundFaith logo" />
+        <p className="eyebrow"><span className="eyebrow-dot" /> About SoundFaith</p>
         <h1>Scripture for<br /><em>everyday life.</em></h1>
         <p className="page-intro">A welcoming place to read Scripture, pray with the Church, and build a steady rhythm of faith. Move at your own pace, listen when you need to, and return to the passages that speak to you.</p>
       </header>
@@ -45,13 +45,13 @@ export function AboutPage() {
 
       <section className="about-mission">
         <div><p className="eyebrow">Our mission</p><h2>Help faith find a place<br />in the rhythm of each day.</h2></div>
-        <p>Soundfaith brings together simple digital tools for Scripture, prayer, learning, and generosity, serving people wherever they are on the journey of faith.</p>
+        <p>SoundFaith brings together simple digital tools for Scripture, prayer, learning, and generosity, serving people wherever they are on the journey of faith.</p>
       </section>
 
       <section className="about-apps" aria-labelledby="about-apps-title">
         <div className="about-section-heading">
           <p className="eyebrow">One family of faith apps</p>
-          <h2 id="about-apps-title">Explore Soundfaith</h2>
+          <h2 id="about-apps-title">Explore SoundFaith</h2>
           <p>Discover more ways to learn, serve, and support faith communities.</p>
         </div>
         <ul className="about-app-list">{soundfaithApps.map((app) => (

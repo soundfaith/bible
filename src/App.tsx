@@ -7,6 +7,7 @@ import {
   Home,
   CircleHelp,
   BookOpen,
+  Landmark,
   Headphones,
   Pause,
   SkipForward,
@@ -19,6 +20,7 @@ import {
   Sunset,
   Moon,
   Sparkles,
+  ScrollText,
   X,
 } from "lucide-react";
 import { Brand, ThemeToggle } from "./components/Brand";
@@ -58,7 +60,6 @@ import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress"
 import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor, rosaryAudioUrlsFor } from "./lib/narrationAudio";
 import { requestSaintNarrationToggle } from "./lib/saintsAudio";
 import { getNarrationGender, saveNarrationGender, type NarrationGender } from "./lib/narrationVoice";
-import { enableKokoro, isKokoroEnabled, kokoroSupported, removeKokoroModel } from "./lib/tts/kokoroEngine";
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
 import {
@@ -192,7 +193,6 @@ export default function App() {
   );
   const [voicePreference, setVoicePreference] = useState<NarrationGender>(getNarrationGender);
   const [voicePreferenceError, setVoicePreferenceError] = useState(false);
-  const [hdVoice, setHdVoice] = useState(isKokoroEnabled);
   const [rosaryMode, setRosaryModeState] = useState<RosaryMode>(readRosaryMode);
   const [readingPosition, setReadingPosition] =
     useState<ReadingPosition>(getLastReading);
@@ -681,7 +681,7 @@ export default function App() {
   };
   const shareApp = async (): Promise<"shared" | "copied"> => {
     const shareData = {
-      title: "Soundfaith Bible",
+      title: "SoundFaith",
       text: "A quiet place to return to the Scriptures.",
       url: window.location.href,
     };
@@ -1014,7 +1014,7 @@ export default function App() {
       />
     );
   return (
-    <div className="app-shell">
+    <div className={route === "read" ? "app-shell app-shell--reader" : "app-shell"}>
       <header className="site-header" ref={menuRef}>
         <Brand />
         <nav
@@ -1037,8 +1037,8 @@ export default function App() {
           <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BreviaryHourIcon size={17} />Breviary</a>
           <a href="#/rosary" className="mobile-drawer-link" aria-current={route === "rosary" || route === "rosary-prayer" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />Rosary</a>
           <a href="#/saints" className="mobile-drawer-link" aria-current={route === "saints" || route === "saint-profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sparkles size={17} />Saints</a>
-          <a href="#/catechism" className="mobile-drawer-link" aria-current={route === "catechism" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Catechism</a>
-          <a href="#/summa" className="mobile-drawer-link" aria-current={route === "summa" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Summa Theologiae</a>
+          <a href="#/catechism" className="mobile-drawer-link" aria-current={route === "catechism" ? "page" : undefined} onClick={() => setMenuOpen(false)}><ScrollText size={17} />Catechism</a>
+          <a href="#/summa" className="mobile-drawer-link" aria-current={route === "summa" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Landmark size={17} />Summa Theologiae</a>
           <a href="#/mass" className="mobile-drawer-link" aria-current={route === "mass" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Church size={17} />Mass Reading</a>
           <a href="#/bookmarks" className="mobile-drawer-link" aria-current={route === "bookmarks" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
           <a href="#/about" className="mobile-drawer-link" aria-current={route === "about" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>
@@ -1065,18 +1065,6 @@ export default function App() {
               ))}
             </div>
             {voicePreferenceError && <p role="status">Could not save this preference. It will apply until you close the app.</p>}
-            {kokoroSupported() && (
-              <button
-                type="button"
-                className="voice-download-toggle"
-                onClick={() => {
-                  if (hdVoice) void removeKokoroModel().then(() => setHdVoice(false));
-                  else { enableKokoro(); setHdVoice(true); }
-                }}
-              >
-                {hdVoice ? "Remove natural voice download" : "Use natural voice (~90 MB, Wi-Fi recommended)"}
-              </button>
-            )}
           </section>
           <div className="mobile-menu-theme">
             <span>Theme</span>

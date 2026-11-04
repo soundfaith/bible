@@ -1,8 +1,20 @@
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
+$downloadPath = Join-Path $repoRoot 'public\downloads\soundfaith.apk'
+$downloadBackupPath = Join-Path $env:TEMP ("soundfaith-apk-" + [guid]::NewGuid().ToString('N') + '.tmp')
+$downloadWasPresent = $false
+$downloadBackedUp = $false
+$buildSucceeded = $false
 
 try {
+  $downloadWasPresent = Test-Path -LiteralPath $downloadPath
+  if ($downloadWasPresent) {
+    # Keep Vite from embedding the previous APK into the next native build.
+    Move-Item -LiteralPath $downloadPath -Destination $downloadBackupPath
+    $downloadBackedUp = $true
+  }
+
   $javaCandidates = @(
     $env:JAVA_HOME,
     (Join-Path $env:ProgramFiles 'Android\Android Studio\jbr'),
@@ -21,7 +33,20 @@ try {
   foreach ($candidate in $javaCandidates) {
     $javaExe = Join-Path $candidate 'bin\java.exe'
     if (-not (Test-Path $javaExe)) { continue }
-    $javaVersionOutput = (& $javaExe -version 2>&1 | Out-String)
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = $javaExe
+    $startInfo.Arguments = '-version'
+    $startInfo.RedirectStandardError = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.UseShellExecute = $false
+    $versionProcess = New-Object System.Diagnostics.Process
+    $versionProcess.StartInfo = $startInfo
+    if (-not $versionProcess.Start()) { continue }
+    $versionError = $versionProcess.StandardError.ReadToEnd()
+    $versionOutput = $versionProcess.StandardOutput.ReadToEnd()
+    $versionProcess.WaitForExit()
+    $javaVersionOutput = $versionError + $versionOutput
+    $versionProcess.Dispose()
     $versionMatch = [regex]::Match($javaVersionOutput, 'version "(?<major>\d+)')
     if ($versionMatch.Success -and [int]$versionMatch.Groups['major'].Value -ge 17 -and [int]$versionMatch.Groups['major'].Value -le 24) {
       $javaHome = $candidate
@@ -64,7 +89,7 @@ try {
     if ($androidSdk) { $env:ANDROID_HOME = $androidSdk }
   }
   if ($env:ANDROID_HOME -and -not $env:ANDROID_SDK_ROOT) { $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME }
-  if (-not $env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME = Join-Path $env:TEMP 'soundfaith-gradle' }
+  if (-not $env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME = Join-Path $env:TEMP 'soundfaith-gradle-v2' }
   if (-not $env:ANDROID_USER_HOME) { $env:ANDROID_USER_HOME = Join-Path $env:TEMP 'soundfaith-android' }
   if ($env:USERPROFILE -and $env:JAVA_TOOL_OPTIONS -notmatch '(?:^|\s)-Duser\.home=') {
     $env:JAVA_TOOL_OPTIONS = (($env:JAVA_TOOL_OPTIONS + ' -Duser.home="' + $env:USERPROFILE + '"').Trim())
@@ -98,7 +123,7 @@ try {
 
   $generatedIcon = Join-Path $repoRoot 'android\app\src\main\res\mipmap-xxxhdpi\ic_launcher.png'
   if (-not (Test-Path $generatedIcon) -or (Get-Item $generatedIcon).LastWriteTime -lt (Get-Item 'assets\logo.svg').LastWriteTime) {
-    & npx.cmd capacitor-assets generate --android --assetPath assets --iconBackgroundColor '#2f4234' --splashBackgroundColor '#F5F2EC'
+    & npx.cmd capacitor-assets generate --android --assetPath assets --iconBackgroundColor '#125B55' --splashBackgroundColor '#F7F6F1'
     if ($LASTEXITCODE -ne 0) { throw 'Could not generate the Android app icon.' }
   }
 
@@ -111,9 +136,35 @@ try {
   $artifactDirectory = Join-Path $repoRoot 'artifacts\android'
   New-Item -ItemType Directory -Path $artifactDirectory -Force | Out-Null
   $apkPath = Join-Path $repoRoot 'android\app\build\outputs\apk\debug\app-debug.apk'
-  Copy-Item -LiteralPath $apkPath -Destination (Join-Path $artifactDirectory 'soundfaith-bible-debug.apk') -Force
-  Write-Host "APK ready: $artifactDirectory\soundfaith-bible-debug.apk"
+  $artifactPath = Join-Path $artifactDirectory 'soundfaith-debug.apk'
+  Copy-Item -LiteralPath $apkPath -Destination $artifactPath -Force
+  New-Item -ItemType Directory -Path (Split-Path -Parent $downloadPath) -Force | Out-Null
+  Copy-Item -LiteralPath $apkPath -Destination $downloadPath -Force
+  $distDownloadPath = Join-Path $repoRoot 'dist\downloads\soundfaith.apk'
+  New-Item -ItemType Directory -Path (Split-Path -Parent $distDownloadPath) -Force | Out-Null
+  Copy-Item -LiteralPath $apkPath -Destination $distDownloadPath -Force
+  $buildSucceeded = $true
+  Write-Host "APK ready: $artifactPath"
+  Write-Host "Downloadable APK updated: $downloadPath"
 }
 finally {
-  Pop-Location
+  try {
+    if ($downloadBackedUp) {
+      if ($buildSucceeded) {
+        Remove-Item -LiteralPath $downloadBackupPath -Force
+      }
+      else {
+        if (Test-Path -LiteralPath $downloadPath) {
+          Remove-Item -LiteralPath $downloadPath -Force
+        }
+        Move-Item -LiteralPath $downloadBackupPath -Destination $downloadPath
+      }
+    }
+    elseif (-not $downloadWasPresent -and -not $buildSucceeded -and (Test-Path -LiteralPath $downloadPath)) {
+      Remove-Item -LiteralPath $downloadPath -Force
+    }
+  }
+  finally {
+    Pop-Location
+  }
 }
