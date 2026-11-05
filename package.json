@@ -14,6 +14,7 @@
     "chat:eval": "node scripts/chat/eval.mjs"
   },
   "dependencies": {
+    "@capacitor/core": "^8.6.0",
     "@huggingface/transformers": "^4.3.1",
     "@vitejs/plugin-react": "latest",
     "lucide-react": "^0.468.0",
