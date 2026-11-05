@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import {
   Compass,
   Church,
@@ -66,6 +67,7 @@ import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCateg
 import {
   getNarrationSnapshot,
   JourneyNarrationProgress,
+  triggerPageNarration,
   NarrationProgress,
   pauseSpeaking,
   resumeSpeaking,
@@ -224,6 +226,34 @@ export default function App() {
   const [journeyProgress, setJourneyProgress] = useState(loadJourneyProgress);
   const [journeyArtwork, setJourneyArtwork] = useState(loadJourneyArtworkSelections);
   const menuRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const root = document.documentElement;
+    let lastY = window.scrollY;
+    let mode = "";
+    const apply = (next: string) => {
+      if (next === mode) return;
+      mode = next;
+      root.dataset.chrome = next;
+    };
+    apply("both");
+    const onScroll = () => {
+      const y = Math.max(0, window.scrollY);
+      const delta = y - lastY;
+      if (y <= 8) {
+        apply("both");
+      } else if (Math.abs(delta) > 6) {
+        apply(delta > 0 ? "nav" : "header");
+      }
+      if (Math.abs(delta) > 6 || y <= 8) lastY = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      delete root.dataset.chrome;
+    };
+  }, []);
   const journeyAudioStateRef = useRef(journeyAudio);
   const breviaryAudioStateRef = useRef(breviaryAudio);
   const rosaryAudioStateRef = useRef(rosaryAudio);
@@ -712,6 +742,10 @@ export default function App() {
     return null;
   };
   const toggleNarration = () => {
+    if (route === "catechism" || route === "summa" || route === "mass") {
+      triggerPageNarration();
+      return;
+    }
     const current = getNarrationSnapshot();
     const readingText = chapterNarration(readingPosition);
     if (route !== "read") {
@@ -813,6 +847,32 @@ export default function App() {
   const mobileListenText = mobileListenStatus === "playing"
     ? `${String(Math.floor(mobileListenElapsedSeconds / 60)).padStart(2, "0")}:${String(mobileListenElapsedSeconds % 60).padStart(2, "0")}`
     : mobileListenStatus === "paused" ? "Resume" : "Listen";
+  const journeyDesktopProgress = isJourneyDetail ? <JourneyNarrationProgress
+    className="narration-progress-desktop narration-progress-centered"
+    storyCount={bibleJourney.find((period) => period.id === journeyPeriodId)?.stories.length ?? 0}
+    activeStoryIndex={Math.max(0, journeyAudioForPage.storyIndex)}
+    activeStoryProgress={journeyIntroActive ? 0 : journeyStoryProgress}
+    status={journeyAudioForPage.status}
+    onSelectStory={selectJourneyAudioStory}
+  /> : null;
+  const breviaryDesktopProgress = isBreviaryDetail && breviaryDay ? <JourneyNarrationProgress
+    className="narration-progress-desktop narration-progress-centered"
+    storyCount={breviaryDay.segments.length}
+    activeStoryIndex={Math.max(0, breviaryAudio.segmentIndex)}
+    activeStoryProgress={breviaryIntroActive ? 0 : journeyStoryProgress}
+    status={breviaryAudio.status}
+    onSelectStory={playBreviarySegment}
+  /> : null;
+  const rosaryDesktopProgress = isRosaryDetail ? <JourneyNarrationProgress
+    className="narration-progress-desktop narration-progress-centered"
+    storyCount={rosarySequence.segments.length}
+    activeStoryIndex={rosaryAudio.segmentIndex}
+    activeStoryProgress={rosarySegmentProgress}
+    status={rosaryAudio.status}
+    onSelectStory={playRosarySegment}
+    itemLabel="Segment"
+    positionLabel="Rosary segment position"
+  /> : null;
   const page =
     route === "read" ? (
       <ChapterPage
@@ -884,6 +944,7 @@ export default function App() {
         onToggleAudio={toggleBreviaryAudio}
         onSelectSegment={playBreviarySegment}
         onSkipIntro={skipBreviaryIntro}
+        audioProgress={breviaryDesktopProgress}
         nextStep={<DailyNextStep
           page="breviary"
           doneToday={getDoneToday(dailyStreak)}
@@ -903,7 +964,7 @@ export default function App() {
     ) : (
       <BreviaryLibrary date={breviaryDate} onDateChange={setBreviaryDate} {...breviaryDayInfo(breviaryDate)} />
     ) : route === "rosary-prayer" ? (
-      <RosaryPrayerPage key={rosaryMysteryIndex} mysteryIndex={rosaryMysteryIndex} mode={rosaryMode} onModeChange={changeRosaryMode} audioStatus={rosaryAudio.status} activeSegmentIndex={rosaryAudio.segmentIndex} activePrayerGroupId={rosaryClipsRef.current[rosaryAudio.clipIndex]?.groupId ?? null} prayedBeadIndices={rosaryAudio.prayedBeadIndices} activeBeadIndex={activeRosaryBeadIndex} audioError={rosaryAudio.error} onToggleAudio={toggleRosaryAudio} onSelectSegment={playRosarySegment} nextStep={<DailyNextStep
+      <RosaryPrayerPage key={rosaryMysteryIndex} mysteryIndex={rosaryMysteryIndex} mode={rosaryMode} onModeChange={changeRosaryMode} audioStatus={rosaryAudio.status} activeSegmentIndex={rosaryAudio.segmentIndex} activePrayerGroupId={rosaryClipsRef.current[rosaryAudio.clipIndex]?.groupId ?? null} prayedBeadIndices={rosaryAudio.prayedBeadIndices} activeBeadIndex={activeRosaryBeadIndex} audioError={rosaryAudio.error} onToggleAudio={toggleRosaryAudio} onSelectSegment={playRosarySegment} audioProgress={rosaryDesktopProgress} nextStep={<DailyNextStep
         page="rosary"
         doneToday={getDoneToday(dailyStreak)}
         streak={dailyStreak}
@@ -965,6 +1026,7 @@ export default function App() {
         onToggleAudio={toggleJourneyAudio}
         onSelectAudioStory={selectJourneyAudioStory}
         onSkipIntro={skipJourneyIntro}
+        audioProgress={journeyDesktopProgress}
         onOpenPassage={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)}
       />
     ) : (
@@ -1097,8 +1159,8 @@ export default function App() {
       )}
       {page}
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-        {route === "read" && <NarrationProgress className="narration-progress-mobile" enabled={narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter, voicePreference).length > 0} />}
-        {isSaintDetail && <NarrationProgress className="narration-progress-mobile" />}
+        {route === "read" && <NarrationProgress className="narration-progress-mobile" />}
+        {(isSaintDetail || route === "catechism" || route === "summa" || route === "mass") && <NarrationProgress className="narration-progress-mobile" />}
         {isJourneyDetail && <JourneyNarrationProgress
           className="narration-progress-mobile"
           storyCount={bibleJourney.find((period) => period.id === journeyPeriodId)?.stories.length ?? 0}

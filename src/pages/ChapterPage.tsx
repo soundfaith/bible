@@ -85,7 +85,7 @@ export function ChapterPage({ position, voicePreference, onPositionChange, onSel
       <h1>{book.name} <em>{position.chapter}</em></h1>
       <div className="journey-audio-controls"><NarratorButton text={narrationText} audioUrls={narrationAudioUrls} voicePreference={voicePreference} onEnded={onNarrationEnded} /></div>
     </header>
-    <NarrationProgress className="narration-progress-desktop narration-progress-centered" enabled={narrationAudioUrls.length > 0} />
+    <NarrationProgress className="narration-progress-desktop narration-progress-centered" />
     <article className="bible-reading-panel"><div className="bible-reading-copy" ref={readingCopyRef}>{paragraphs.map((paragraph) => <p key={paragraph.id}>{paragraph.verses.map((verse) => <span key={verse.verse} data-verse={verse.verse} className={highlightVerse === verse.verse ? "verse-highlight" : ""}><sup>{verse.verse}</sup>{verse.text} </span>)}</p>)}</div></article>
     {selectedVerseRange && <button className="verse-bookmark-float" style={{ top: selectedVerseRange.top, left: selectedVerseRange.left }} onMouseDown={(event) => event.preventDefault()} onClick={() => { onToggleBookmark({ verseStart: selectedVerseRange.verseStart, verseEnd: selectedVerseRange.verseEnd }); setSelectedVerseRange(null); }}><Bookmark size={14} /> Save verses</button>}
     <nav className="bible-chapter-nav" aria-label="Chapter navigation"><button className="button button-outline" disabled={isFirst} onClick={() => move(-1)}><ArrowLeft size={15} /> Previous</button><button className="button button-coral" onClick={onSelectChapter}><BookOpen size={15} /> Choose chapter</button><button className="button button-outline" disabled={isLast} onClick={() => move(1)}>Next <ArrowRight size={15} /></button></nav>

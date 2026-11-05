@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { ArrowRight, BookOpen, CalendarDays, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { getParagraphs } from "../lib/bible";
 import { getAvailableMassReadingDates, getMassReadingForDate, getTodaysMassReading, referenceLabel, resolveReference } from "../lib/readings";
-import { NarratorButton, stopSpeaking } from "../components/NarratorButton";
+import { NarrationProgress, NarratorButton, stopSpeaking } from "../components/NarratorButton";
 import type { NarrationGender } from "../lib/narrationVoice";
 
 const labels: Record<string, string> = { firstReading: "First reading", secondReading: "Second reading", psalm: "Responsorial psalm", gospel: "Gospel" };
@@ -26,6 +26,7 @@ export function MassReadingPage({ onOpenReference, selectedDate, onSelectedDateC
       <p className="journey-detail-overview">A daily table of the word, with the readings of the Church for today.</p>
       <p className="breviary-day-caption"><strong>{entry.season}</strong></p>
       <div className="journey-audio-controls"><NarratorButton text={narrationText} voicePreference={voicePreference} /></div>
+      <NarrationProgress className="narration-progress-desktop narration-progress-centered" />
     </header>
     <div className="mass-reading-list">{Object.entries(entry.readings).map(([key, reading]) => <article className="mass-reading-card" key={key}><div className="mass-reading-meta"><span>{labels[key] || key}</span><strong>{referenceLabel(reading.reference)}</strong></div><div className="mass-reading-text">{getParagraphs(resolveReference(reading.reference)).map((paragraph, paragraphIndex) => <p key={`${paragraph.id}-${paragraphIndex}`}>{paragraph.verses.map((verse, verseIndex) => <span key={`${verse.verse}-${verseIndex}`}><sup>{verse.verse}</sup>{verse.text} </span>)}</p>)}</div><button className="text-link" onClick={() => onOpenReference(reading.reference)}>Read in chapter <ArrowRight size={14} /></button></article>)}</div>
     <footer className="mass-source"><BookOpen size={15} /><span>World English Bible · Catholic lectionary references</span></footer>

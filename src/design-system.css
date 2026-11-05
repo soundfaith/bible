@@ -421,21 +421,18 @@ select:focus-visible {
   border: 1px solid var(--line);
 }
 
-.catechism-detail-page > .catechism-reading {
-  padding: 24px clamp(18px, 4vw, 34px);
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: var(--white);
-  box-shadow: 0 4px 18px rgb(22 46 42 / 3%);
+.catechism-detail-page .catechism-question-list {
+  gap: 14px;
 }
 
-.catechism-detail-page .catechism-question {
+.catechism-detail-page .catechism-question,
+.catechism-detail-page .catechism-question-list .catechism-question:last-child {
   overflow: clip;
-  margin-bottom: 10px;
-  padding-inline: 16px;
+  padding-inline: clamp(14px, 3vw, 24px);
   border: 1px solid var(--line);
-  border-radius: 15px;
-  background: color-mix(in srgb, var(--paper) 48%, var(--white));
+  border-radius: 20px;
+  background: var(--white);
+  box-shadow: 0 4px 18px rgb(22 46 42 / 3%);
 }
 
 .catechism-detail-page .catechism-question summary {
@@ -446,25 +443,18 @@ select:focus-visible {
   padding-bottom: 22px;
 }
 
-.summa-detail-page > .summa-reading {
-  padding: 8px clamp(18px, 4vw, 34px) 28px;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: var(--white);
-  box-shadow: 0 4px 18px rgb(22 46 42 / 3%);
-}
-
 .summa-detail-page .summa-article-list {
   display: grid;
-  gap: 10px;
+  gap: 14px;
 }
 
 .summa-detail-page .summa-article,
 .summa-detail-page .summa-article:last-child {
   overflow: clip;
   border: 1px solid var(--line);
-  border-radius: 15px;
-  background: color-mix(in srgb, var(--paper) 48%, var(--white));
+  border-radius: 20px;
+  background: var(--white);
+  box-shadow: 0 4px 18px rgb(22 46 42 / 3%);
 }
 
 .summa-detail-page .summa-article > summary {
@@ -740,14 +730,10 @@ select {
     padding-block: 18px;
   }
 
-  .catechism-detail-page > .catechism-reading {
-    padding: 17px 12px;
-    border-radius: 18px;
-  }
-
-  .catechism-detail-page .catechism-question {
-    padding-inline: 10px;
-    border-radius: 13px;
+  .catechism-detail-page .catechism-question,
+  .catechism-detail-page .catechism-question-list .catechism-question:last-child {
+    padding-inline: 12px;
+    border-radius: 17px;
   }
 
   .catechism-detail-page .catechism-question summary {
@@ -758,9 +744,9 @@ select {
     padding: 0 2px 18px 42px;
   }
 
-  .summa-detail-page > .summa-reading {
-    padding: 6px 12px 20px;
-    border-radius: 18px;
+  .summa-detail-page .summa-article,
+  .summa-detail-page .summa-article:last-child {
+    border-radius: 17px;
   }
 
   .summa-detail-page .summa-article > summary {
@@ -953,5 +939,41 @@ body::before {
   body .chat-panel {
     height: calc(100dvh - 40px - env(safe-area-inset-top, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@media (max-width: 760px) {
+  .site-header,
+  .mobile-bottom-nav {
+    transition: transform .28s ease, opacity .28s ease;
+  }
+
+  html[data-chrome="nav"] .site-header {
+    transform: translateY(calc(-100% - env(safe-area-inset-top, 0px)));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  html[data-chrome="header"] .mobile-bottom-nav {
+    transform: translateY(calc(100% + 24px + env(safe-area-inset-bottom, 0px)));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  html[data-chrome] body::after {
+    content: "";
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 7;
+    height: env(safe-area-inset-bottom, 0px);
+    background: var(--paper);
+    pointer-events: none;
+    transition: opacity .28s ease;
+  }
+
+  html[data-chrome="header"] body::after {
+    opacity: 0;
   }
 }

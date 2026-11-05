@@ -64,6 +64,7 @@ export function RosaryPrayerPage({
   audioError,
   onToggleAudio,
   onSelectSegment,
+  audioProgress,
   nextStep,
 }: {
   mysteryIndex?: number;
@@ -77,6 +78,7 @@ export function RosaryPrayerPage({
   audioError: string | null;
   onToggleAudio: () => void;
   onSelectSegment: (index: number) => void;
+  audioProgress?: ReactNode;
   nextStep?: ReactNode;
 }) {
   const mystery = rosaryMysteries[mysteryIndex] ?? rosaryMysteries[0];
@@ -127,10 +129,11 @@ export function RosaryPrayerPage({
         {(["traditional", "gospel"] as const).map((value) => <button key={value} type="button" className={mode === value ? "active" : ""} aria-pressed={mode === value} title={rosaryModeDescriptions[value]} onClick={() => onModeChange(value)}>{rosaryModeNames[value]}</button>)}
       </div>
       <div className="journey-audio-controls rosary-audio-controls">
-        <button className="button button-coral" type="button" onClick={onToggleAudio} aria-pressed={audioStatus === "playing"}>
+        <button className="button button-coral journey-audio-listen" type="button" onClick={onToggleAudio} aria-pressed={audioStatus === "playing"}>
           {audioStatus === "playing" ? <Pause size={16} /> : audioStatus === "paused" ? <Play size={16} /> : <Headphones size={17} />}
           {audioStatus === "playing" ? "Pause Rosary" : audioStatus === "paused" ? "Resume Rosary" : "Listen to the Rosary"}
         </button>
+        {audioProgress}
         {audioError && <p className="journey-audio-error" role="status">{audioError}</p>}
         {activeSegment && audioStatus !== "idle" && <p className="journey-audio-status" aria-live="polite">{audioStatus === "paused" ? "Paused" : "Playing"}: {activeSegment.title}</p>}
       </div>

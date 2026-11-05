@@ -1,6 +1,7 @@
-﻿import data from "../data/breviary.json";
+import data from "../data/breviary.json";
 import { getChapter } from "./bible";
-import { narrationAudioUrlsFor } from "./narrationAudio";
+import { narrationAudioUrlsFor, rosaryAudioUrlsFor } from "./narrationAudio";
+import rosaryData from "../data/rosary.json";
 import type { NarrationGender } from "./narrationVoice";
 
 export type BreviaryHour = "lauds" | "vespers" | "compline";
@@ -118,6 +119,11 @@ function plain(id: string, heading: string, text: string, clipId: string, prefer
   return { id, heading, reference, paragraphs: [text], text, audioUrls: breviaryClipUrls(clipId, preference) };
 }
 
+function signOfCross(id: string, preference: NarrationGender): BreviarySegment {
+  const text = rosaryData.prayers.signOfCross;
+  return { id, heading: "Sign of the Cross", paragraphs: [text], text, audioUrls: rosaryAudioUrlsFor("sign-of-cross", preference) };
+}
+
 function psalmSegment(number: string, preference: NarrationGender, heading = "Psalm"): BreviarySegment {
   const verses = getChapter("psalms", Number(number));
   const text = verses.map((verse) => verse.text.trim()).join(" ");
@@ -146,7 +152,7 @@ export function assembleBreviary(date: Date, hour: BreviaryHour, preference: Nar
   const day = cycleDayForDate(date);
   const monthDay = `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
   const saint = saints.find((item) => item.date === monthDay) ?? null;
-  const segments: BreviarySegment[] = [plain("opening", "Opening", data.opening, "opening", preference)];
+  const segments: BreviarySegment[] = [signOfCross("sign-of-cross-start", preference), plain("opening", "Opening", data.opening, "opening", preference)];
 
   if (hour === "lauds") {
     segments.push(saint
@@ -164,6 +170,7 @@ export function assembleBreviary(date: Date, hour: BreviaryHour, preference: Nar
       ? plain("conclusion", "Concluding Prayer", saint.concludingPrayer, `saint-${saint.id}-conclusion`, preference)
       : plain("conclusion", "Concluding Prayer", season.concludingPrayer, `conclusion-${seasonId}`, preference));
     segments.push(plain("blessing", "Blessing", data.blessings.lauds, "blessing-lauds", preference));
+    segments.push(signOfCross("sign-of-cross-end", preference));
     const reflection = byPsalm[String(psalmNumber)] ?? data.reflections.fallback;
     const reflectionClip = byPsalm[String(psalmNumber)] ? `reflection-${psalmNumber}` : "reflection-default";
     segments.push(plain("reflection", "Reflection", reflection, reflectionClip, preference));
@@ -173,6 +180,7 @@ export function assembleBreviary(date: Date, hour: BreviaryHour, preference: Nar
     segments.push(canticleSegment("song_of_mary", "Magnificat", "canticle-song_of_mary", preference));
     segments.push(plain("short-prayer", "Short Prayer", season.shortPrayer, `short-prayer-${seasonId}`, preference));
     segments.push(plain("blessing", "Blessing", data.blessings.vespers, "blessing-vespers", preference));
+    segments.push(signOfCross("sign-of-cross-end", preference));
   } else {
     const psalm = complinePsalms[(day - 1) % complinePsalms.length];
     if (psalm === "91") {
@@ -184,6 +192,7 @@ export function assembleBreviary(date: Date, hour: BreviaryHour, preference: Nar
     segments.push(canticleSegment("song_of_simeon", "Nunc Dimittis", "canticle-song_of_simeon", preference));
     segments.push(plain("night-prayer", "Night Prayer", data.nightPrayer, "night-prayer", preference));
     segments.push(plain("blessing", "Blessing", data.blessings.compline, "blessing-compline", preference));
+    segments.push(signOfCross("sign-of-cross-end", preference));
   }
 
   return {

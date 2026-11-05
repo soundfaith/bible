@@ -1,27 +1,19 @@
 import { Pause, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { NarrationGender } from "../lib/narrationVoice";
-import {
-  declineKokoro,
-  enableKokoro,
-  isKokoroDeclined,
-  isKokoroEnabled,
-  kokoroSupported,
-  onCellularConnection,
-  primeKokoroAudio,
-  speakWithKokoro,
-  type KokoroSession,
-} from "../lib/tts/kokoroEngine";
+import { pickDeviceVoice } from "../lib/deviceVoice";
+
+const ESTIMATED_CHARS_PER_SECOND = 14;
 
 type NarrationStatus = "idle" | "playing" | "paused";
-export type NarrationSnapshot = { status: NarrationStatus; text: string; position: number; duration: number; elapsedSeconds: number; usesAudioFile: boolean; loading?: number };
+export type NarrationSnapshot = { status: NarrationStatus; text: string; position: number; duration: number; elapsedSeconds: number; usesAudioFile: boolean };
 
 let activeSpeech: SpeechSynthesisUtterance | null = null;
-let activeKokoro: KokoroSession | null = null;
 let activeAudio: HTMLAudioElement | null = null;
 let activeAudioSources: string[] = [];
 let activeAudioSourceIndex = 0;
 let completionHandler: (() => void) | undefined;
+let activePreference: NarrationGender = "male";
 let snapshot: NarrationSnapshot = { status: "idle", text: "", position: 0, duration: 0, elapsedSeconds: 0, usesAudioFile: false };
 let elapsedTimer: number | undefined;
 let elapsedBaseSeconds = 0;
@@ -57,8 +49,6 @@ export function subscribeNarration(listener: () => void) {
 export function stopSpeaking() {
   if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
   stopElapsedTimer();
-  activeKokoro?.stop();
-  activeKokoro = null;
   if (activeAudio) {
     activeAudio.pause();
     activeAudio.currentTime = 0;
@@ -72,87 +62,7 @@ export function stopSpeaking() {
   notify();
 }
 
-function shouldUseKokoro() {
-  if (!kokoroSupported()) return false;
-  if (isKokoroEnabled()) return true;
-  if (isKokoroDeclined()) return false;
-  const warning = onCellularConnection() ? " You appear to be on mobile data, so Wi-Fi is recommended." : " Wi-Fi is recommended.";
-  const accepted = window.confirm(
-    `Enable the natural-sounding voice? This is a one-time download of about 90 MB that is kept on this device.${warning}\n\nChoose Cancel to use your device's built-in voice instead.`,
-  );
-  if (accepted) enableKokoro();
-  else declineKokoro();
-  return accepted;
-}
-
-function startKokoro(
-  text: string,
-  onEnded: (() => void) | undefined,
-  fromPosition: number,
-  onError: (() => void) | undefined,
-  preference: NarrationGender,
-) {
-  const position = snapshot.text === text ? Math.max(0, fromPosition) : 0;
-  const elapsedBase = snapshot.text === text && (snapshot.status === "paused" || snapshot.status === "playing")
-    ? snapshot.elapsedSeconds
-    : 0;
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  activeKokoro?.stop();
-  activeAudio?.pause();
-  activeAudio = null;
-  completionHandler = onEnded;
-  snapshot = { status: "playing", text, position, duration: 0, elapsedSeconds: elapsedBase, usesAudioFile: false };
-  startElapsedTimer(elapsedBase);
-  const session = speakWithKokoro(text.slice(position), preference, {
-    onLoading: (percent) => {
-      if (activeKokoro !== session) return;
-      snapshot = { ...snapshot, loading: percent ?? undefined };
-      notify();
-    },
-    onProgress: (charPosition) => {
-      if (activeKokoro !== session) return;
-      snapshot = { ...snapshot, position: position + charPosition };
-      notify();
-    },
-    onEnd: () => {
-      if (activeKokoro !== session) return;
-      activeKokoro = null;
-      stopElapsedTimer();
-      snapshot = { ...snapshot, status: "idle", loading: undefined };
-      const onComplete = completionHandler;
-      completionHandler = undefined;
-      notify();
-      onComplete?.();
-    },
-    onError: () => {
-      if (activeKokoro !== session) return;
-      activeKokoro = null;
-      stopElapsedTimer();
-      snapshot = { ...snapshot, status: "idle", loading: undefined };
-      completionHandler = undefined;
-      notify();
-      // Fall back to the device voice if the on-device model cannot run.
-      if (!startNativeSpeech(text, onEnded, position, onError, preference)) onError?.();
-    },
-  });
-  activeKokoro = session;
-  notify();
-  return true;
-}
-
 function startTextToSpeech(
-  text: string,
-  onEnded?: () => void,
-  fromPosition = 0,
-  onError?: () => void,
-  preference: NarrationGender = "male",
-) {
-  if (!text.trim()) return false;
-  if (shouldUseKokoro()) return startKokoro(text, onEnded, fromPosition, onError, preference);
-  return startNativeSpeech(text, onEnded, fromPosition, onError, preference);
-}
-
-function startNativeSpeech(
   text: string,
   onEnded?: () => void,
   fromPosition = 0,
@@ -168,15 +78,11 @@ function startNativeSpeech(
   activeAudio?.pause();
   activeAudio = null;
   completionHandler = onEnded;
+  activePreference = preference;
   const utterance = new SpeechSynthesisUtterance(text.slice(position));
   utterance.rate = 0.92;
   utterance.pitch = 1;
-  const voiceHints = preference === "male"
-    ? /male|man|david|mark|alex|daniel|fred|jorge|aaron|guy|ryan|brian|matthew|justin|joey/i
-    : /female|woman|zira|samantha|victoria|karen|moira|tessa|susan|hazel|aria|jenny|sara|ava|emma|allison|joanna|kendra|kimberly|salli|ivy/i;
-  utterance.voice = window.speechSynthesis.getVoices().find((voice) =>
-    voice.lang.toLowerCase().startsWith("en") && voiceHints.test(voice.name),
-  ) ?? null;
+  utterance.voice = pickDeviceVoice(preference);
   utterance.onboundary = (event) => {
     if (activeSpeech !== utterance) return;
     snapshot = { ...snapshot, status: "playing", text, position: position + event.charIndex };
@@ -282,9 +188,6 @@ export function startSpeaking(
 ) {
   if (!text.trim()) return false;
   stopElapsedTimer();
-  activeKokoro?.stop();
-  activeKokoro = null;
-  primeKokoroAudio();
   snapshot = { ...snapshot, status: "idle", text, position: 0, duration: 0, elapsedSeconds: 0, usesAudioFile: false };
   activeAudioSources = [...new Set(audioUrls)];
   activeAudioSourceIndex = 0;
@@ -320,13 +223,6 @@ export function resumeSpeaking(
     });
     return true;
   }
-  if (activeKokoro) {
-    snapshot = { ...snapshot, status: "playing" };
-    startElapsedTimer(snapshot.elapsedSeconds);
-    activeKokoro.resume();
-    notify();
-    return true;
-  }
   return startTextToSpeech(text, onEnded, snapshot.usesAudioFile ? 0 : snapshot.position, onError, preference);
 }
 
@@ -336,8 +232,7 @@ export function pauseSpeaking() {
     elapsedBaseSeconds += Math.floor((Date.now() - elapsedStartedAt) / 1000);
     stopElapsedTimer();
   }
-  if (activeKokoro) activeKokoro.pause();
-  else if (activeAudio) activeAudio.pause();
+  if (activeAudio) activeAudio.pause();
   else if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   activeSpeech = null;
   snapshot = { ...snapshot, status: "paused" };
@@ -345,6 +240,19 @@ export function pauseSpeaking() {
 }
 
 export function seekSpeaking(position: number) {
+  if (!activeAudio && snapshot.text && (snapshot.status === "playing" || snapshot.status === "paused") && !snapshot.usesAudioFile) {
+    // Device speech has no timeline, so map the estimated time back to a character and restart at the nearest word.
+    const text = snapshot.text;
+    let index = Math.max(0, Math.min(Math.round(position * ESTIMATED_CHARS_PER_SECOND), text.length - 1));
+    while (index > 0 && !/\s/.test(text[index - 1])) index -= 1;
+    if (snapshot.status === "paused") {
+      snapshot = { ...snapshot, position: index };
+      notify();
+      return;
+    }
+    startTextToSpeech(text, completionHandler, index, undefined, activePreference);
+    return;
+  }
   if (!activeAudio || !Number.isFinite(activeAudio.duration)) return;
   activeAudio.currentTime = Math.max(0, Math.min(position, activeAudio.duration));
   snapshot = { ...snapshot, position: activeAudio.currentTime };
@@ -359,22 +267,35 @@ function formatTime(seconds: number) {
 
 export function NarrationProgress({ className, enabled = true }: { className: string; enabled?: boolean }) {
   const [current, setCurrent] = useState(getNarrationSnapshot);
+  const [dragValue, setDragValue] = useState<number | null>(null);
   useEffect(() => subscribeNarration(() => setCurrent(getNarrationSnapshot())), []);
-  if (!enabled || (current.status !== "playing" && current.status !== "paused") || !current.usesAudioFile) return null;
+  if (!enabled || (current.status !== "playing" && current.status !== "paused")) return null;
+  // Device speech reports no duration, so estimate it from the text length and the reading position.
+  const estimated = !current.usesAudioFile;
+  const duration = estimated ? current.text.length / ESTIMATED_CHARS_PER_SECOND : current.duration;
+  const position = estimated ? current.position / ESTIMATED_CHARS_PER_SECOND : current.position;
   return <div className={`narration-progress ${className}`}>
-    <span className="narration-time">{formatTime(current.position)}</span>
+    <span className="narration-time">{formatTime(position)}</span>
     <input
       className="narration-seek"
       type="range"
       min={0}
-      max={current.duration || 0}
+      max={duration || 0}
       step={0.1}
-      value={Math.min(current.position, current.duration || 0)}
-      disabled={!current.duration}
-      aria-label="Audio progress"
-      onChange={(event) => seekSpeaking(Number(event.currentTarget.value))}
+      value={Math.min(dragValue ?? position, duration || 0)}
+      disabled={!duration}
+      aria-label={estimated ? "Estimated narration progress" : "Audio progress"}
+      onChange={(event) => {
+        const value = Number(event.currentTarget.value);
+        // Restarting device speech on every drag tick would stutter, so commit on release.
+        if (estimated) setDragValue(value);
+        else seekSpeaking(value);
+      }}
+      onPointerUp={() => { if (dragValue !== null) { seekSpeaking(dragValue); setDragValue(null); } }}
+      onKeyUp={() => { if (dragValue !== null) { seekSpeaking(dragValue); setDragValue(null); } }}
+      onBlur={() => { if (dragValue !== null) { seekSpeaking(dragValue); setDragValue(null); } }}
     />
-    <span className="narration-time">{formatTime(current.duration)}</span>
+    <span className="narration-time">{estimated ? "~" : ""}{formatTime(duration)}</span>
   </div>;
 }
 
@@ -442,6 +363,15 @@ export function JourneyNarrationProgress({
   );
 }
 
+let pageNarrationToggle: (() => void) | null = null;
+
+// Lets the mobile bottom-nav Listen button drive the narration of the reading page currently on screen.
+export function triggerPageNarration() {
+  if (!pageNarrationToggle) return false;
+  pageNarrationToggle();
+  return true;
+}
+
 export function NarratorButton({
   text,
   audioUrls,
@@ -464,8 +394,13 @@ export function NarratorButton({
     else startSpeaking(text, audioUrls, onEnded, undefined, voicePreference);
   };
 
+  useEffect(() => {
+    pageNarrationToggle = toggle;
+    return () => { if (pageNarrationToggle === toggle) pageNarrationToggle = null; };
+  });
+
   return <button className="narrator-button button button-outline" onClick={toggle} aria-label={isCurrent && current.status === "playing" ? "Pause narration" : "Listen to this reading"}>
     {isCurrent && current.status === "playing" ? <Pause size={15} /> : <Volume2 size={15} />}
-    {isCurrent && current.loading !== undefined ? `Loading voice ${current.loading}%` : isCurrent && current.status === "playing" ? "Pause" : current.status === "paused" && isCurrent ? "Resume" : "Listen"}
+    {isCurrent && current.status === "playing" ? "Pause" : current.status === "paused" && isCurrent ? "Resume" : "Listen"}
   </button>;
 }

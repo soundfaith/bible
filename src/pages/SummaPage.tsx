@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { SummaArtwork, type SummaArtworkVariant } from "../components/SummaArtwork";
 import {
   loadSummaData,
-  summaArticleHref,
   summaQuestionHref,
   type SummaArticle,
   type SummaDataset,
@@ -90,12 +89,12 @@ function SummaLibrary({ data, selectedPart }: { data: SummaDataset; selectedPart
       <div className="journey-heading-copy">
         <p className="eyebrow"><span className="eyebrow-dot" /> A guide to sacred doctrine</p>
         <h1>Summa <em>Theologiae.</em></h1>
-        <p className="journey-intro">Read the work of St. Thomas Aquinas by part, question, and article. Follow each article through its objections, the contrary authority, Aquinas’s response, and replies.</p>
-        <div className="catechism-context"><BookOpen size={18} aria-hidden="true" /><span>Explore five parts, {questionCount.toLocaleString()} questions, and {articleCount.toLocaleString()} articles. Article links can be shared directly.</span></div>
+        <p className="journey-intro">Read the work of St. Thomas Aquinas by part, question, and article. Follow each article through its objections, the contrary authority, Aquinasâ€™s response, and replies.</p>
+        <div className="catechism-context"><BookOpen size={18} aria-hidden="true" /><span>Explore five parts, {questionCount.toLocaleString()} questions, and {articleCount.toLocaleString()} articles.</span></div>
       </div>
     </header>
 
-    <section className="journey-library summa-parts" aria-labelledby="summa-parts-title">
+    {!selectedPart ? <section className="journey-library summa-parts" aria-labelledby="summa-parts-title">
       <div className="journey-library-heading">
         <div>
           <p className="eyebrow">The structure of the work</p>
@@ -103,21 +102,21 @@ function SummaLibrary({ data, selectedPart }: { data: SummaDataset; selectedPart
         </div>
         <p>Begin with a division of the Summa, then browse its questions and articles.</p>
       </div>
-      <nav className="summa-part-selector" aria-label="Summa parts">
-        {data.parts.map((part, index) => <a
-          className="summa-part-pill"
-          href={`#/summa/${encodeURIComponent(part.slug)}`}
-          key={part.id}
-          aria-current={selectedPart?.id === part.id ? "page" : undefined}
-        >
-          <span className="summa-part-pill-label">Part {index + 1}</span>
-          <strong>{part.name}</strong>
-          <span className="summa-part-pill-count">{partQuestionCount(data, part)} questions · {partArticleCount(data, part)} articles</span>
-        </a>)}
-      </nav>
-    </section>
-
-    {selectedPart && <section className="catechism-lesson-library summa-question-library" aria-labelledby="summa-questions-title">
+      <ol className="journey-library-list breviary-library-list">
+        {data.parts.map((part, index) => <li className="journey-library-item" key={part.id}>
+          <a className="journey-library-card" href={`#/summa/${encodeURIComponent(part.slug)}`} aria-label={`${part.name}: ${partQuestionCount(data, part)} questions, ${partArticleCount(data, part)} articles`}>
+            <SummaArtwork variant={summaArtworkVariants[part.sort_order - 1] ?? summaArtworkVariants[index] ?? "supplementum"} />
+            <span className="journey-library-copy">
+              <span className="journey-period-label"><span>Part {index + 1}</span></span>
+              <strong>{part.name}</strong>
+              <span className="journey-library-teaser">{partQuestionCount(data, part)} questions Â· {partArticleCount(data, part)} articles</span>
+              <span className="journey-library-meta">Browse questions <ArrowRight size={14} aria-hidden="true" /></span>
+            </span>
+          </a>
+        </li>)}
+      </ol>
+    </section> : <section className="catechism-lesson-library summa-question-library" aria-labelledby="summa-questions-title">
+      <a className="button button-outline catechism-library-back" href="#/summa"><ArrowLeft size={16} aria-hidden="true" /> All parts</a>
       <div className="catechism-lesson-library-heading">
         <div>
           <p className="eyebrow">{selectedPart.name}</p>
@@ -144,13 +143,13 @@ function SummaLibrary({ data, selectedPart }: { data: SummaDataset; selectedPart
             <span className="catechism-lesson-card-footer">{question.articles.length} {question.articles.length === 1 ? "article" : "articles"}<ArrowRight size={15} aria-hidden="true" /></span>
           </a>
         </li>)}
-      </ol> : <p className="catechism-empty" aria-live="polite">No questions or article titles match “{query.trim()}”. Try a shorter search.</p>}
+      </ol> : <p className="catechism-empty" aria-live="polite">No questions or article titles match â€œ{query.trim()}â€. Try a shorter search.</p>}
     </section>}
     {attribution()}
   </>;
 }
 
-function ArticleText({ article, partSlug, questionNumber }: { article: SummaArticle; partSlug: string; questionNumber: number }) {
+function ArticleText({ article }: { article: SummaArticle }) {
   return <div className="summa-article-body">
     {article.objections.length > 0 && <section>
       <h3>The objections</h3>
@@ -178,7 +177,6 @@ function ArticleText({ article, partSlug, questionNumber }: { article: SummaArti
         </li>)}
       </ol>
     </section>}
-    <a className="summa-article-permalink" href={summaArticleHref(partSlug, questionNumber, article.number)}>Link to this article <ArrowRight size={13} /></a>
   </div>;
 }
 
@@ -197,17 +195,28 @@ function articleNarrationText(question: SummaQuestion, article: SummaArticle | u
 }
 
 function QuestionReader({ part, question, articleNumber, voicePreference }: { part: SummaPart; question: SummaQuestion; articleNumber: number | null; voicePreference: NarrationGender }) {
-  const [expandedArticleId, setExpandedArticleId] = useState<number | null>(null);
+  const [openIds, setOpenIds] = useState<Set<number>>(new Set());
   const directArticle = articleNumber === null ? undefined : question.articles.find((article) => article.number === articleNumber);
   const defaultArticle = directArticle ?? question.articles[0];
-  const narratedArticle = question.articles.find((article) => article.id === expandedArticleId) ?? defaultArticle;
+  const narratedArticle = question.articles.find((article) => openIds.has(article.id)) ?? defaultArticle;
   const narrationText = useMemo(() => articleNarrationText(question, narratedArticle), [question, narratedArticle]);
+  const allExpanded = question.articles.length > 0 && question.articles.every((article) => openIds.has(article.id));
 
   useEffect(() => () => stopSpeaking(), [question.id]);
 
   useEffect(() => {
-    setExpandedArticleId(defaultArticle?.id ?? null);
+    setOpenIds(new Set(defaultArticle ? [defaultArticle.id] : []));
   }, [question.id, defaultArticle?.id]);
+
+  // Opening one article closes the others; ignore toggle events that merely mirror state.
+  const updateArticleState = (articleId: number, open: boolean) => setOpenIds((current) => {
+    if (open === current.has(articleId)) return current;
+    if (open) return new Set([articleId]);
+    const next = new Set(current);
+    next.delete(articleId);
+    return next;
+  });
+  const toggleAllArticles = () => setOpenIds(allExpanded ? new Set() : new Set(question.articles.map((article) => article.id)));
 
   useEffect(() => {
     if (articleNumber === null || !directArticle) return;
@@ -236,24 +245,28 @@ function QuestionReader({ part, question, articleNumber, voicePreference }: { pa
     <SummaArtwork variant={summaArtworkVariants[part.sort_order - 1] ?? "supplementum"} hero />
 
     <article className="summa-reading" aria-label={`${part.name}, Question ${question.number}: ${question.title}`}>
+      <div className="catechism-answer-controls">
+        <button type="button" className="button button-outline" onClick={toggleAllArticles} aria-expanded={allExpanded}>
+          {allExpanded ? "Collapse all articles" : "Expand all articles"}
+        </button>
+      </div>
       <div className="summa-article-list">
         {question.articles.map((article) => <details
           className="summa-article"
           id={`summa-article-${article.number}`}
           key={article.id}
-          open={expandedArticleId === article.id}
-          onToggle={(event) => setExpandedArticleId(event.currentTarget.open ? article.id : null)}
+          open={openIds.has(article.id)}
+          onToggle={(event) => updateArticleState(article.id, event.currentTarget.open)}
         >
           <summary>
             <span className="summa-article-label">Article {article.number}</span>
             <span className="summa-article-title">{article.title}</span>
           </summary>
-          <div className="summa-article-content"><ArticleText article={article} partSlug={part.slug} questionNumber={question.number} /></div>
+          <div className="summa-article-content"><ArticleText article={article} /></div>
         </details>)}
       </div>
       <footer className="catechism-attribution summa-question-attribution">
         <span>Text and article structure from Torch &amp; Lily.</span>
-        <a href={summaQuestionHref(part.slug, question.number)}>Question link <ArrowRight size={13} /></a>
       </footer>
     </article>
     {attribution()}
@@ -286,7 +299,7 @@ export function SummaPage({ voicePreference }: { voicePreference: NarrationGende
   }, []);
 
   if (!data) return <main className="journey-page section-wrap catechism-page summa-page">
-    <p className="eyebrow" role={loadError ? "alert" : undefined}>{loadError ? "The reader could not be opened" : "Opening the Summa Theologiae…"}</p>
+    <p className="eyebrow" role={loadError ? "alert" : undefined}>{loadError ? "The reader could not be opened" : "Opening the Summa Theologiaeâ€¦"}</p>
     {loadError && <><p className="summa-load-error">{loadError}</p><button className="button button-outline" type="button" onClick={() => {
       setLoadError(null);
       loadSummaData().then(setData).catch((error: unknown) => setLoadError(error instanceof Error ? error.message : "Could not load the Summa text."));

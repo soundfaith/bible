@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, Check, Circle, Headphones, Pause, Play, SkipForward } from "lucide-react";
+import type { ReactNode } from "react";
 import { bibleJourney } from "../data/bibleJourney";
 import journeyIntros from "../data/journeyIntros.json";
 import { JourneyArtwork } from "../components/JourneyArtwork";
@@ -19,6 +20,7 @@ type JourneyPageProps = {
   onToggleAudio: () => void;
   onSelectAudioStory: (storyIndex: number) => void;
   onSkipIntro: () => void;
+  audioProgress?: ReactNode;
   onOpenPassage: (bookId: string, chapter: number, verse: number) => void;
 };
 
@@ -58,6 +60,7 @@ export function BibleJourneyPage({
   onToggleAudio,
   onSelectAudioStory,
   onSkipIntro,
+  audioProgress,
   onOpenPassage,
 }: JourneyPageProps) {
   const currentPeriod = bibleJourney.find((period) => period.id === periodId);
@@ -121,6 +124,7 @@ export function BibleJourneyPage({
             </button>
           )}
         </div>
+        {audioProgress}
         {audioError && <p className="journey-audio-error" role="status">{audioError}</p>}
         {(audioStatus === "playing" || audioStatus === "paused") && (
           <p className="journey-audio-status" aria-live="polite">
@@ -154,7 +158,7 @@ export function BibleJourneyPage({
 
       <div className="journey-story-list">
         {period.stories.map((story, storyIndex) => (
-          <article className="journey-story" id={`story-${period.id}-${storyIndex}`} key={`${period.id}-${story.title}`} aria-labelledby={`story-heading-${period.id}-${storyIndex}`}>
+          <article className="journey-story breviary-segment" id={`story-${period.id}-${storyIndex}`} key={`${period.id}-${story.title}`} aria-labelledby={`story-heading-${period.id}-${storyIndex}`}>
             <div className="journey-story-content">
               <h2 id={`story-heading-${period.id}-${storyIndex}`}>{story.title}</h2>
               <p className="journey-story-summary">{story.summary}</p>

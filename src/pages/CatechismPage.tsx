@@ -7,20 +7,19 @@ import {
   catechismData,
   catechismEditions,
   catechismGroupHref,
-  catechismQuestionHref,
   type CatechismEdition,
   type CatechismGroup,
 } from "../lib/catechism";
 import { NarrationProgress, NarratorButton, stopSpeaking } from "../components/NarratorButton";
 import type { NarrationGender } from "../lib/narrationVoice";
 
-type Address = { edition: number; groupId: string | null; questionNumber: number | null };
+type Address = { edition: number | null; groupId: string | null; questionNumber: number | null };
 
 function readAddress(): Address {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
   const [, editionPart, entry] = path.match(/^catechism(?:\/(\d+)(?:\/([^/]+))?)?$/) ?? [];
   const requestedEdition = Number(editionPart);
-  const edition = catechismEditions.some((item) => item.number === requestedEdition) ? requestedEdition : 2;
+  const edition = catechismEditions.some((item) => item.number === requestedEdition) ? requestedEdition : null;
   if (!entry) return { edition, groupId: null, questionNumber: null };
   const question = entry.match(/^q-(\d+)$/);
   if (question) return { edition, groupId: null, questionNumber: Number(question[1]) };
@@ -81,17 +80,21 @@ function EditionNextStep({ edition }: { edition: CatechismEdition }) {
   />;
 }
 
-function EditionLibrary({ edition, onChooseEdition }: { edition: CatechismEdition; onChooseEdition: (number: number) => void }) {
+function editionBlurb(edition: CatechismEdition) {
+  return `${edition.audience} · ${edition.lessonCount} lessons · ${edition.questionCount} questions`;
+}
+
+function CatechismLibrary({ edition }: { edition: CatechismEdition | null }) {
   const [query, setQuery] = useState("");
-  const lessons = useMemo(() => edition.groups.filter((group) => group.kind === "lesson"), [edition]);
+  const lessons = useMemo(() => edition?.groups.filter((group) => group.kind === "lesson") ?? [], [edition]);
   const filteredLessons = useMemo(() => {
     const search = query.trim().toLocaleLowerCase("en-US");
     if (!search) return lessons;
-    return lessons.filter((lesson) => `lesson ${lesson.number} ${lesson.title}`.toLocaleLowerCase("en-US").includes(search));
+    return lessons.filter((lesson) => `lesson ${lesson.number} ${lesson.title} ${displayLessonTitle(lesson.title)}`.toLocaleLowerCase("en-US").includes(search));
   }, [lessons, query]);
 
   return <>
-    <section className="journey-library catechism-editions" aria-labelledby="catechism-editions-title">
+    {!edition ? <section className="journey-library catechism-editions" aria-labelledby="catechism-editions-title">
       <div className="journey-library-heading">
         <div>
           <p className="eyebrow">A progressive course in the faith</p>
@@ -99,29 +102,26 @@ function EditionLibrary({ edition, onChooseEdition }: { edition: CatechismEditio
         </div>
         <p>Three editions meet students at different stages, from First Communion through more advanced study.</p>
       </div>
-      <div className="catechism-edition-pills" role="group" aria-label="Choose a catechism edition">
-        {catechismEditions.map((item) => <button
-          className="catechism-edition-pill"
-          key={item.id}
-          type="button"
-          aria-pressed={item.number === edition.number}
-          aria-controls="catechism-lessons"
-          onClick={() => onChooseEdition(item.number)}
-        >
-          <span className="catechism-edition-pill-mark"><BookOpen size={19} aria-hidden="true" /><small>No. {item.number}</small></span>
-          <span className="catechism-edition-pill-copy">
-            <strong>{item.title}</strong>
-            <small>{item.audience}</small>
-          </span>
-        </button>)}
-      </div>
-    </section>
-
-    <section className="catechism-lesson-library" id="catechism-lessons" aria-labelledby="catechism-lessons-title">
+      <ol className="journey-library-list breviary-library-list">
+        {catechismEditions.map((item) => <li className="journey-library-item" key={item.id}>
+          <a className="journey-library-card" href={`#/catechism/${item.number}`} aria-label={`${item.title}: ${editionBlurb(item)}`}>
+            <CatechismArtwork edition={item.number} />
+            <span className="journey-library-copy">
+              <span className="journey-period-label"><span>Book {item.number}</span></span>
+              <strong>{item.title}</strong>
+              <span className="journey-library-teaser">{editionBlurb(item)}</span>
+              <span className="journey-library-meta">Browse lessons <ArrowRight size={14} aria-hidden="true" /></span>
+            </span>
+          </a>
+        </li>)}
+      </ol>
+    </section> : <section className="catechism-lesson-library" id="catechism-lessons" aria-labelledby="catechism-lessons-title">
+      <a className="button button-outline catechism-library-back" href="#/catechism"><ArrowLeft size={16} aria-hidden="true" /> All books</a>
       <div className="catechism-lesson-library-heading">
         <div>
           <p className="eyebrow">Baltimore Catechism No. {edition.number}</p>
-          <h2 id="catechism-lessons-title">Browse the lessons.</h2>
+          <h2 id="catechism-lessons-title">{edition.title}</h2>
+          <p className="catechism-audience">{edition.audience}</p>
         </div>
         <span className="catechism-lesson-count">{filteredLessons.length} of {lessons.length} lessons</span>
       </div>
@@ -145,7 +145,7 @@ function EditionLibrary({ edition, onChooseEdition }: { edition: CatechismEditio
           </a>
         </li>)}
       </ol> : <p className="catechism-empty" aria-live="polite">No lesson titles or numbers match “{query.trim()}”. Try a shorter search.</p>}
-    </section>
+    </section>}
 
     <AskSofiPrompt />
     <footer className="catechism-rights-note">
@@ -225,7 +225,6 @@ function LessonReader({ edition, group, questionNumber, nextStep, voicePreferenc
             {question.parallelNo2Question && <p className="catechism-source-note">No. 3 source annotation: parallel to No. 2, question {question.parallelNo2Question}.</p>}
             {question.sourceAnnotation && !question.parallelNo2Question && <p className="catechism-source-note">No. 3 source annotation: {question.sourceAnnotation}.</p>}
             {question.sourceNote && <p className="catechism-source-note">{question.sourceNote}</p>}
-            <a className="catechism-question-link" href={catechismQuestionHref(edition.number, question.number)}>Link to question <ArrowRight size={13} /></a>
           </div>
         </details>)}
         </div>
@@ -268,8 +267,8 @@ export function CatechismPage({ nextStep, voicePreference }: { nextStep?: ReactN
     };
   }, []);
 
-  const edition = catechismEditions.find((item) => item.number === address.edition) ?? catechismEditions[1];
-  const selectedGroup = address.questionNumber === null
+  const edition = catechismEditions.find((item) => item.number === address.edition) ?? null;
+  const selectedGroup = !edition ? undefined : address.questionNumber === null
     ? edition.groups.find((group) => group.id === address.groupId)
     : edition.groups.find((group) => group.questions.some((question) => question.number === address.questionNumber));
   const isDetail = address.groupId !== null || address.questionNumber !== null;
@@ -284,11 +283,6 @@ export function CatechismPage({ nextStep, voicePreference }: { nextStep?: ReactN
     return () => window.cancelAnimationFrame(frame);
   }, [address]);
 
-  const chooseEdition = (number: number) => {
-    window.history.pushState(null, "", `#/catechism/${number}`);
-    setAddress(readAddress());
-  };
-
   const missingQuestion = address.questionNumber !== null && !selectedGroup;
   const missingGroup = address.groupId !== null && !selectedGroup;
 
@@ -302,12 +296,12 @@ export function CatechismPage({ nextStep, voicePreference }: { nextStep?: ReactN
           <div className="catechism-context"><BookOpen size={18} aria-hidden="true" /><span>This historical series is distinct from the Catechism of the Catholic Church (CCC). Browse a lesson to read its original questions and answers.</span></div>
         </div>
       </header>
-      <EditionLibrary key={edition.id} edition={edition} onChooseEdition={chooseEdition} />
-    </> : selectedGroup ? <LessonReader edition={edition} group={selectedGroup} questionNumber={address.questionNumber} nextStep={nextStep} voicePreference={voicePreference} /> : <section className="journey-not-found catechism-not-found">
-      <p className="eyebrow">Baltimore Catechism No. {edition.number}</p>
+      <CatechismLibrary key={edition?.id ?? "books"} edition={edition} />
+    </> : edition && selectedGroup ?  <LessonReader edition={edition} group={selectedGroup} questionNumber={address.questionNumber} nextStep={nextStep} voicePreference={voicePreference} /> : <section className="journey-not-found catechism-not-found">
+      <p className="eyebrow">{edition ? `Baltimore Catechism No. ${edition.number}` : "Baltimore Catechism"}</p>
       <h1>{missingQuestion ? "Question not found" : missingGroup ? "Lesson not found" : "Section not found"}</h1>
       <p>Choose a lesson from this edition to continue reading.</p>
-      <a className="journey-action-link" href={`#/catechism/${edition.number}`}>Browse the lessons <ArrowRight size={16} /></a>
+      <a className="journey-action-link" href={edition ? `#/catechism/${edition.number}` : "#/catechism"}>Browse the lessons <ArrowRight size={16} /></a>
     </section>}
   </main>;
 }

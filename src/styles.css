@@ -2580,3 +2580,10 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
 	.summa-objections li,.summa-replies li { grid-template-columns:1fr; gap:3px; }
 	.summa-attribution { margin-top:20px; }
 }
+
+/* Catechism books and Summa parts reuse the breviary library cards. */
+.journey-library-card .catechism-artwork,.journey-library-card .summa-artwork { aspect-ratio:2/1; min-height:125px; max-height:175px; margin:0; border:0; border-radius:17px 17px 0 0; }
+.catechism-library-back { margin-bottom:22px; min-height:38px; padding:0 13px; font-size:10px; }
+@media (max-width:900px) {
+	.journey-library-card .catechism-artwork,.journey-library-card .summa-artwork { height:100%; min-height:145px; max-height:none; aspect-ratio:auto; border-radius:17px 0 0 17px; }
+}

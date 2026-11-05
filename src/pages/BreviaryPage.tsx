@@ -94,10 +94,11 @@ type BreviaryPageProps = DateProps & {
   onToggleAudio: () => void;
   onSelectSegment: (index: number) => void;
   onSkipIntro: () => void;
+  audioProgress?: ReactNode;
   nextStep?: ReactNode;
 };
 
-export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activeSegmentIndex, audioError, onToggleAudio, onSelectSegment, onSkipIntro, nextStep }: BreviaryPageProps) {
+export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activeSegmentIndex, audioError, onToggleAudio, onSelectSegment, onSkipIntro, audioProgress, nextStep }: BreviaryPageProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   if (!isBreviaryHour(hour) || !day) {
     return (
@@ -146,6 +147,7 @@ export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activ
           </button>
           {introPlaying && <button className="button button-outline journey-skip-intro journey-skip-intro-inline" type="button" onClick={onSkipIntro}><SkipForward size={15} aria-hidden="true" /> Skip intro</button>}
         </div>
+        {audioProgress}
         {audioError && <p className="journey-audio-error" role="status">{audioError}</p>}
         {(audioStatus === "playing" || audioStatus === "paused") && (
           <p className="journey-audio-status" aria-live="polite">

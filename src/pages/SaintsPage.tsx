@@ -130,7 +130,7 @@ export function SaintPage({ slug, voicePreference, nextStep }: { slug: string; v
       <h1>{saint.name}</h1>
       {saint.title && <p className="journey-detail-overview">{saint.title}</p>}
       <div className="journey-audio-controls"><NarratorButton text={narration} audioUrls={audioUrls} voicePreference={voicePreference} /></div>
-      <NarrationProgress className="saint-narration-progress" />
+      <NarrationProgress className="narration-progress-desktop saint-narration-progress" />
     </header>
     <div className="saints-detail-art"><SaintArtwork saint={saint} hero /></div>
     <article className="saint-biography">
