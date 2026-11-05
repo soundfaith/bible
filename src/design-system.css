@@ -898,10 +898,6 @@ select {
   50% { transform: translateY(-2px); box-shadow: 0 8px 18px rgb(61 220 132 / 40%); }
 }
 
-body {
-  padding-top: env(safe-area-inset-top, 0px);
-}
-
 body::before {
   content: "";
   position: fixed;
@@ -910,12 +906,15 @@ body::before {
   left: 0;
   z-index: 19;
   height: env(safe-area-inset-top, 0px);
-  background: var(--paper);
+  background: color-mix(in srgb, var(--paper) 72%, transparent);
+  backdrop-filter: blur(10px);
   pointer-events: none;
 }
 
 .site-header {
-  top: env(safe-area-inset-top, 0px);
+  top: 0;
+  box-sizing: content-box;
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 @media (max-width: 760px) {
@@ -943,21 +942,23 @@ body::before {
 }
 
 @media (max-width: 760px) {
-  .site-header,
-  .mobile-bottom-nav {
-    transition: transform .28s ease, opacity .28s ease;
+  html[data-hide-header] .site-header {
+    translate: 0 calc(var(--hide-header) * -100%);
   }
 
-  html[data-chrome="nav"] .site-header {
-    transform: translateY(calc(-100% - env(safe-area-inset-top, 0px)));
-    opacity: 0;
-    pointer-events: none;
+  html[data-hide-nav] .mobile-bottom-nav {
+    translate: 0 calc(var(--hide-nav) * (100% + 20px + env(safe-area-inset-bottom, 0px)));
   }
 
-  html[data-chrome="header"] .mobile-bottom-nav {
-    transform: translateY(calc(100% + 24px + env(safe-area-inset-bottom, 0px)));
-    opacity: 0;
-    pointer-events: none;
+  html[data-hide-nav] body .chat-fab {
+    translate: 0 calc(var(--hide-nav) * 76px);
+  }
+
+  html[data-chrome-snap] .site-header,
+  html[data-chrome-snap] .mobile-bottom-nav,
+  html[data-chrome-snap] body .chat-fab,
+  html[data-chrome-snap] body::after {
+    transition: translate .22s ease-out, opacity .22s ease-out;
   }
 
   html[data-chrome] body::after {
@@ -968,12 +969,8 @@ body::before {
     left: 0;
     z-index: 7;
     height: env(safe-area-inset-bottom, 0px);
-    background: var(--paper);
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    opacity: calc(1 - var(--hide-nav, 0));
     pointer-events: none;
-    transition: opacity .28s ease;
-  }
-
-  html[data-chrome="header"] body::after {
-    opacity: 0;
   }
 }

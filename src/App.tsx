@@ -65,6 +65,7 @@ import { getNarrationGender, saveNarrationGender, type NarrationGender } from ".
 import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "./lib/readings";
 import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
 import {
+  changeNarrationVoice,
   getNarrationSnapshot,
   JourneyNarrationProgress,
   triggerPageNarration,
@@ -196,6 +197,8 @@ export default function App() {
   );
   const [voicePreference, setVoicePreference] = useState<NarrationGender>(getNarrationGender);
   const [voicePreferenceError, setVoicePreferenceError] = useState(false);
+  const voicePreferenceRef = useRef(voicePreference);
+  voicePreferenceRef.current = voicePreference;
   const [rosaryMode, setRosaryModeState] = useState<RosaryMode>(readRosaryMode);
   const [readingPosition, setReadingPosition] =
     useState<ReadingPosition>(getLastReading);
@@ -230,28 +233,67 @@ export default function App() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const root = document.documentElement;
-    let lastY = window.scrollY;
-    let mode = "";
-    const apply = (next: string) => {
-      if (next === mode) return;
-      mode = next;
-      root.dataset.chrome = next;
+    // Fully hiding the header or nav takes this many pixels of scrolling, so they track the finger 1:1.
+    const RANGE = 90;
+    let lastY = Math.max(0, window.scrollY);
+    let hideHeader = 0;
+    let hideNav = 0;
+    let frame = 0;
+    let snapTimer: number | undefined;
+    let touching = false;
+    const clamp = (value: number) => Math.min(1, Math.max(0, value));
+    const render = () => {
+      frame = 0;
+      root.style.setProperty("--hide-header", String(hideHeader));
+      root.style.setProperty("--hide-nav", String(hideNav));
+      root.toggleAttribute("data-hide-header", hideHeader > 0);
+      root.toggleAttribute("data-hide-nav", hideNav > 0);
     };
-    apply("both");
+    const schedule = () => { if (!frame) frame = window.requestAnimationFrame(render); };
+    const snap = () => {
+      if (touching) return;
+      if (hideHeader === Math.round(hideHeader) && hideNav === Math.round(hideNav)) return;
+      root.setAttribute("data-chrome-snap", "");
+      hideHeader = Math.round(hideHeader);
+      hideNav = Math.round(hideNav);
+      render();
+      window.setTimeout(() => root.removeAttribute("data-chrome-snap"), 260);
+    };
+    const queueSnap = () => {
+      window.clearTimeout(snapTimer);
+      snapTimer = window.setTimeout(snap, 140);
+    };
     const onScroll = () => {
       const y = Math.max(0, window.scrollY);
       const delta = y - lastY;
-      if (y <= 8) {
-        apply("both");
-      } else if (Math.abs(delta) > 6) {
-        apply(delta > 0 ? "nav" : "header");
+      lastY = y;
+      if (y <= 0) {
+        hideHeader = 0;
+        hideNav = 0;
+      } else if (delta !== 0) {
+        hideHeader = clamp(hideHeader + delta / RANGE);
+        hideNav = clamp(hideNav - delta / RANGE);
       }
-      if (Math.abs(delta) > 6 || y <= 8) lastY = y;
+      schedule();
+      queueSnap();
     };
+    const onTouchStart = () => { touching = true; };
+    const onTouchEnd = () => { touching = false; queueSnap(); };
+    root.setAttribute("data-chrome", "");
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", onTouchEnd, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
-      delete root.dataset.chrome;
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
+      window.clearTimeout(snapTimer);
+      if (frame) window.cancelAnimationFrame(frame);
+      ["data-chrome", "data-hide-header", "data-hide-nav", "data-chrome-snap"].forEach((name) => root.removeAttribute(name));
+      root.style.removeProperty("--hide-header");
+      root.style.removeProperty("--hide-nav");
     };
   }, []);
   const journeyAudioStateRef = useRef(journeyAudio);
@@ -270,7 +312,9 @@ export default function App() {
   const searchSheetStartY = useRef<number | null>(null);
   const preserveNarrationOnNavigation = useRef(false);
   const changeVoicePreference = (gender: NarrationGender) => {
+    voicePreferenceRef.current = gender;
     setVoicePreference(gender);
+    changeNarrationVoice(gender);
     try {
       saveNarrationGender(gender);
       setVoicePreferenceError(false);
@@ -303,10 +347,10 @@ export default function App() {
   const journeyPlayback = (periodIndex: number, storyIndex: number) => {
     const period = bibleJourney[periodIndex];
     if (storyIndex === JOURNEY_INTRO_INDEX) {
-      return { text: journeyIntroText(period.id), audioUrls: journeyIntroAudioUrls(periodIndex, voicePreference) };
+      return { text: journeyIntroText(period.id), audioUrls: journeyIntroAudioUrls(periodIndex, voicePreferenceRef.current) };
     }
     const text = period.stories[storyIndex].references.flatMap((reference) => resolveReference(reference).map((verse) => verse.text)).join(" ");
-    return { text, audioUrls: journeyStoryAudioUrls(periodIndex, storyIndex, voicePreference) };
+    return { text, audioUrls: journeyStoryAudioUrls(periodIndex, storyIndex, voicePreferenceRef.current) };
   };
   const playJourneyStory = (periodId: string, storyIndex: number, shouldPlay: boolean) => {
     const periodIndex = bibleJourney.findIndex((period) => period.id === periodId);
@@ -326,7 +370,7 @@ export default function App() {
         audioUrls,
         advanceJourneyAudio,
         () => failJourneyAudio(periodId, storyIndex),
-        voicePreference,
+        voicePreferenceRef.current,
       );
       if (!started) {
         failJourneyAudio(periodId, storyIndex);
@@ -350,7 +394,7 @@ export default function App() {
         audioUrls,
         advanceJourneyAudio,
         () => failJourneyAudio(journeyPeriodId, current.storyIndex),
-        voicePreference,
+        voicePreferenceRef.current,
       );
       updateJourneyAudio({ ...current, status: "playing", error: null });
       if (!started) failJourneyAudio(journeyPeriodId, current.storyIndex);
@@ -407,8 +451,8 @@ export default function App() {
     const prayedBeadIndices = current.status === "idle" && clipIndex === 0 ? [] : current.prayedBeadIndices;
     const segmentElapsedSeconds = resetSegmentElapsed || current.segmentIndex !== clip.segmentIndex ? 0 : current.segmentElapsedSeconds;
     updateRosaryAudio({ segmentIndex: clip.segmentIndex, clipIndex, segmentElapsedSeconds, prayedBeadIndices, status: "playing", error: null });
-    const audioUrls = rosaryAudioUrlsFor(clip.audioAsset, voicePreference);
-    const started = startSpeaking(clip.spokenText, audioUrls, advanceRosaryAudio, () => failRosaryAudio(clipIndex), voicePreference);
+    const audioUrls = rosaryAudioUrlsFor(clip.audioAsset, voicePreferenceRef.current);
+    const started = startSpeaking(clip.spokenText, audioUrls, advanceRosaryAudio, () => failRosaryAudio(clipIndex), voicePreferenceRef.current);
     if (!started) failRosaryAudio(clipIndex);
     window.requestAnimationFrame(() => {
       const targetId = clip.groupId
@@ -461,8 +505,8 @@ export default function App() {
     }
     const clip = rosaryClipsRef.current[current.clipIndex];
     if (current.status === "paused" && clip) {
-      const audioUrls = rosaryAudioUrlsFor(clip.audioAsset, voicePreference);
-      const started = resumeSpeaking(clip.spokenText, audioUrls, advanceRosaryAudio, () => failRosaryAudio(current.clipIndex), voicePreference);
+      const audioUrls = rosaryAudioUrlsFor(clip.audioAsset, voicePreferenceRef.current);
+      const started = resumeSpeaking(clip.spokenText, audioUrls, advanceRosaryAudio, () => failRosaryAudio(current.clipIndex), voicePreferenceRef.current);
       updateRosaryAudio({ ...current, status: "playing", error: null });
       if (!started) failRosaryAudio(current.clipIndex);
       return;
@@ -489,7 +533,7 @@ export default function App() {
     const segment = breviaryDayRef.current?.segments[segmentIndex];
     if (!segment) return;
     updateBreviaryAudio({ segmentIndex, status: "playing", error: null });
-    const started = startSpeaking(segment.text, segment.audioUrls, advanceBreviaryAudio, () => failBreviaryAudio(segmentIndex), voicePreference);
+    const started = startSpeaking(segment.text, segment.audioUrls, advanceBreviaryAudio, () => failBreviaryAudio(segmentIndex), voicePreferenceRef.current);
     if (!started) failBreviaryAudio(segmentIndex);
     window.requestAnimationFrame(() => {
       document.getElementById(`breviary-${segment.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -500,7 +544,7 @@ export default function App() {
     const text = breviaryIntroText(breviaryHour);
     if (!text) return playBreviarySegment(0);
     updateBreviaryAudio({ segmentIndex: BREVIARY_INTRO_INDEX, status: "playing", error: null });
-    const started = startSpeaking(text, breviaryIntroAudioUrls(breviaryHour, voicePreference), advanceBreviaryAudio, () => failBreviaryAudio(BREVIARY_INTRO_INDEX), voicePreference);
+    const started = startSpeaking(text, breviaryIntroAudioUrls(breviaryHour, voicePreferenceRef.current), advanceBreviaryAudio, () => failBreviaryAudio(BREVIARY_INTRO_INDEX), voicePreferenceRef.current);
     if (!started) failBreviaryAudio(BREVIARY_INTRO_INDEX);
   };
   const skipBreviaryIntro = () => {
@@ -532,13 +576,13 @@ export default function App() {
     const segment = breviaryDayRef.current?.segments[current.segmentIndex];
     if (current.status === "paused" && current.segmentIndex === BREVIARY_INTRO_INDEX && isBreviaryHour(breviaryHour)) {
       const text = breviaryIntroText(breviaryHour);
-      const started = resumeSpeaking(text, breviaryIntroAudioUrls(breviaryHour, voicePreference), advanceBreviaryAudio, () => failBreviaryAudio(BREVIARY_INTRO_INDEX), voicePreference);
+      const started = resumeSpeaking(text, breviaryIntroAudioUrls(breviaryHour, voicePreferenceRef.current), advanceBreviaryAudio, () => failBreviaryAudio(BREVIARY_INTRO_INDEX), voicePreferenceRef.current);
       updateBreviaryAudio({ ...current, status: "playing", error: null });
       if (!started) failBreviaryAudio(BREVIARY_INTRO_INDEX);
       return;
     }
     if (current.status === "paused" && segment) {
-      const started = resumeSpeaking(segment.text, segment.audioUrls, advanceBreviaryAudio, () => failBreviaryAudio(current.segmentIndex), voicePreference);
+      const started = resumeSpeaking(segment.text, segment.audioUrls, advanceBreviaryAudio, () => failBreviaryAudio(current.segmentIndex), voicePreferenceRef.current);
       updateBreviaryAudio({ ...current, status: "playing", error: null });
       if (!started) failBreviaryAudio(current.segmentIndex);
       return;

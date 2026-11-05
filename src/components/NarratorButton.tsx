@@ -117,6 +117,7 @@ function playAudioSource(
   onEnded?: () => void,
   onError?: () => void,
   preference: NarrationGender = "male",
+  resume?: { fraction: number; paused: boolean },
 ) {
   if (sourceIndex >= activeAudioSources.length) {
     activeAudio = null;
@@ -135,9 +136,15 @@ function playAudioSource(
   const audioUrl = activeAudioSources[sourceIndex];
   const audio = new Audio(audioUrl);
   activeAudio = audio;
-  snapshot = { status: "playing", text, position: 0, duration: 0, elapsedSeconds: 0, usesAudioFile: true };
+  snapshot = { status: resume?.paused ? "paused" : "playing", text, position: 0, duration: 0, elapsedSeconds: 0, usesAudioFile: true };
+  let pendingFraction = resume ? resume.fraction : null;
   const updateAudioProgress = () => {
     if (activeAudio !== audio) return;
+    if (pendingFraction !== null && Number.isFinite(audio.duration) && audio.duration > 0) {
+      // The other voice has a different length, so continue from the same relative spot.
+      audio.currentTime = pendingFraction * audio.duration;
+      pendingFraction = null;
+    }
     snapshot = {
       ...snapshot,
       position: audio.currentTime,
@@ -169,6 +176,7 @@ function playAudioSource(
     void playAudioSource(text, sourceIndex + 1, onEnded, onError, preference);
   };
   notify();
+  if (resume?.paused) return true;
   void audio.play().catch((error: unknown) => {
     if (activeAudio !== audio) return;
     console.warn(`Narration MP3 could not be played: ${audioUrl}`, error);
@@ -201,6 +209,25 @@ export function startSpeaking(
   activeAudio?.pause();
   completionHandler = onEnded;
   return playAudioSource(text, 0, onEnded, onError, preference);
+}
+
+export function changeNarrationVoice(preference: NarrationGender) {
+  const previous = activePreference;
+  activePreference = preference;
+  if (previous === preference || (snapshot.status !== "playing" && snapshot.status !== "paused")) return;
+  const { text, status } = snapshot;
+  if (activeAudio) {
+    const old = activeAudio;
+    const fraction = Number.isFinite(old.duration) && old.duration > 0 ? old.currentTime / old.duration : 0;
+    // Source URLs carry the voice name, so swapping it keeps each list in the new preferred order.
+    const swap = (url: string) => url.replace(/am_michael|af_heart/g, (voice) => (voice === "am_michael" ? "af_heart" : "am_michael"));
+    activeAudioSources = activeAudioSources.map(swap);
+    activeAudio = null;
+    old.pause();
+    playAudioSource(text, 0, completionHandler, undefined, preference, { fraction, paused: status === "paused" });
+    return;
+  }
+  if (!snapshot.usesAudioFile && status === "playing") startTextToSpeech(text, completionHandler, snapshot.position, undefined, preference);
 }
 
 export function resumeSpeaking(

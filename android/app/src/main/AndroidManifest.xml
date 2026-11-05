@@ -29,6 +29,13 @@
         </provider>
     </application>
 
+    <!-- Android 11+ hides TTS engines from apps unless declared; WebView speechSynthesis needs this. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
