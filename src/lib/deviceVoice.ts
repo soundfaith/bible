@@ -18,8 +18,11 @@ const ROBOTIC_HINTS = /espeak|compact|fred|junior|ralph|albert|bad news|bahh|bel
 
 const preferredLanguages = ["en-us", "en-gb", "en-au", "en-ca", "en-ie", "en-in"];
 
-function voiceScore(voice: SpeechSynthesisVoice, gender: NarrationGender) {
-  const name = voice.name;
+type VoiceInfo = { name: string; lang: string; localService: boolean };
+
+function voiceScore(voice: VoiceInfo, gender: NarrationGender) {
+  // Android names look like "en-us-x-sfg#male_1-local"; make the gender word detectable.
+  const name = voice.name.replace(/[#_-]+/g, " ");
   if (!voice.lang.toLowerCase().startsWith("en") || ROBOTIC_HINTS.test(name)) return -1;
   const wantsMale = gender === "male";
   const isMale = MALE_NAMES.test(name);
@@ -41,6 +44,17 @@ export function pickDeviceVoice(gender: NarrationGender): SpeechSynthesisVoice |
     const score = voiceScore(voice, gender);
     if (score > bestScore) { best = voice; bestScore = score; }
   }
+  return best;
+}
+
+// Index into the native (Capacitor) voice list, or undefined to use the engine default.
+export function pickVoiceIndex(voices: VoiceInfo[], gender: NarrationGender): number | undefined {
+  let best: number | undefined;
+  let bestScore = 0;
+  voices.forEach((voice, index) => {
+    const score = voiceScore(voice, gender);
+    if (score > bestScore) { best = index; bestScore = score; }
+  });
   return best;
 }
 

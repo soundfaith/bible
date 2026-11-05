@@ -1,7 +1,9 @@
 import { Pause, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { NarrationGender } from "../lib/narrationVoice";
-import { pickDeviceVoice } from "../lib/deviceVoice";
+import { Capacitor } from "@capacitor/core";
+import { TextToSpeech } from "@capacitor-community/text-to-speech";
+import { pickDeviceVoice, pickVoiceIndex } from "../lib/deviceVoice";
 
 const ESTIMATED_CHARS_PER_SECOND = 14;
 
@@ -19,6 +21,68 @@ let elapsedTimer: number | undefined;
 let elapsedBaseSeconds = 0;
 let elapsedStartedAt = 0;
 const listeners = new Set<() => void>();
+
+// Android WebView has no working speechSynthesis, so the app uses the native text-to-speech engine instead.
+const useNativeSpeech = () => Capacitor.isNativePlatform();
+let nativeSession: object | null = null;
+let nativeBase = 0;
+let nativeListenerReady = false;
+let nativeVoices: Promise<{ name: string; lang: string; localService: boolean }[]> | null = null;
+
+function loadNativeVoices() {
+  if (!nativeVoices) nativeVoices = TextToSpeech.getSupportedVoices().then((result) => result.voices).catch(() => []);
+  return nativeVoices;
+}
+
+function ensureNativeListener() {
+  if (nativeListenerReady) return;
+  nativeListenerReady = true;
+  void TextToSpeech.addListener("onRangeStart", (info) => {
+    if (!nativeSession) return;
+    snapshot = { ...snapshot, status: "playing", position: nativeBase + info.start };
+    notify();
+  });
+}
+
+function speakNatively(text: string, position: number, onEnded: (() => void) | undefined, onError: (() => void) | undefined, preference: NarrationGender) {
+  const session = {};
+  nativeSession = session;
+  nativeBase = position;
+  ensureNativeListener();
+  void (async () => {
+    try {
+      const voices = await loadNativeVoices();
+      if (nativeSession !== session) return;
+      await TextToSpeech.speak({
+        text: text.slice(position),
+        lang: "en-US",
+        rate: 0.92,
+        pitch: 1,
+        volume: 1,
+        voice: pickVoiceIndex(voices, preference),
+        queueStrategy: 0,
+      });
+      if (nativeSession !== session) return;
+      nativeSession = null;
+      stopElapsedTimer();
+      snapshot = { ...snapshot, status: "idle" };
+      const onComplete = completionHandler;
+      completionHandler = undefined;
+      notify();
+      onComplete?.();
+    } catch {
+      if (nativeSession !== session) return;
+      stopSpeaking();
+      onError?.();
+    }
+  })();
+}
+
+function stopNativeSpeech() {
+  if (!nativeSession) return;
+  nativeSession = null;
+  void TextToSpeech.stop().catch(() => undefined);
+}
 
 function notify() { listeners.forEach((listener) => listener()); }
 
@@ -48,6 +112,7 @@ export function subscribeNarration(listener: () => void) {
 
 export function stopSpeaking() {
   if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
+  stopNativeSpeech();
   stopElapsedTimer();
   if (activeAudio) {
     activeAudio.pause();
@@ -69,16 +134,26 @@ function startTextToSpeech(
   onError?: () => void,
   preference: NarrationGender = "male",
 ) {
-  if (!("speechSynthesis" in window) || !text.trim()) return false;
+  const native = useNativeSpeech();
+  if ((!native && !("speechSynthesis" in window)) || !text.trim()) return false;
   const position = snapshot.text === text ? Math.max(0, fromPosition) : 0;
   const elapsedBase = snapshot.text === text && (snapshot.status === "paused" || snapshot.status === "playing")
     ? snapshot.elapsedSeconds
     : 0;
-  window.speechSynthesis.cancel();
+  window.speechSynthesis?.cancel();
+  stopNativeSpeech();
   activeAudio?.pause();
   activeAudio = null;
   completionHandler = onEnded;
   activePreference = preference;
+  if (native) {
+    activeSpeech = null;
+    snapshot = { status: "playing", text, position, duration: 0, elapsedSeconds: elapsedBase, usesAudioFile: false };
+    startElapsedTimer(elapsedBase);
+    notify();
+    speakNatively(text, position, onEnded, onError, preference);
+    return true;
+  }
   const utterance = new SpeechSynthesisUtterance(text.slice(position));
   utterance.rate = 0.92;
   utterance.pitch = 1;
@@ -205,6 +280,7 @@ export function startSpeaking(
     return started;
   }
   window.speechSynthesis?.cancel();
+  stopNativeSpeech();
   activeSpeech = null;
   activeAudio?.pause();
   completionHandler = onEnded;
@@ -260,7 +336,10 @@ export function pauseSpeaking() {
     stopElapsedTimer();
   }
   if (activeAudio) activeAudio.pause();
-  else if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  else {
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    stopNativeSpeech();
+  }
   activeSpeech = null;
   snapshot = { ...snapshot, status: "paused" };
   notify();

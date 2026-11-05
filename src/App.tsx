@@ -233,67 +233,25 @@ export default function App() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const root = document.documentElement;
-    // Fully hiding the header or nav takes this many pixels of scrolling, so they track the finger 1:1.
-    const RANGE = 90;
     let lastY = Math.max(0, window.scrollY);
-    let hideHeader = 0;
-    let hideNav = 0;
-    let frame = 0;
-    let snapTimer: number | undefined;
-    let touching = false;
-    const clamp = (value: number) => Math.min(1, Math.max(0, value));
-    const render = () => {
-      frame = 0;
-      root.style.setProperty("--hide-header", String(hideHeader));
-      root.style.setProperty("--hide-nav", String(hideNav));
-      root.toggleAttribute("data-hide-header", hideHeader > 0);
-      root.toggleAttribute("data-hide-nav", hideNav > 0);
+    let mode = "";
+    const apply = (next: string) => {
+      if (next === mode) return;
+      mode = next;
+      root.dataset.chrome = next;
     };
-    const schedule = () => { if (!frame) frame = window.requestAnimationFrame(render); };
-    const snap = () => {
-      if (touching) return;
-      if (hideHeader === Math.round(hideHeader) && hideNav === Math.round(hideNav)) return;
-      root.setAttribute("data-chrome-snap", "");
-      hideHeader = Math.round(hideHeader);
-      hideNav = Math.round(hideNav);
-      render();
-      window.setTimeout(() => root.removeAttribute("data-chrome-snap"), 260);
-    };
-    const queueSnap = () => {
-      window.clearTimeout(snapTimer);
-      snapTimer = window.setTimeout(snap, 140);
-    };
+    apply("both");
     const onScroll = () => {
       const y = Math.max(0, window.scrollY);
       const delta = y - lastY;
-      lastY = y;
-      if (y <= 0) {
-        hideHeader = 0;
-        hideNav = 0;
-      } else if (delta !== 0) {
-        hideHeader = clamp(hideHeader + delta / RANGE);
-        hideNav = clamp(hideNav - delta / RANGE);
-      }
-      schedule();
-      queueSnap();
+      if (y <= 8) apply("both");
+      else if (Math.abs(delta) > 10) apply(delta > 0 ? "nav" : "header");
+      if (Math.abs(delta) > 10 || y <= 8) lastY = y;
     };
-    const onTouchStart = () => { touching = true; };
-    const onTouchEnd = () => { touching = false; queueSnap(); };
-    root.setAttribute("data-chrome", "");
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchend", onTouchEnd, { passive: true });
-    window.addEventListener("touchcancel", onTouchEnd, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("touchcancel", onTouchEnd);
-      window.clearTimeout(snapTimer);
-      if (frame) window.cancelAnimationFrame(frame);
-      ["data-chrome", "data-hide-header", "data-hide-nav", "data-chrome-snap"].forEach((name) => root.removeAttribute(name));
-      root.style.removeProperty("--hide-header");
-      root.style.removeProperty("--hide-nav");
+      delete root.dataset.chrome;
     };
   }, []);
   const journeyAudioStateRef = useRef(journeyAudio);

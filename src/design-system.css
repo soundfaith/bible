@@ -942,23 +942,23 @@ body::before {
 }
 
 @media (max-width: 760px) {
-  html[data-hide-header] .site-header {
-    translate: 0 calc(var(--hide-header) * -100%);
+  .site-header,
+  .mobile-bottom-nav,
+  body .chat-fab,
+  body::after {
+    transition: translate .6s cubic-bezier(.65, 0, .35, 1), opacity .6s cubic-bezier(.65, 0, .35, 1);
   }
 
-  html[data-hide-nav] .mobile-bottom-nav {
-    translate: 0 calc(var(--hide-nav) * (100% + 20px + env(safe-area-inset-bottom, 0px)));
+  html[data-chrome="nav"] .site-header {
+    translate: 0 -100%;
   }
 
-  html[data-hide-nav] body .chat-fab {
-    translate: 0 calc(var(--hide-nav) * 76px);
+  html[data-chrome="header"] .mobile-bottom-nav {
+    translate: 0 calc(100% + 20px + env(safe-area-inset-bottom, 0px));
   }
 
-  html[data-chrome-snap] .site-header,
-  html[data-chrome-snap] .mobile-bottom-nav,
-  html[data-chrome-snap] body .chat-fab,
-  html[data-chrome-snap] body::after {
-    transition: translate .22s ease-out, opacity .22s ease-out;
+  html[data-chrome="header"] body .chat-fab {
+    translate: 0 76px;
   }
 
   html[data-chrome] body::after {
@@ -970,7 +970,10 @@ body::before {
     z-index: 7;
     height: env(safe-area-inset-bottom, 0px);
     background: color-mix(in srgb, var(--paper) 94%, transparent);
-    opacity: calc(1 - var(--hide-nav, 0));
     pointer-events: none;
+  }
+
+  html[data-chrome="header"] body::after {
+    opacity: 0;
   }
 }
