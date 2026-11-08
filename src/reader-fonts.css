@@ -18,6 +18,15 @@
   font-size: var(--reader-font-size, 22px);
 }
 
+.no-worry-reading,
+.no-worry-scripture > p:first-child {
+  font-size: var(--reader-font-size, 22px);
+}
+
+.no-worry-reading {
+  line-height: 1.72;
+}
+
 .catechism-detail-page .catechism-detail-heading .journey-detail-overview {
   font-size: var(--reader-font-size, 22px);
 }

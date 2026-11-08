@@ -242,8 +242,6 @@ function QuestionReader({ part, question, articleNumber, voicePreference }: { pa
       <NarrationProgress className="narration-progress-desktop narration-progress-centered" />
     </header>
 
-    <SummaArtwork variant={summaArtworkVariants[part.sort_order - 1] ?? "supplementum"} hero />
-
     <article className="summa-reading" aria-label={`${part.name}, Question ${question.number}: ${question.title}`}>
       <div className="catechism-answer-controls">
         <button type="button" className="button button-outline" onClick={toggleAllArticles} aria-expanded={allExpanded}>

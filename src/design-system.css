@@ -77,12 +77,15 @@ select:focus-visible {
 }
 
 .section-wrap,
-.site-header,
 .site-footer {
   width: min(1200px, calc(100% - 72px));
 }
 
 .site-header {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding-inline: max(36px, calc((100% - 1200px) / 2));
   position: sticky;
   top: 0;
   z-index: 20;
@@ -582,12 +585,14 @@ select {
 
 @media (max-width: 760px) {
   .section-wrap,
-  .site-header,
   .site-footer {
     width: calc(100% - 36px);
   }
 
   .site-header {
+    width: 100%;
+    margin: 0;
+    padding-inline: 18px;
     height: 68px;
   }
 
@@ -913,7 +918,7 @@ body::before {
 
 .site-header {
   top: 0;
-  box-sizing: content-box;
+  box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
 }
 
@@ -938,6 +943,23 @@ body::before {
   body .chat-panel {
     height: calc(100dvh - 40px - env(safe-area-inset-top, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@media (min-width: 761px) {
+  .main-nav > a,
+  .mobile-drawer-group .mobile-drawer-link {
+    border: 0;
+  }
+
+  .mobile-drawer-group-title {
+    margin-top: 10px;
+    padding-top: 9px;
+  }
+
+  .mobile-drawer-group .mobile-drawer-link {
+    padding: 9px 0;
+    font-size: 13px;
   }
 }
 

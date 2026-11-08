@@ -3,17 +3,19 @@ import { NextStepPrompt } from "./NextStepPrompt";
 import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "../lib/assistant";
 import { breviaryHourInfo, type BreviaryHour } from "../lib/breviary";
 import { bibleBooks, getChapterCount } from "../lib/bible";
-import { routineStreak, type DailyItem, type DailyStreakState, type Routine } from "../lib/dailyStreak";
+import { journeyCatalog } from "../data/journeyCatalog";
+import { nextDailyRoutine, routineStreak, type DailyStreakState, type Routine } from "../lib/dailyStreak";
+import type { JourneyOverview } from "../lib/journeyOverview";
 import type { SmallCardProps } from "./LandingSmallCard";
 
 type RandomSuggestion = { kind: "gospel" } | { kind: "psalm"; chapter: number } | { kind: "paul"; bookId: string; chapter: number } | { kind: "assistant" } | { kind: "catechism" };
 
 type Props = {
-  page: "breviary" | "mass" | "rosary" | "saints" | "catechism";
-  doneToday: DailyItem[];
+  page: "breviary" | "mass" | "rosary" | "saints" | "catechism" | "journey";
   streak: DailyStreakState;
   hour: BreviaryHour;
   journeyComplete: boolean;
+  journeyOverview: JourneyOverview;
   gospelReference: string;
   onOpenMass: () => void;
   onOpenBreviary: () => void;
@@ -45,38 +47,52 @@ function streakText(days: number) {
   return "1 day, a lovely start";
 }
 
-export function DailyNextStep({ page, doneToday, streak, hour, journeyComplete, gospelReference, onOpenMass, onOpenBreviary, onOpenRosary, onOpenSaints, onOpenJourney, onOpenReference, onOpenChapter }: Props) {
+export function DailyNextStep({ page, streak, hour, journeyComplete, journeyOverview, gospelReference, onOpenMass, onOpenBreviary, onOpenRosary, onOpenSaints, onOpenJourney, onOpenReference, onOpenChapter }: Props) {
   const [randomSuggestion] = useState(makeRandomSuggestion);
-  const breviaryDone = doneToday.some((item) => item === "lauds" || item === "vespers" || item === "compline");
-  const massDone = doneToday.includes("mass");
-  const rosaryDone = doneToday.includes("rosary");
-  const saintsDone = doneToday.includes("saints");
-  const routineOptions: { routine: Routine; complete: boolean; streakDays: number; card: SmallCardProps }[] = [
+  const routineOptions: { routine: Routine; streakDays: number; card: SmallCardProps }[] = [
     {
-      routine: "breviary", complete: breviaryDone, streakDays: routineStreak(streak, "breviary"),
+      routine: "breviary", streakDays: routineStreak(streak, "breviary"),
       card: { art: "prayer", title: "Breviary", description: `Pray ${breviaryHourInfo[hour].name} with the Church.`, action: `Pray ${breviaryHourInfo[hour].name}`, onClick: onOpenBreviary },
     },
     {
-      routine: "mass", complete: massDone, streakDays: routineStreak(streak, "mass"),
+      routine: "mass", streakDays: routineStreak(streak, "mass"),
       card: { art: "readings", title: "Mass Reading", description: "Spend a little time with today's readings from Mass.", action: "Read today's Mass", onClick: onOpenMass },
     },
     {
-      routine: "rosary", complete: rosaryDone, streakDays: routineStreak(streak, "rosary"),
+      routine: "rosary", streakDays: routineStreak(streak, "rosary"),
       card: { art: "rosary", title: "Rosary", description: "Pray with the mysteries of Jesus' life.", action: "Pray the Rosary", onClick: onOpenRosary },
     },
     {
-      routine: "saints", complete: saintsDone, streakDays: routineStreak(streak, "saints"),
+      routine: "saints", streakDays: routineStreak(streak, "saints"),
       card: { art: "saints", title: "Saint of the day", description: "Spend a moment with a witness to the Gospel.", action: "Meet today's saint", onClick: onOpenSaints },
     },
   ];
-  const streakRoutine = routineOptions
-    .filter((item) => !item.complete && item.streakDays > 0)
-    .sort((a, b) => b.streakDays - a.streakDays)[0];
-  const nextRoutine = streakRoutine ?? routineOptions.find((item) => !item.complete);
+  const nextRoutineId = nextDailyRoutine(streak);
+  const nextRoutine = routineOptions.find((item) => item.routine === nextRoutineId);
 
   let heading: string;
   let card: SmallCardProps;
-  if (nextRoutine) {
+  if (page !== "journey" && journeyOverview.noWorry.active) {
+    heading = "Keep going with your current journey";
+    card = {
+      art: journeyCatalog["no-worry"].artwork,
+      title: journeyCatalog["no-worry"].title,
+      description: `Continue with day ${journeyOverview.noWorry.nextDay} of Scripture, reflection, and prayer.`,
+      action: `Continue Day ${journeyOverview.noWorry.nextDay}`,
+      onClick: onOpenJourney,
+    };
+  } else if (page !== "journey" && journeyOverview.bible.active) {
+    heading = "Keep going with your current journey";
+    card = {
+      art: journeyCatalog.bible.artwork,
+      title: journeyCatalog.bible.title,
+      description: journeyOverview.bible.resumePeriod
+        ? `Continue with ${journeyOverview.bible.resumePeriod.title} in the story of salvation.`
+        : journeyCatalog.bible.description,
+      action: "Continue Bible Journey",
+      onClick: onOpenJourney,
+    };
+  } else if (nextRoutine) {
     const hasActiveStreak = nextRoutine.streakDays > 0;
     heading = hasActiveStreak ? "Keep your prayer streak going" : nextRoutine.routine === "mass" ? "Continue with today's readings" : nextRoutine.routine === "saints" ? "Meet a witness of faith" : "Continue with prayer";
     card = hasActiveStreak
@@ -98,7 +114,7 @@ export function DailyNextStep({ page, doneToday, streak, hour, journeyComplete, 
     }
   } else {
     heading = "Ready to go a little deeper?";
-    card = { art: "journey", title: "Bible Journey", description: "Walk through the story of salvation, one period at a time.", action: "Start the Journey", onClick: onOpenJourney };
+    card = { art: journeyCatalog.bible.artwork, title: journeyCatalog.bible.title, description: journeyCatalog.bible.description, action: "Explore journeys", onClick: onOpenJourney };
   }
 
   return <NextStepPrompt heading={heading} card={card} className={`daily-next-step daily-next-step--${page}`} />;

@@ -3,6 +3,7 @@ import { Capacitor } from "@capacitor/core";
 import {
   Compass,
   Church,
+  CalendarDays,
   Bookmark as BookmarkMenuIcon,
   House,
   Home,
@@ -31,6 +32,9 @@ import { ModalLayer, type Modal } from "./components/ModalLayer";
 import { SearchModal, type SearchResult } from "./components/SearchModal";
 import { ChatWidget } from "./components/ChatWidget";
 import { HomePage } from "./pages/HomePage";
+import { DailyPage } from "./pages/DailyPage";
+import { JourneysPage } from "./pages/JourneysPage";
+import { NoWorryJourneyPage } from "./pages/NoWorryJourneyPage";
 import { BibleJourneyLibrary, BibleJourneyPage } from "./pages/BibleJourneyPage";
 import { JourneyArtworkPage } from "./pages/JourneyArtworkPage";
 import { BibleBooksPage } from "./pages/BibleBooksPage";
@@ -49,7 +53,7 @@ import { buildRosarySequence, todaysRosaryPath, type RosaryMode } from "./data/r
 import { featuredSaintForDate, hasSaintSlug } from "./data/saintsDaily";
 import { assembleBreviary, breviaryDayInfo, currentBreviaryHour, isBreviaryHour } from "./lib/breviary";
 import { useScrollReveal } from "./lib/reveal";
-import { doneToday as getDoneToday, loadDailyStreak, localDateKey, recordDailyItem } from "./lib/dailyStreak";
+import { loadDailyStreak, localDateKey, recordDailyItem, type DailyItem } from "./lib/dailyStreak";
 import { syncSystemBars } from "./lib/platform";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { ReferencePage } from "./pages/ReferencePage";
@@ -59,6 +63,10 @@ import journeyIntros from "./data/journeyIntros.json";
 import breviaryIntros from "./data/breviaryIntros.json";
 import { resolveJourneyPeriodId, loadJourneyArtworkSelections, saveJourneyArtworkSelections } from "./data/journeyArtwork";
 import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress";
+import { loadGuidedJourneyProgress, saveGuidedJourneyProgress } from "./lib/guidedJourneyProgress";
+import { journeyProgressStorageKey, loadJourneyProgressData, updateJourneyProgressData } from "./lib/journeyProgressStore";
+import { getJourneyOverview } from "./lib/journeyOverview";
+import { noWorryJourney } from "./data/noWorryJourney";
 import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor, rosaryAudioUrlsFor } from "./lib/narrationAudio";
 import { requestSaintNarrationToggle } from "./lib/saintsAudio";
 import { getNarrationGender, saveNarrationGender, type NarrationGender } from "./lib/narrationVoice";
@@ -82,7 +90,7 @@ const SaintsLibrary = lazy(() => import("./pages/SaintsPage").then((module) => (
 const CatechismPage = lazy(() => import("./pages/CatechismPage").then((module) => ({ default: module.CatechismPage })));
 const SummaPage = lazy(() => import("./pages/SummaPage").then((module) => ({ default: module.SummaPage })));
 
-type Route = "home" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journey" | "journey-artwork" | "breviary" | "rosary" | "rosary-prayer" | "saints" | "saint-profile" | "catechism" | "summa";
+type Route = "home" | "daily" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journeys" | "journey" | "guided-journey" | "journey-artwork" | "breviary" | "rosary" | "rosary-prayer" | "saints" | "saint-profile" | "catechism" | "summa";
 type PendingNarration = "start" | "pause" | "resume" | null;
 type JourneyAudioStatus = "idle" | "playing" | "paused";
 type JourneyAudioState = {
@@ -95,7 +103,6 @@ type BreviaryAudioState = { segmentIndex: number; status: JourneyAudioStatus; er
 const INITIAL_BREVIARY_AUDIO: BreviaryAudioState = { segmentIndex: 0, status: "idle", error: null };
 type RosaryAudioState = { segmentIndex: number; clipIndex: number; segmentElapsedSeconds: number; prayedBeadIndices: number[]; status: JourneyAudioStatus; error: string | null };
 const INITIAL_ROSARY_AUDIO: RosaryAudioState = { segmentIndex: 0, clipIndex: 0, segmentElapsedSeconds: 0, prayedBeadIndices: [], status: "idle", error: null };
-const LAST_JOURNEY_PERIOD_KEY = "soundfaith-bible-journey-last-period-v1";
 const ROSARY_MODE_KEY = "rosary-mode";
 const INITIAL_JOURNEY_AUDIO: JourneyAudioState = { periodId: null, storyIndex: 0, status: "idle", error: null };
 const JOURNEY_INTRO_INDEX = -1;
@@ -119,17 +126,15 @@ function breviaryIntroText(hour: string) {
 }
 
 function getLastJourneyPeriodId() {
-  try {
-    const saved = window.localStorage.getItem(LAST_JOURNEY_PERIOD_KEY);
-    return saved && bibleJourney.some((period) => period.id === saved) ? saved : null;
-  } catch {
-    return null;
-  }
+  return loadJourneyProgressData().data.lastVisitedPeriodId;
 }
 
 function readRoute(): Route {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
   return path === "journey-artwork" ? "journey-artwork"
+    : path === "journeys" ? "journeys"
+    : path === "daily" ? "daily"
+    : path.startsWith("journeys/") ? "guided-journey"
     : path === "summa" || path.startsWith("summa/") ? "summa"
     : path === "catechism" || path.startsWith("catechism/") ? "catechism"
     : path.startsWith("rosary/") ? "rosary-prayer"
@@ -207,6 +212,21 @@ export default function App() {
   const [breviaryHour, setBreviaryHour] = useState<string | null>(readBreviaryHour);
   const [dailyStreak, setDailyStreak] = useState(loadDailyStreak);
   useEffect(() => {
+    const syncJourneyProgress = (event: StorageEvent) => {
+      if (event.key !== journeyProgressStorageKey) return;
+      const { data, error } = loadJourneyProgressData();
+      setJourneyProgress({ completedIds: data.bibleCompletedIds, storageError: error });
+      setGuidedJourneyProgress({
+        started: data.noWorryStarted || data.noWorryCompletedDays.length > 0,
+        completedDays: data.noWorryCompletedDays,
+        storageError: error,
+      });
+      setLastJourneyPeriodId(data.lastVisitedPeriodId);
+    };
+    window.addEventListener("storage", syncJourneyProgress);
+    return () => window.removeEventListener("storage", syncJourneyProgress);
+  }, []);
+  useEffect(() => {
     const today = localDateKey();
     if (route === "breviary" && breviaryHour && isBreviaryHour(breviaryHour) && localDateKey(breviaryDate) === today) {
       setDailyStreak((state) => recordDailyItem(state, breviaryHour, today));
@@ -227,6 +247,7 @@ export default function App() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(getBookmarks);
   const [bookmarkCategories, setBookmarkCategories] = useState<string[]>(getBookmarkCategories);
   const [journeyProgress, setJourneyProgress] = useState(loadJourneyProgress);
+  const [guidedJourneyProgress, setGuidedJourneyProgress] = useState(loadGuidedJourneyProgress);
   const [journeyArtwork, setJourneyArtwork] = useState(loadJourneyArtworkSelections);
   const menuRef = useRef<HTMLElement | null>(null);
 
@@ -571,11 +592,8 @@ export default function App() {
   useEffect(() => {
     if (route !== "journey" || !journeyPeriodId) return;
     setLastJourneyPeriodId(journeyPeriodId);
-    try {
-      window.localStorage.setItem(LAST_JOURNEY_PERIOD_KEY, journeyPeriodId);
-    } catch {
-      // Keep the current period available for this visit if storage is unavailable.
-    }
+    const saved = updateJourneyProgressData((progress) => ({ ...progress, lastVisitedPeriodId: journeyPeriodId }));
+    if (!saved) setJourneyProgress((progress) => ({ ...progress, storageError: true }));
   }, [route, journeyPeriodId]);
   useEffect(() => {
     const current = journeyAudioStateRef.current;
@@ -660,6 +678,21 @@ export default function App() {
     const saved = saveJourneyProgress(completedIds);
     setJourneyProgress({ completedIds, storageError: !saved });
   };
+  const startGuidedJourney = () => {
+    const progress = { ...guidedJourneyProgress, started: true };
+    setGuidedJourneyProgress({ ...progress, storageError: !saveGuidedJourneyProgress(progress) });
+  };
+  const completeGuidedJourneyDay = () => {
+    if (!guidedJourneyProgress.started || guidedJourneyProgress.completedDays.length >= noWorryJourney.length) return;
+    const nextDay = guidedJourneyProgress.completedDays.length + 1;
+    const progress = {
+      ...guidedJourneyProgress,
+      started: true,
+      completedDays: [...guidedJourneyProgress.completedDays, nextDay],
+    };
+    setGuidedJourneyProgress({ ...progress, storageError: !saveGuidedJourneyProgress(progress) });
+  };
+  const journeyOverview = getJourneyOverview(guidedJourneyProgress, journeyProgress.completedIds, lastJourneyPeriodId);
   const selectJourneyArtwork = (periodId: string, optionId: string) => {
     const selections = { ...journeyArtwork.selections, [periodId]: optionId };
     setJourneyArtwork({ selections, storageError: !saveJourneyArtworkSelections(selections) });
@@ -775,12 +808,34 @@ export default function App() {
     } else startSpeaking(narrationForPage.text, narrationForPage.audioUrls, narrationForPage.onEnded, undefined, voicePreference);
   };
   const resumeJourney = () => {
-    const periodId = lastJourneyPeriodId ?? bibleJourney[0].id;
+    const periodId = journeyOverview.bible.resumePeriod?.id ?? bibleJourney[0].id;
     window.location.hash = `#/journey/${periodId}`;
+  };
+  const openJourneyRecommendation = () => {
+    if (journeyOverview.noWorry.active) {
+      window.location.hash = "#/journeys/no-worry";
+    } else if (journeyOverview.bible.active) {
+      resumeJourney();
+    } else {
+      window.location.hash = "#/journeys";
+    }
   };
   const openCurrentBreviary = () => {
     setBreviaryDate(new Date());
     window.location.hash = `#/breviary/${currentBreviaryHour()}`;
+  };
+  const openDailyItem = (item: DailyItem) => {
+    if (item === "mass") {
+      setMassDate(getTodaysMassReading().date);
+      window.location.hash = "#/mass";
+    } else if (item === "rosary") {
+      window.location.hash = "#/rosary";
+    } else if (item === "saints") {
+      window.location.hash = "#/saints/today";
+    } else {
+      setBreviaryDate(new Date());
+      window.location.hash = `#/breviary/${item}`;
+    }
   };
   const openPicker = () =>
     setModal({
@@ -897,16 +952,16 @@ export default function App() {
     ) : route === "catechism" ? (
       <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Baltimore Catechism…</p></main>}><CatechismPage voicePreference={voicePreference} nextStep={<DailyNextStep
         page="catechism"
-        doneToday={getDoneToday(dailyStreak)}
         streak={dailyStreak}
         hour={currentBreviaryHour()}
         journeyComplete={journeyComplete}
+        journeyOverview={journeyOverview}
         gospelReference={todayGospelReference}
         onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
         onOpenBreviary={openCurrentBreviary}
         onOpenRosary={() => { window.location.hash = "#/rosary"; }}
         onOpenSaints={() => { window.location.hash = "#/saints/today"; }}
-        onOpenJourney={() => { window.location.hash = "#/journey"; }}
+        onOpenJourney={openJourneyRecommendation}
         onOpenReference={openMassReference}
         onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
       />} /></Suspense>
@@ -920,16 +975,16 @@ export default function App() {
         voicePreference={voicePreference}
         nextStep={<DailyNextStep
           page="mass"
-          doneToday={getDoneToday(dailyStreak)}
           streak={dailyStreak}
           hour={currentBreviaryHour()}
           journeyComplete={journeyComplete}
+          journeyOverview={journeyOverview}
           gospelReference={todayGospelReference}
           onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
           onOpenBreviary={openCurrentBreviary}
           onOpenRosary={() => { window.location.hash = "#/rosary"; }}
           onOpenSaints={() => { window.location.hash = "#/saints/today"; }}
-          onOpenJourney={() => { window.location.hash = "#/journey"; }}
+          onOpenJourney={openJourneyRecommendation}
           onOpenReference={openMassReference}
           onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
         />}
@@ -949,16 +1004,16 @@ export default function App() {
         audioProgress={breviaryDesktopProgress}
         nextStep={<DailyNextStep
           page="breviary"
-          doneToday={getDoneToday(dailyStreak)}
           streak={dailyStreak}
           hour={isBreviaryHour(breviaryHour) ? breviaryHour : currentBreviaryHour()}
           journeyComplete={journeyComplete}
+          journeyOverview={journeyOverview}
           gospelReference={todayGospelReference}
           onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
           onOpenBreviary={openCurrentBreviary}
           onOpenRosary={() => { window.location.hash = "#/rosary"; }}
           onOpenSaints={() => { window.location.hash = "#/saints/today"; }}
-          onOpenJourney={() => { window.location.hash = "#/journey"; }}
+          onOpenJourney={openJourneyRecommendation}
           onOpenReference={openMassReference}
           onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
         />}
@@ -968,16 +1023,16 @@ export default function App() {
     ) : route === "rosary-prayer" ? (
       <RosaryPrayerPage key={rosaryMysteryIndex} mysteryIndex={rosaryMysteryIndex} mode={rosaryMode} onModeChange={changeRosaryMode} audioStatus={rosaryAudio.status} activeSegmentIndex={rosaryAudio.segmentIndex} activePrayerGroupId={rosaryClipsRef.current[rosaryAudio.clipIndex]?.groupId ?? null} prayedBeadIndices={rosaryAudio.prayedBeadIndices} activeBeadIndex={activeRosaryBeadIndex} audioError={rosaryAudio.error} onToggleAudio={toggleRosaryAudio} onSelectSegment={playRosarySegment} audioProgress={rosaryDesktopProgress} nextStep={<DailyNextStep
         page="rosary"
-        doneToday={getDoneToday(dailyStreak)}
         streak={dailyStreak}
         hour={currentBreviaryHour()}
         journeyComplete={journeyComplete}
+        journeyOverview={journeyOverview}
         gospelReference={todayGospelReference}
         onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
         onOpenBreviary={openCurrentBreviary}
         onOpenRosary={() => { window.location.hash = "#/rosary"; }}
         onOpenSaints={() => { window.location.hash = "#/saints/today"; }}
-        onOpenJourney={() => { window.location.hash = "#/journey"; }}
+        onOpenJourney={openJourneyRecommendation}
         onOpenReference={openMassReference}
         onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
       />} />
@@ -986,16 +1041,16 @@ export default function App() {
     ) : route === "saint-profile" ? (
       <Suspense fallback={<main className="journey-page section-wrap"><p className="eyebrow">Opening saint profile…</p></main>}><SaintPage slug={saintSlug} voicePreference={voicePreference} nextStep={<DailyNextStep
         page="saints"
-        doneToday={getDoneToday(dailyStreak)}
         streak={dailyStreak}
         hour={currentBreviaryHour()}
         journeyComplete={journeyComplete}
+        journeyOverview={journeyOverview}
         gospelReference={todayGospelReference}
         onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
         onOpenBreviary={openCurrentBreviary}
         onOpenRosary={() => { window.location.hash = "#/rosary"; }}
         onOpenSaints={() => { window.location.hash = "#/saints/today"; }}
-        onOpenJourney={() => { window.location.hash = "#/journey"; }}
+        onOpenJourney={openJourneyRecommendation}
         onOpenReference={openMassReference}
         onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
       />} /></Suspense>
@@ -1015,6 +1070,40 @@ export default function App() {
         storageError={journeyArtwork.storageError}
         onSelect={selectJourneyArtwork}
       />
+    ) : route === "guided-journey" ? (
+      <NoWorryJourneyPage
+        progress={guidedJourneyProgress}
+        voicePreference={voicePreference}
+        nextStep={<DailyNextStep
+          page="journey"
+          streak={dailyStreak}
+          hour={currentBreviaryHour()}
+          journeyComplete={journeyComplete}
+          journeyOverview={journeyOverview}
+          gospelReference={todayGospelReference}
+          onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
+          onOpenBreviary={openCurrentBreviary}
+          onOpenRosary={() => { window.location.hash = "#/rosary"; }}
+          onOpenSaints={() => { window.location.hash = "#/saints/today"; }}
+          onOpenJourney={openJourneyRecommendation}
+          onOpenReference={openMassReference}
+          onOpenChapter={(bookId, chapter) => openReader({ bookId, chapter })}
+        />}
+        onStart={startGuidedJourney}
+        onCompleteDay={completeGuidedJourneyDay}
+      />
+    ) : route === "journeys" ? (
+      <JourneysPage
+        guidedProgress={guidedJourneyProgress}
+        bibleCompletedIds={journeyProgress.completedIds}
+        lastVisitedPeriodId={lastJourneyPeriodId}
+        onSelectJourney={(id) => {
+          window.location.hash = id === "no-worry" ? "#/journeys/no-worry" : "#/journey";
+        }}
+        onContinueBibleJourney={resumeJourney}
+      />
+    ) : route === "daily" ? (
+      <DailyPage streak={dailyStreak} onOpenDaily={openDailyItem} />
     ) : route === "journey" ? journeyPeriodId ? (
       <BibleJourneyPage
         periodId={journeyPeriodId}
@@ -1048,35 +1137,26 @@ export default function App() {
         onResume={() => openReader()}
         onChoose={() => { window.location.hash = "#/bible"; }}
         onJourney={() => { window.location.hash = "#/journey"; }}
-        onBreviary={() => { window.location.hash = "#/breviary"; }}
         onRosary={() => { window.location.hash = todaysRosaryPath(); }}
-        onSaints={() => { window.location.hash = "#/saints"; }}
         onSaintToday={() => { window.location.hash = "#/saints/today"; }}
         onCatechism={() => { window.location.hash = "#/catechism"; }}
         onSumma={() => { window.location.hash = "#/summa"; }}
-        onMass={() => {
-          setMassDate(getTodaysMassReading().date);
-          window.location.hash = "#/mass";
-        }}
+        onGuidedJourney={() => { window.location.hash = "#/journeys/no-worry"; }}
+        onContinueBibleJourney={resumeJourney}
+        onAllJourneys={() => { window.location.hash = "#/journeys"; }}
+        onDaily={() => { window.location.hash = "#/daily"; }}
         streak={dailyStreak}
+        guidedJourney={guidedJourneyProgress}
+        bibleJourney={{
+          completedIds: journeyProgress.completedIds,
+          lastVisitedPeriodId: lastJourneyPeriodId,
+        }}
         bible={{
           started: hasOpenedBible(),
           label: `${bibleBooks.find((book) => book.id === readingPosition.bookId)?.name ?? "Genesis"} ${readingPosition.chapter}`,
         }}
         onShare={shareApp}
-        onOpenDaily={(item) => {
-          if (item === "mass") {
-            setMassDate(getTodaysMassReading().date);
-            window.location.hash = "#/mass";
-          } else if (item === "rosary") {
-            window.location.hash = "#/rosary";
-          } else if (item === "saints") {
-            window.location.hash = "#/saints/today";
-          } else {
-            setBreviaryDate(new Date());
-            window.location.hash = `#/breviary/${item}`;
-          }
-        }}
+        onOpenDaily={openDailyItem}
       />
     );
   return (
@@ -1098,16 +1178,26 @@ export default function App() {
             </button>
           </div>
           <a href="#/" className="mobile-drawer-link" aria-current={route === "home" ? "page" : undefined} onClick={() => setMenuOpen(false)}><House size={17} />Home</a>
-          <a href="#/read" className="mobile-drawer-link" aria-current={route === "read" || route === "bible" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible</a>
-          <a href="#/journey" className="mobile-drawer-link" aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Compass size={17} />Bible Journey</a>
-          <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BreviaryHourIcon size={17} />Breviary</a>
-          <a href="#/rosary" className="mobile-drawer-link" aria-current={route === "rosary" || route === "rosary-prayer" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />Rosary</a>
-          <a href="#/saints" className="mobile-drawer-link" aria-current={route === "saints" || route === "saint-profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sparkles size={17} />Saints</a>
-          <a href="#/catechism" className="mobile-drawer-link" aria-current={route === "catechism" ? "page" : undefined} onClick={() => setMenuOpen(false)}><ScrollText size={17} />Catechism</a>
-          <a href="#/summa" className="mobile-drawer-link" aria-current={route === "summa" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Landmark size={17} />Summa Theologiae</a>
-          <a href="#/mass" className="mobile-drawer-link" aria-current={route === "mass" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Church size={17} />Mass Reading</a>
-          <a href="#/bookmarks" className="mobile-drawer-link" aria-current={route === "bookmarks" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
-          <a href="#/about" className="mobile-drawer-link" aria-current={route === "about" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About</a>
+          <div className="mobile-drawer-group">
+            <p className="mobile-drawer-group-title">Scripture &amp; growth</p>
+            <a href="#/read" className="mobile-drawer-link" aria-current={route === "read" || route === "bible" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible</a>
+            <a href="#/journeys" className="mobile-drawer-link" aria-current={route === "journeys" || route === "journey" || route === "guided-journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Compass size={17} />Journeys</a>
+            <a href="#/catechism" className="mobile-drawer-link" aria-current={route === "catechism" ? "page" : undefined} onClick={() => setMenuOpen(false)}><ScrollText size={17} />Catechism</a>
+            <a href="#/summa" className="mobile-drawer-link" aria-current={route === "summa" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Landmark size={17} />Summa Theologiae</a>
+          </div>
+          <div className="mobile-drawer-group">
+            <p className="mobile-drawer-group-title">Prayer &amp; daily life</p>
+            <a href="#/daily" className="mobile-drawer-link" aria-current={route === "daily" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily rhythm</a>
+            <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BreviaryHourIcon size={17} />Breviary</a>
+            <a href="#/rosary" className="mobile-drawer-link" aria-current={route === "rosary" || route === "rosary-prayer" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />Rosary</a>
+            <a href="#/saints" className="mobile-drawer-link" aria-current={route === "saints" || route === "saint-profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sparkles size={17} />Saints</a>
+            <a href="#/mass" className="mobile-drawer-link" aria-current={route === "mass" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Church size={17} />Mass Readings</a>
+          </div>
+          <div className="mobile-drawer-group">
+            <p className="mobile-drawer-group-title">Your library</p>
+            <a href="#/bookmarks" className="mobile-drawer-link" aria-current={route === "bookmarks" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
+            <a href="#/about" className="mobile-drawer-link" aria-current={route === "about" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About SoundFaith</a>
+          </div>
           <section className="font-size-control" aria-label="Reading font size">
             <div className="font-size-heading"><span>Text size</span><span>{fontSize}px</span></div>
             <div className="font-size-preview">The Lord is my shepherd; I shall not want.</div>
@@ -1218,13 +1308,13 @@ export default function App() {
         >
           {mobileListenIcon}<span>{mobileListenText}</span>
         </button>
-        <a href="#/journey" className={route === "journey" || route === "journey-artwork" ? "mobile-listen active" : "mobile-listen"} aria-current={route === "journey" || route === "journey-artwork" ? "page" : undefined}>
+        <a href="#/journeys" className={route === "journeys" || route === "journey" || route === "guided-journey" || route === "journey-artwork" ? "mobile-listen active" : "mobile-listen"} aria-current={route === "journeys" || route === "journey" || route === "guided-journey" || route === "journey-artwork" ? "page" : undefined}>
           <Compass size={17} />
-          <span>Journey</span>
+          <span>Journeys</span>
         </a>
-        <a href="#/breviary" className={route === "breviary" ? "active" : ""} aria-current={route === "breviary" ? "page" : undefined} onClick={(event) => { event.preventDefault(); openCurrentBreviary(); }}>
-          <BreviaryHourIcon size={17} />
-          <span>Breviary</span>
+        <a href="#/daily" className={route === "daily" || route === "breviary" || route === "mass" || route === "rosary" || route === "rosary-prayer" || route === "saints" || route === "saint-profile" ? "active" : ""} aria-current={route === "daily" ? "page" : undefined}>
+          <CalendarDays size={17} />
+          <span>Daily</span>
         </a>
       </nav>
       <footer className="site-footer">

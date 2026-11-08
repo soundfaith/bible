@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Search, X } from "lucide-react";
 import { getNarrationSnapshot, NarrationProgress, NarratorButton, pauseSpeaking, resumeSpeaking, startSpeaking } from "../components/NarratorButton";
-import { SaintArtwork } from "../components/SaintArtwork";
 import { saintGroups, saintGroupFor, saintNarrationText, saintSearchText, saints, saintsForDate, type SaintGroupId } from "../data/saints";
 import { saintNarrationAudioUrlsFor } from "../lib/narrationAudio";
 import { SAINT_NARRATION_TOGGLE_EVENT } from "../lib/saintsAudio";
@@ -65,7 +64,6 @@ export function SaintsLibrary({ onOpenToday }: { onOpenToday: () => void }) {
         <p className="journey-intro">Meet the witnesses remembered by the Church, and spend a little time with their words and lives.</p>
         <button className="button button-coral journey-resume-button" type="button" onClick={onOpenToday}>Saint of the day <ArrowRight size={15} /></button>
       </div>
-      <div className="saints-hero-art"><SaintArtwork hero /></div>
     </header>
     <section className="journey-library saints-library" aria-labelledby="saints-catalogue-title">
       <div className="journey-library-heading saints-catalogue-heading">
@@ -132,7 +130,6 @@ export function SaintPage({ slug, voicePreference, nextStep }: { slug: string; v
       <div className="journey-audio-controls"><NarratorButton text={narration} audioUrls={audioUrls} voicePreference={voicePreference} /></div>
       <NarrationProgress className="narration-progress-desktop saint-narration-progress" />
     </header>
-    <div className="saints-detail-art"><SaintArtwork saint={saint} hero /></div>
     <article className="saint-biography">
       {saint.quotes[0] && <blockquote className="saint-quote"><p>“{saint.quotes[0]}”</p><cite>{saint.name}</cite></blockquote>}
       <div className="saint-biography-copy bible-reading-copy" lang="en">{biography.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>

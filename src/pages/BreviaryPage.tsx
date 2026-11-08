@@ -160,8 +160,6 @@ export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activ
         </details>}
       </header>
 
-      <BreviaryArtwork hour={hour} hero />
-
       {day.saint && (
         <aside className="breviary-saint" aria-label="Saint of the day">
           <p className="eyebrow">Saint of the day</p>
@@ -170,33 +168,31 @@ export function BreviaryPage({ hour, day, date, onDateChange, audioStatus, activ
         </aside>
       )}
 
-      <div className="journey-story-list">
-        {day.segments.map((segment, segmentIndex) => {
-          const active = audioStatus !== "idle" && activeSegmentIndex === segmentIndex;
-          return (
-            <article className="journey-story breviary-segment" id={`breviary-${segment.id}`} key={segment.id} aria-labelledby={`breviary-heading-${segment.id}`}>
-              <div className="journey-story-content">
-                <section className="journey-scripture">
-                  <header className="journey-scripture-heading">
-                    <h3 id={`breviary-heading-${segment.id}`}>{segment.heading}{segment.reference && <span className="breviary-reference"> · {segment.reference}</span>}</h3>
-                    <div className="journey-scripture-actions">
-                      <button
-                        className={active ? "journey-story-play active" : "journey-story-play"}
-                        type="button"
-                        onClick={() => onSelectSegment(segmentIndex)}
-                        aria-label={`Play ${segment.heading} and the rest of ${info.name}`}
-                        aria-current={active ? "true" : undefined}
-                      ><Play size={14} aria-hidden="true" /></button>
-                    </div>
+      <div className="journey-story-list breviary-story-list">
+        <article className="journey-story breviary-segment breviary-prayer-card">
+          <div className="journey-story-content">
+            {day.segments.map((segment, segmentIndex) => {
+              const active = audioStatus !== "idle" && activeSegmentIndex === segmentIndex;
+              return (
+                <section className={`rosary-prayer-part breviary-prayer-section${active ? " is-audio-active" : ""}`} id={`breviary-${segment.id}`} key={segment.id} aria-labelledby={`breviary-heading-${segment.id}`}>
+                  <header className="rosary-prayer-heading">
+                    <h4 id={`breviary-heading-${segment.id}`}>{segment.heading}{segment.reference && <span className="breviary-reference"> · {segment.reference}</span>}</h4>
+                    <button
+                      className={active ? "journey-story-play active" : "journey-story-play"}
+                      type="button"
+                      onClick={() => onSelectSegment(segmentIndex)}
+                      aria-label={`Play ${segment.heading} and the rest of ${info.name}`}
+                      aria-current={active ? "true" : undefined}
+                    ><Play size={14} aria-hidden="true" /></button>
                   </header>
                   <div className="journey-scripture-verses bible-reading-copy" lang="en">
                     {segment.paragraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}
                   </div>
                 </section>
-              </div>
-            </article>
-          );
-        })}
+              );
+            })}
+          </div>
+        </article>
       </div>
 
       <footer className="journey-detail-footer">

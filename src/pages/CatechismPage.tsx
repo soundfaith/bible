@@ -207,8 +207,6 @@ function LessonReader({ edition, group, questionNumber, nextStep, voicePreferenc
       <NarrationProgress className="narration-progress-desktop narration-progress-centered" />
     </header>
 
-    <CatechismArtwork edition={edition.number} hero />
-
     <article className="catechism-reading" aria-label={`${edition.title}, ${isLesson ? `Lesson ${group.number}: ${lessonTitle}` : lessonTitle}`}>
       {group.questions.length ? <>
         <div className="catechism-answer-controls">

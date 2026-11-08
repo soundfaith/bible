@@ -139,8 +139,6 @@ export function RosaryPrayerPage({
       </div>
     </header>
 
-    <RosaryArtwork index={mysteryIndex} hero />
-
     <div className="journey-story-list rosary-story-list">
       <article className={`journey-story breviary-segment rosary-opening${activeSegmentIndex === 0 && audioStatus !== "idle" ? " is-audio-active" : ""}`} id="rosary-opening" aria-labelledby="rosary-opening-title">
         <div className="journey-story-content"><section className="journey-scripture">
