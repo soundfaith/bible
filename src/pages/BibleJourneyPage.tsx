@@ -21,6 +21,7 @@ type JourneyPageProps = {
   onSelectAudioStory: (storyIndex: number) => void;
   onSkipIntro: () => void;
   audioProgress?: ReactNode;
+  nextStep?: ReactNode;
   onOpenPassage: (bookId: string, chapter: number, verse: number) => void;
 };
 
@@ -61,6 +62,7 @@ export function BibleJourneyPage({
   onSelectAudioStory,
   onSkipIntro,
   audioProgress,
+  nextStep,
   onOpenPassage,
 }: JourneyPageProps) {
   const currentPeriod = bibleJourney.find((period) => period.id === periodId);
@@ -91,7 +93,7 @@ export function BibleJourneyPage({
   const introPlaying = audioStatus !== "idle" && activeStoryIndex === -1;
 
   return (
-    <main className="journey-page journey-detail-page section-wrap">
+    <main className={`journey-page journey-detail-page section-wrap${nextStep ? " has-next-step" : ""}`}>
       <nav className="journey-detail-nav" aria-label="Period navigation">
         <a className="button button-outline" href="#/journey"><ArrowLeft size={16} /> Back to journey</a>
         <button
@@ -225,6 +227,7 @@ export function BibleJourneyPage({
         </div>
       </footer>
       {storageError && <p className="journey-storage-notice" role="status">Progress could not be saved on this device. Your change will remain only for this visit.</p>}
+      {nextStep}
     </main>
   );
 }
@@ -235,9 +238,11 @@ export function BibleJourneyLibrary({
   artworkSelections,
   lastVisitedPeriodId,
   onResume,
+  nextStep,
 }: Pick<JourneyPageProps, "completedIds" | "storageError" | "artworkSelections"> & {
   lastVisitedPeriodId: string | null;
   onResume: () => void;
+  nextStep?: ReactNode;
 }) {
   const nextPeriod = bibleJourney.find((period) => !completedIds.includes(period.id));
   const lastVisitedPeriod = bibleJourney.find((period) => period.id === lastVisitedPeriodId);
@@ -295,6 +300,7 @@ export function BibleJourneyLibrary({
           })}
         </ol>
       </section>
+      {nextStep}
     </main>
   );
 }

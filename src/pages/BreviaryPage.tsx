@@ -31,7 +31,7 @@ function BreviaryDateBar({ date, caption, onOpen }: { date: Date; caption: strin
   );
 }
 
-export function BreviaryLibrary({ date, seasonName, saintName, onDateChange }: DateProps & { seasonName: string; saintName: string | null }) {
+export function BreviaryLibrary({ date, seasonName, saintName, onDateChange, nextStep }: DateProps & { seasonName: string; saintName: string | null; nextStep?: ReactNode }) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const caption = saintName ? `${saintName} · ${seasonName}` : seasonName;
   const currentHour = breviaryHourInfo[currentBreviaryHour()];
@@ -80,6 +80,7 @@ export function BreviaryLibrary({ date, seasonName, saintName, onDateChange }: D
           })}
         </ol>
       </section>
+      {nextStep}
       {calendarOpen && <BreviaryCalendar date={date} onSelect={(value) => { onDateChange(value); setCalendarOpen(false); }} onClose={() => setCalendarOpen(false)} />}
     </main>
   );

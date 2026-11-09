@@ -1,5 +1,6 @@
 export type JourneyCatalogId = "no-worry" | "bible" | "advent" | "lent";
 export type AvailableJourneyId = "no-worry" | "bible";
+export type JourneyCadence = "daily" | "weekly";
 
 export type JourneyCatalogEntry = {
   id: JourneyCatalogId;
@@ -7,6 +8,7 @@ export type JourneyCatalogEntry = {
   description: string;
   artwork: "journey" | "bible-journey";
   available: boolean;
+  cadence?: JourneyCadence;
 };
 
 export const journeyCatalog: Record<JourneyCatalogId, JourneyCatalogEntry> = {
@@ -16,6 +18,7 @@ export const journeyCatalog: Record<JourneyCatalogId, JourneyCatalogEntry> = {
     description: "Fifteen days of Scripture, reflection, and prayer for a more trusting heart.",
     artwork: "journey",
     available: true,
+    cadence: "daily",
   },
   bible: {
     id: "bible",
@@ -23,6 +26,7 @@ export const journeyCatalog: Record<JourneyCatalogId, JourneyCatalogEntry> = {
     description: "Walk through the story of salvation, one period at a time.",
     artwork: "bible-journey",
     available: true,
+    cadence: "weekly",
   },
   advent: {
     id: "advent",
@@ -41,3 +45,7 @@ export const journeyCatalog: Record<JourneyCatalogId, JourneyCatalogEntry> = {
 };
 
 export const journeyList = Object.values(journeyCatalog);
+
+export function journeyCadence(id: JourneyCatalogId): JourneyCadence {
+  return journeyCatalog[id].cadence ?? "daily";
+}

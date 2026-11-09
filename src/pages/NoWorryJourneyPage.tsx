@@ -10,18 +10,22 @@ type Props = {
   progress: GuidedJourneyProgress;
   voicePreference: NarrationGender;
   nextStep: ReactNode;
+  selectedDay: number | null;
+  onSelectDay: (day: number | null) => void;
   onStart: () => void;
   onCompleteDay: () => void;
 };
 
-export function NoWorryJourneyPage({ progress, voicePreference, nextStep, onStart, onCompleteDay }: Props) {
+export function NoWorryJourneyPage({ progress, voicePreference, nextStep, selectedDay, onSelectDay, onStart, onCompleteDay }: Props) {
   const isComplete = progress.completedDays.length === noWorryJourney.length;
   const currentDay = Math.min(progress.completedDays.length + 1, noWorryJourney.length);
-  const day = noWorryJourney[currentDay - 1];
+  const dayNumber = selectedDay && selectedDay <= currentDay ? selectedDay : currentDay;
+  const day = noWorryJourney[dayNumber - 1];
   const narration = useMemo(
     () => [day.scripture, day.reference, day.reflection, day.prayer].join(". "),
     [day],
   );
+  const canCompleteDay = progress.started && !isComplete && dayNumber === currentDay;
 
   return (
     <main className="journey-page journey-detail-page section-wrap saints-page no-worry-page has-next-step">
@@ -30,9 +34,9 @@ export function NoWorryJourneyPage({ progress, voicePreference, nextStep, onStar
       </nav>
 
       <header className="journey-detail-heading saints-detail-heading no-worry-heading">
-        <p className="eyebrow"><span className="eyebrow-dot" /> No-Worry Challenge</p>
-        <h1>{isComplete ? "Journey complete" : `Day ${currentDay} of the No-Worry Journey`}</h1>
-        <p className="journey-detail-overview">{isComplete ? "Keep walking in trust, one day at a time." : "A 15-day journey through Scripture, reflection, and prayer."}</p>
+        <p className="eyebrow"><span className="eyebrow-dot" /> No-Worry Journey</p>
+        <h1>{`Day ${dayNumber} of the No-Worry Journey`}</h1>
+        <p className="journey-detail-overview">{isComplete ? "Journey complete. Revisit any day whenever you need it." : "A 15-day journey through Scripture, reflection, and prayer."}</p>
         <div className="journey-audio-controls">
           <NarratorButton text={narration} voicePreference={voicePreference} />
         </div>
@@ -45,7 +49,7 @@ export function NoWorryJourneyPage({ progress, voicePreference, nextStep, onStar
         </p>
       )}
 
-      <article className="journey-story breviary-segment no-worry-content" aria-label={`Day ${currentDay} of the No-Worry Journey`}>
+      <article className="journey-story breviary-segment no-worry-content" aria-label={`Day ${dayNumber} of the No-Worry Journey`}>
         <section className="journey-scripture">
           <div className="rosary-prayer-parts">
             <div className="rosary-prayer-part">
@@ -67,12 +71,21 @@ export function NoWorryJourneyPage({ progress, voicePreference, nextStep, onStar
             </div>
           </div>
         </section>
-        {!progress.started ? (
+        {!progress.started && dayNumber === currentDay ? (
           <button className="button button-coral no-worry-complete" type="button" onClick={onStart}>Begin the journey <ArrowRight size={15} /></button>
-        ) : !isComplete ? (
-          <button className="button button-coral no-worry-complete" type="button" onClick={onCompleteDay}>Complete Day {currentDay} <Check size={15} /></button>
+        ) : canCompleteDay ? (
+          <button className="button button-coral no-worry-complete" type="button" onClick={onCompleteDay}>Complete Day {dayNumber} <Check size={15} /></button>
         ) : null}
       </article>
+      <nav className="bible-chapter-nav no-worry-day-nav" aria-label="No-Worry Journey days">
+        <button type="button" className="button button-outline" onClick={() => onSelectDay(dayNumber - 1)} disabled={dayNumber <= 1}>
+          <ArrowLeft size={16} /> Previous
+        </button>
+        <span>Day {dayNumber} of {noWorryJourney.length}</span>
+        <button type="button" className="button button-outline" onClick={() => onSelectDay(dayNumber + 1)} disabled={dayNumber >= currentDay}>
+          Next <ArrowRight size={16} />
+        </button>
+      </nav>
       {nextStep}
     </main>
   );

@@ -7,7 +7,7 @@ import { SAINT_NARRATION_TOGGLE_EVENT } from "../lib/saintsAudio";
 import type { NarrationGender } from "../lib/narrationVoice";
 
 const dateTitle = (date = new Date()) => date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
-export function SaintsLibrary({ onOpenToday }: { onOpenToday: () => void }) {
+export function SaintsLibrary({ onOpenToday, nextStep }: { onOpenToday: () => void; nextStep?: ReactNode }) {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState<"all" | SaintGroupId>("all");
   const matching = useMemo(() => {
@@ -89,6 +89,7 @@ export function SaintsLibrary({ onOpenToday }: { onOpenToday: () => void }) {
       </div>
       <p className="saints-source-note">Biographies and quotations are drawn from the <a href="https://github.com/joshx2415/torch-data" target="_blank" rel="noreferrer">Torch &amp; Lily saints dataset</a>. Visit <a href="https://torchandlily.com" target="_blank" rel="noreferrer">Torch &amp; Lily</a>.</p>
     </section>
+    {nextStep}
   </main>;
 }
 

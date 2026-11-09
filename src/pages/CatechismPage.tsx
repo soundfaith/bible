@@ -63,23 +63,6 @@ function AskSofiPrompt() {
   />;
 }
 
-function EditionNextStep({ edition }: { edition: CatechismEdition }) {
-  const nextEdition = catechismEditions.find((item) => item.number === edition.number + 1);
-  const target = nextEdition?.groups.find((item) => item.kind === "lesson");
-  if (!nextEdition || !target) return null;
-  return <NextStepPrompt
-    heading="Continue with the next edition"
-    className="catechism-edition-next"
-    card={{
-      art: "catechism",
-      title: `Baltimore Catechism No. ${nextEdition.number}`,
-      description: `Begin with Lesson ${target.number}: ${displayLessonTitle(target.title)}.`,
-      action: "Read the next edition",
-      onClick: () => { window.location.hash = catechismGroupHref(nextEdition.number, target.id); },
-    }}
-  />;
-}
-
 function editionBlurb(edition: CatechismEdition) {
   return `${edition.audience} · ${edition.lessonCount} lessons · ${edition.questionCount} questions`;
 }
@@ -154,7 +137,7 @@ function CatechismLibrary({ edition }: { edition: CatechismEdition | null }) {
   </>;
 }
 
-function LessonReader({ edition, group, questionNumber, nextStep, voicePreference }: { edition: CatechismEdition; group: CatechismGroup; questionNumber: number | null; nextStep?: ReactNode; voicePreference: NarrationGender }) {
+function LessonReader({ edition, group, questionNumber, voicePreference }: { edition: CatechismEdition; group: CatechismGroup; questionNumber: number | null; voicePreference: NarrationGender }) {
   const lessons = edition.groups.filter((item) => item.kind === "lesson");
   const lessonIndex = lessons.findIndex((item) => item.id === group.id);
   const previous = lessonIndex > 0 ? lessons[lessonIndex - 1] : undefined;
@@ -244,8 +227,6 @@ function LessonReader({ edition, group, questionNumber, nextStep, voicePreferenc
       </nav>
     </footer>}
     {isLesson && next && <AskSofiPrompt />}
-    {edition.number < 3 && isLesson && !next && <EditionNextStep edition={edition} />}
-    {edition.number === 3 && isLesson && !next && nextStep}
     <footer className="catechism-rights-note catechism-detail-rights">
       {catechismData.sources.attribution} {catechismData.sources.rightsNote}
     </footer>
@@ -295,11 +276,12 @@ export function CatechismPage({ nextStep, voicePreference }: { nextStep?: ReactN
         </div>
       </header>
       <CatechismLibrary key={edition?.id ?? "books"} edition={edition} />
-    </> : edition && selectedGroup ?  <LessonReader edition={edition} group={selectedGroup} questionNumber={address.questionNumber} nextStep={nextStep} voicePreference={voicePreference} /> : <section className="journey-not-found catechism-not-found">
+    </> : edition && selectedGroup ?  <LessonReader edition={edition} group={selectedGroup} questionNumber={address.questionNumber} voicePreference={voicePreference} /> : <section className="journey-not-found catechism-not-found">
       <p className="eyebrow">{edition ? `Baltimore Catechism No. ${edition.number}` : "Baltimore Catechism"}</p>
       <h1>{missingQuestion ? "Question not found" : missingGroup ? "Lesson not found" : "Section not found"}</h1>
       <p>Choose a lesson from this edition to continue reading.</p>
       <a className="journey-action-link" href={edition ? `#/catechism/${edition.number}` : "#/catechism"}>Browse the lessons <ArrowRight size={16} /></a>
     </section>}
+    {nextStep}
   </main>;
 }

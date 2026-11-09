@@ -5,11 +5,12 @@ import { CardArt, SmallCard, type CardArtKey } from "../components/LandingSmallC
 import { NextStepPrompt } from "../components/NextStepPrompt";
 import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "../lib/assistant";
 import { breviaryHourInfo, currentBreviaryHour } from "../lib/breviary";
-import { doneToday, hasEverDone, nextDailyRoutine, routineStreak, type DailyItem, type DailyStreakState, type Routine } from "../lib/dailyStreak";
+import { doneToday, hasEverDone, routineStreak, type DailyItem, type DailyStreakState } from "../lib/dailyStreak";
 import { noWorryJourney } from "../data/noWorryJourney";
-import { journeyCatalog, journeyList } from "../data/journeyCatalog";
+import { journeyCadence, journeyCatalog, journeyList } from "../data/journeyCatalog";
 import type { GuidedJourneyProgress } from "../lib/guidedJourneyProgress";
 import { getJourneyOverview } from "../lib/journeyOverview";
+import { selectDailyRecommendation } from "../lib/dailyRecommendations";
 
 type HomePageProps = {
   onJourney: () => void;
@@ -62,36 +63,52 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
     { art: "summa", title: "Summa Theologiae", description: "Study St. Thomas Aquinas's enduring work of theology.", action: "Explore the Summa", onClick: onSumma },
   ];
 
-  const nextRoutineId: Routine | null = nextDailyRoutine(streak);
-  const nextRoutine = routineCards.find((card) => card.routine === nextRoutineId);
-  const journeyNextStep = featuredJourney === "no-worry"
-    ? {
+  const journeyNextSteps = {
+    "journey-no-worry": {
       art: journeyCatalog["no-worry"].artwork,
       title: journeyCatalog["no-worry"].title,
-      description: journeyOverview.noWorry.active
-        ? `Continue with day ${journeyOverview.noWorry.nextDay} of Scripture, reflection, and prayer.`
-        : journeyCatalog["no-worry"].description,
-      action: journeyOverview.noWorry.active ? `Continue Day ${journeyOverview.noWorry.nextDay}` : journeyOverview.noWorry.complete ? "Revisit the journey" : "Begin the journey",
+      description: `Continue with day ${journeyOverview.noWorry.nextDay} of Scripture, reflection, and prayer.`,
+      action: `Continue Day ${journeyOverview.noWorry.nextDay}`,
       onClick: onGuidedJourney,
-    }
-    : {
+    },
+    "journey-bible": {
       art: journeyCatalog.bible.artwork,
       title: journeyCatalog.bible.title,
       description: journeyOverview.bible.resumePeriod
         ? `Continue with ${journeyOverview.bible.resumePeriod.title} in the story of salvation.`
         : journeyCatalog.bible.description,
-      action: journeyOverview.bible.active ? "Continue Bible Journey" : "Explore Bible Journey",
+      action: "Continue Bible Journey",
       onClick: journeyOverview.bible.active ? onContinueBibleJourney : onJourney,
-    };
-  const nextStepCard = journeyOverview.hasActiveJourney
-    ? journeyNextStep
-    : nextRoutine ?? {
-    art: "bible" as const,
-    title: "Continue reading Scripture",
-    description: "Spend a little time with God's Word today.",
-    action: bible.started ? `Continue ${bible.label}` : "Start with Genesis",
-    onClick: onResume,
+    },
   };
+  const recommendation = selectDailyRecommendation("home", streak, journeyOverview);
+  const routineByRecommendation = {
+    mass: "mass",
+    breviary: "breviary",
+    rosary: "rosary",
+    saints: "saints",
+  } as const;
+  const nextStepCard = recommendation === "journey-no-worry" || recommendation === "journey-bible"
+    ? journeyNextSteps[recommendation]
+    : recommendation === "journey-library"
+      ? {
+        art: journeyCatalog.bible.artwork,
+        title: "Explore Another Journey",
+        description: "Choose a guided journey through Scripture and daily life.",
+        action: "Explore journeys",
+        onClick: onAllJourneys,
+      }
+      : recommendation === "bible"
+        ? {
+          art: "bible" as const,
+          title: "Continue reading Scripture",
+          description: "Spend a little time with God's Word today.",
+          action: bible.started ? `Continue ${bible.label}` : "Start with Genesis",
+          onClick: onResume,
+        }
+        : recommendation === "catechism" || recommendation === "summa"
+          ? formationCards.find((card) => card.title.toLowerCase().includes(recommendation))!
+          : routineCards.find((card) => card.routine === routineByRecommendation[recommendation])!;
 
   const share = async () => {
     try {
@@ -132,6 +149,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
               <span className="eyebrow">{journeyOverview.noWorry.active ? "In progress" : journeyOverview.noWorry.complete ? "Journey complete" : "Featured journey"}</span>
               <strong>{featuredJourneyInfo.title}</strong>
               <span>{journeyOverview.noWorry.complete ? "Return to the reflections and prayers whenever you need them." : featuredJourneyInfo.description}</span>
+              <span className="landing-journey-day">Recommended cadence: {journeyCadence("no-worry")}</span>
               <span className="landing-journey-day">{journeyOverview.noWorry.complete ? `${noWorryJourney.length} of ${noWorryJourney.length} days complete` : `Day ${journeyOverview.noWorry.nextDay} of ${noWorryJourney.length}`}</span>
               <progress value={guidedJourney.completedDays.length} max={noWorryJourney.length} aria-label={`${guidedJourney.completedDays.length} of ${noWorryJourney.length} days complete`} />
               <span className="text-link">{journeyOverview.noWorry.active ? "Continue journey" : journeyOverview.noWorry.complete ? "Revisit journey" : "Begin journey"} <ArrowRight size={15} /></span>
@@ -139,6 +157,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
               <span className="eyebrow">{journeyOverview.bible.active ? "In progress" : "Featured journey"}</span>
               <strong>{featuredJourneyInfo.title}</strong>
               <span>{journeyOverview.bible.resumePeriod ? `Continue with ${journeyOverview.bible.resumePeriod.title} in the story of salvation.` : featuredJourneyInfo.description}</span>
+              <span className="landing-journey-day">Recommended cadence: {journeyCadence("bible")}</span>
               <span className="landing-journey-day">{journeyOverview.bible.completedCount} of {journeyOverview.bible.totalCount} periods complete</span>
               <span className="text-link">{journeyOverview.bible.active ? "Continue journey" : "Explore journey"} <ArrowRight size={15} /></span>
             </>}
@@ -188,11 +207,11 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
       <section className="landing-explore-journeys section-wrap" aria-labelledby="explore-journeys-title">
         <div className="landing-section-heading">
           <p className="eyebrow">Guided spiritual growth</p>
-          <h2 id="explore-journeys-title">Explore journeys.</h2>
-          <p className="landing-section-description">Choose a path for the season of life you are in. Each journey unfolds one day at a time.</p>
+          <h2 id="explore-journeys-title">Choose your next journey.</h2>
+          <p className="landing-section-description">Grow through Scripture, prayer, and guided steps for the season you are in.</p>
         </div>
         <div className="landing-explore-actions">
-          <button className="button button-outline" type="button" onClick={onAllJourneys}>View all journeys <ArrowRight size={15} /></button>
+          <button className="button button-outline" type="button" onClick={onAllJourneys}>More journeys <ArrowRight size={15} /></button>
         </div>
         <div className="landing-explore-grid">
           {journeyList.filter((journey) => journey.id !== featuredJourney).map((journey) => {
@@ -211,7 +230,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
             return (
               <button className="landing-card" type="button" key={journey.id} onClick={onSelect}>
                 <CardArt art={journey.artwork} />
-                <div className="landing-card-copy"><h3>{journey.title}</h3><p>{journey.description}</p><span className="text-link">{action} <ArrowRight size={15} /></span></div>
+                <div className="landing-card-copy"><h3>{journey.title}</h3><p>{journey.description}</p><p>Recommended cadence: {journeyCadence(journey.id)}</p><span className="text-link">{action} <ArrowRight size={15} /></span></div>
               </button>
             );
           })}
@@ -219,7 +238,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
       </section>
 
       <NextStepPrompt
-        heading="Not sure what to do next?"
+        heading="Your Next Faithful Step"
         card={nextStepCard}
         className="landing-home-next"
       />

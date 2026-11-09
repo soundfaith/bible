@@ -21,7 +21,7 @@ function PrayerText({ text }: { text: string }) {
   return <p className="rosary-prayer-reading bible-reading-copy" lang="en">{text}</p>;
 }
 
-export function RosaryLibrary() {
+export function RosaryLibrary({ nextStep }: { nextStep?: ReactNode }) {
   return <main className="journey-page section-wrap rosary-page">
     <header className="journey-heading">
       <div className="journey-heading-copy">
@@ -49,6 +49,7 @@ export function RosaryLibrary() {
         </li>)}
       </ol>
     </section>
+    {nextStep}
   </main>;
 }
 

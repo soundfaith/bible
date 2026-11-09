@@ -1,15 +1,18 @@
 import type { BreviaryHour } from "./breviary";
 
-export type DailyItem = BreviaryHour | "mass" | "rosary" | "saints";
+export type DailyItem = BreviaryHour | "mass" | "rosary" | "saints" | "bible" | "catechism" | "summa" | "journey-no-worry" | "journey-bible";
 export type DailyStreakState = {
   log: Record<string, DailyItem[]>;
+  journeySessions: Record<string, string[]>;
   total: number;
   storageError: boolean;
 };
 
 const KEY = "soundfaith-daily-streak-v1";
 const KEEP_DAYS = 400;
-const ITEMS: DailyItem[] = ["lauds", "vespers", "compline", "mass", "rosary", "saints"];
+const KEEP_JOURNEY_WINDOWS = 100;
+const ITEMS: DailyItem[] = ["lauds", "vespers", "compline", "mass", "rosary", "saints", "bible", "catechism", "summa", "journey-no-worry", "journey-bible"];
+const validDateKey = (key: string) => /^\d{4}-\d{2}-\d{2}$/.test(key);
 
 export function localDateKey(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -20,22 +23,36 @@ function shiftKey(key: string, days: number) {
   return localDateKey(new Date(year, month - 1, day + days));
 }
 
+export function journeyCadenceWindowKey(cadence: "daily" | "weekly", date = new Date()) {
+  if (cadence === "daily") return localDateKey(date);
+  const daysSinceMonday = (date.getDay() + 6) % 7;
+  return localDateKey(new Date(date.getFullYear(), date.getMonth(), date.getDate() - daysSinceMonday));
+}
+
 export function loadDailyStreak(): DailyStreakState {
   try {
     const parsed = JSON.parse(window.localStorage.getItem(KEY) ?? "null");
     if (parsed && typeof parsed === "object" && parsed.log && typeof parsed.log === "object") {
       const log: Record<string, DailyItem[]> = {};
       for (const [day, items] of Object.entries(parsed.log as Record<string, unknown>)) {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Array.isArray(items)) continue;
+        if (!validDateKey(day) || !Array.isArray(items)) continue;
         const valid = items.filter((item): item is DailyItem => ITEMS.includes(item as DailyItem));
         if (valid.length) log[day] = [...new Set(valid)];
       }
+      const journeySessions: Record<string, string[]> = {};
+      if (parsed.journeySessions && typeof parsed.journeySessions === "object" && !Array.isArray(parsed.journeySessions)) {
+        for (const [journeyId, windows] of Object.entries(parsed.journeySessions as Record<string, unknown>)) {
+          if (!/^[a-z0-9-]+$/i.test(journeyId) || !Array.isArray(windows)) continue;
+          const validWindows = [...new Set(windows.filter((window): window is string => typeof window === "string" && validDateKey(window)))].slice(-KEEP_JOURNEY_WINDOWS);
+          if (validWindows.length) journeySessions[journeyId] = validWindows;
+        }
+      }
       const total = Number.isFinite(parsed.total) ? Math.max(Number(parsed.total), Object.keys(log).length) : Object.keys(log).length;
-      return { log, total, storageError: false };
+      return { log, journeySessions, total, storageError: false };
     }
-    return { log: {}, total: 0, storageError: false };
+    return { log: {}, journeySessions: {}, total: 0, storageError: false };
   } catch {
-    return { log: {}, total: 0, storageError: true };
+    return { log: {}, journeySessions: {}, total: 0, storageError: true };
   }
 }
 
@@ -48,11 +65,60 @@ export function recordDailyItem(state: DailyStreakState, item: DailyItem, today 
   const total = existing.length ? state.total : state.total + 1;
   let storageError = false;
   try {
-    window.localStorage.setItem(KEY, JSON.stringify({ log, total }));
+    window.localStorage.setItem(KEY, JSON.stringify({ log, journeySessions: state.journeySessions, total }));
   } catch {
     storageError = true;
   }
-  return { log, total, storageError };
+  return { ...state, log, total, storageError };
+}
+
+export function recordJourneySession(
+  state: DailyStreakState,
+  journeyId: string,
+  cadence: "daily" | "weekly",
+  date = new Date(),
+): DailyStreakState {
+  if (!/^[a-z0-9-]+$/i.test(journeyId)) {
+    throw new Error(`Invalid journey id: ${journeyId}`);
+  }
+  const windowKey = journeyCadenceWindowKey(cadence, date);
+  const existing = state.journeySessions[journeyId] ?? [];
+  if (existing.includes(windowKey)) return state;
+  const journeySessions = {
+    ...state.journeySessions,
+    [journeyId]: [...existing, windowKey].slice(-KEEP_JOURNEY_WINDOWS),
+  };
+  let storageError = false;
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify({ log: state.log, journeySessions, total: state.total }));
+  } catch {
+    storageError = true;
+  }
+  return { ...state, journeySessions, storageError };
+}
+
+export function hasJourneySessionInCadence(
+  state: DailyStreakState,
+  journeyId: string,
+  cadence: "daily" | "weekly",
+  date = new Date(),
+) {
+  const windowKey = journeyCadenceWindowKey(cadence, date);
+  if (state.journeySessions[journeyId]?.includes(windowKey)) return true;
+
+  const legacyItem: DailyItem | null = journeyId === "no-worry"
+    ? "journey-no-worry"
+    : journeyId === "bible"
+      ? "journey-bible"
+      : null;
+  if (!legacyItem) return false;
+  if (cadence === "daily") return (state.log[windowKey] ?? []).includes(legacyItem);
+  const [year, month, day] = windowKey.split("-").map(Number);
+  for (let offset = 0; offset < 7; offset += 1) {
+    const dateKey = localDateKey(new Date(year, month - 1, day + offset));
+    if ((state.log[dateKey] ?? []).includes(legacyItem)) return true;
+  }
+  return false;
 }
 
 export type Routine = "breviary" | "mass" | "rosary" | "saints";

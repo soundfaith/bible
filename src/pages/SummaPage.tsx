@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, BookOpen, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { SummaArtwork, type SummaArtworkVariant } from "../components/SummaArtwork";
 import {
   loadSummaData,
@@ -271,7 +272,7 @@ function QuestionReader({ part, question, articleNumber, voicePreference }: { pa
   </>;
 }
 
-export function SummaPage({ voicePreference }: { voicePreference: NarrationGender }) {
+export function SummaPage({ voicePreference, nextStep }: { voicePreference: NarrationGender; nextStep?: ReactNode }) {
   const [address, setAddress] = useState<Address>(readAddress);
   const [data, setData] = useState<SummaDataset | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -310,7 +311,7 @@ export function SummaPage({ voicePreference }: { voicePreference: NarrationGende
     : undefined;
   const isDetail = address.questionNumber !== null;
 
-  return <main className={`journey-page section-wrap catechism-page summa-page${isDetail ? " catechism-detail-page summa-detail-page" : ""}`}>
+  return <main className={`journey-page section-wrap catechism-page summa-page${isDetail ? " catechism-detail-page summa-detail-page" : ""}${isDetail && nextStep ? " has-next-step" : ""}`}>
     {!isDetail ? <SummaLibrary key={selectedPart?.id ?? "parts"} data={data} selectedPart={selectedPart} />
       : selectedPart && selectedQuestion ? <QuestionReader part={selectedPart} question={selectedQuestion} articleNumber={address.articleNumber} voicePreference={voicePreference} />
         : <section className="journey-not-found catechism-not-found summa-not-found">
@@ -319,5 +320,6 @@ export function SummaPage({ voicePreference }: { voicePreference: NarrationGende
           <p>Choose a part of the Summa to continue reading.</p>
           <a className="journey-action-link" href="#/summa">Browse the parts <ArrowRight size={16} /></a>
         </section>}
+    {nextStep}
   </main>;
 }

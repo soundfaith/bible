@@ -38,8 +38,6 @@ export function getJourneyOverview(
       : nextAfterLast ?? bibleJourney.find((period) => !completed.has(period.id)) ?? null;
   const noWorryActive = guidedProgress.started && !noWorryComplete;
   const bibleActive = !bibleComplete && Boolean(lastPeriod || completed.size > 0);
-  const featuredJourney = noWorryActive || !bibleActive ? "no-worry" : "bible";
-
   return {
     noWorry: {
       active: noWorryActive,
@@ -55,6 +53,6 @@ export function getJourneyOverview(
       totalCount: bibleJourney.length,
     },
     hasActiveJourney: noWorryActive || bibleActive,
-    featuredJourney,
+    featuredJourney: "no-worry",
   };
 }

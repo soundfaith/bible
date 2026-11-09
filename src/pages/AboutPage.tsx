@@ -1,15 +1,14 @@
-import { ArrowRight, ArrowUpRight, BookOpen, Headphones, Heart, MessageCircle, Moon, Search, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BookOpen, Compass, Mail, MessageCircle, Sparkles, Sunrise } from "lucide-react";
 import { AndroidDownload } from "../components/AndroidDownload";
 import { OPEN_ASSISTANT_EVENT } from "../lib/assistant";
 import { isNativeApp } from "../lib/platform";
 
 const features = [
-  { icon: BookOpen, title: "Read the Bible", description: "Explore the World English Bible, choose a book and chapter, and keep your place as you read.", href: "#/bible" },
-  { icon: Sparkles, title: "Follow the story", description: "Travel through twelve periods in the Bible Journey, with guided introductions and artwork.", href: "#/journey" },
-  { icon: Headphones, title: "Listen and pray", description: "Hear Bible Journey stories and pray Lauds, Vespers, or Compline with the daily Breviary.", href: "#/breviary" },
-  { icon: Search, title: "Find and save", description: "Search Scripture, bookmark passages, and return to the words you want to keep close.", href: "#/read" },
-  { icon: Moon, title: "Make it yours", description: "Choose a reading size, switch between light and dark themes, and select a narration voice.", href: "#/read" },
-  { icon: Heart, title: "Keep a daily rhythm", description: "Read the Mass readings, track your daily practice, and share passages with others.", href: "#/mass" },
+  { icon: BookOpen, title: "Bible", description: "Read Scripture, choose a book and chapter, and return to where you left off.", href: "#/bible" },
+  { icon: Sunrise, title: "Breviary", description: "Pray Lauds, Vespers, or Compline with the daily prayer of the Church.", href: "#/breviary" },
+  { icon: Compass, title: "Guided journeys", description: "Grow step by step with the No-Worry Journey and Bible Journey, with Advent, Lent, and more journeys to come.", href: "#/journeys" },
+  { icon: Sparkles, title: "Faith formation", description: "Explore Catholic teaching and grow in understanding through the Catechism, Summa, and lives of the saints.", href: "#/catechism" },
+  { icon: MessageCircle, title: "Conversations with Sofi", description: "Ask questions, seek guidance, and explore faith through thoughtful conversations with Sofi.", href: "#/" },
 ];
 
 const soundfaithApps = [
@@ -26,17 +25,25 @@ export function AboutPage() {
         <img className="about-logo" src="/favicon.svg" alt="SoundFaith logo" />
         <p className="eyebrow"><span className="eyebrow-dot" /> About SoundFaith</p>
         <h1>A faithful step,<br /><em>every day.</em></h1>
-        <p className="page-intro">SoundFaith helps you find a steady rhythm of Scripture, prayer, and spiritual growth, with simple tools to meet you wherever you are.</p>
+        <p className="page-intro">SoundFaith brings Bible, Breviary, guided journeys, and faith formation together to help you pray, learn, serve, and grow closer to God—with Sofi here for thoughtful questions and guidance along the way.</p>
       </header>
 
       <section className="about-features" aria-labelledby="about-features-title">
         <div className="about-section-heading">
-          <p className="eyebrow">Read, pray, return</p>
-          <h2 id="about-features-title">A little room for faith, every day.</h2>
+          <p className="eyebrow">Pray, learn, grow</p>
+          <h2 id="about-features-title">A daily path for faith.</h2>
         </div>
         <div className="about-feature-grid">
           {features.map(({ icon: Icon, title, description, href }) => (
-            <a className="about-feature-item" href={href} key={title}>
+            <a
+              className="about-feature-item"
+              href={href}
+              key={title}
+              onClick={title === "Conversations with Sofi" ? (event) => {
+                event.preventDefault();
+                window.dispatchEvent(new CustomEvent(OPEN_ASSISTANT_EVENT));
+              } : undefined}
+            >
               <span className="about-feature-icon"><Icon size={18} aria-hidden="true" /></span>
               <span className="about-feature-copy">
                 <strong>{title}</strong>
@@ -49,8 +56,8 @@ export function AboutPage() {
       </section>
 
       <section className="about-mission">
-        <div><p className="eyebrow">Our mission</p><h2>Make room for what<br />brings us closer to God.</h2></div>
-        <p>We create thoughtful digital tools for prayer, formation, service, and generosity, so faith can have a meaningful place in ordinary life.</p>
+        <div><p className="eyebrow">Our mission</p><h2>Helping you pray, learn,<br />serve, and grow closer to God.</h2></div>
+        <p>We create thoughtful tools and guided experiences that support a life of prayer, deepen understanding, encourage service, and help faith take root in ordinary life.</p>
       </section>
 
       <section className="about-apps" aria-labelledby="about-apps-title">
@@ -73,6 +80,24 @@ export function AboutPage() {
             </a>
           </li>
         ))}</ul>
+      </section>
+
+      <section className="about-contact" aria-labelledby="about-contact-title">
+        <div className="about-contact-copy">
+          <p className="eyebrow">A note from our team</p>
+          <h2 id="about-contact-title">Built with faith</h2>
+          <p>SoundFaith is an independent Catholic project created to help people pray, learn, serve, and grow closer to God through thoughtful digital tools.</p>
+          <p>We welcome feedback, suggestions, bug reports, and ideas as SoundFaith continues to grow.</p>
+          <a className="about-contact-email" href="mailto:soundfaith.core@gmail.com">soundfaith.core@gmail.com</a>
+        </div>
+        <div className="about-contact-actions">
+          <a className="button button-primary" href="mailto:soundfaith.core@gmail.com">
+            <MessageCircle size={16} aria-hidden="true" /> Send Feedback
+          </a>
+          <a className="button button-outline" href="mailto:soundfaith.core@gmail.com">
+            <Mail size={16} aria-hidden="true" /> Contact Us
+          </a>
+        </div>
       </section>
 
       {!isNativeApp() && (

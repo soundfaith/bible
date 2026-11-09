@@ -1,11 +1,12 @@
 import { ArrowRight, BookOpen, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { bibleBooks, getChapterCount } from "../lib/bible";
 import type { ReadingPosition } from "./ChapterPage";
 
 type Testament = { title: string; books: typeof bibleBooks };
 
-export function BibleBooksPage({ current, onChoose, onResume }: { current: ReadingPosition; onChoose: (position: ReadingPosition) => void; onResume: () => void }) {
+export function BibleBooksPage({ current, onChoose, onResume, nextStep }: { current: ReadingPosition; onChoose: (position: ReadingPosition) => void; onResume: () => void; nextStep?: ReactNode }) {
   const [selectedBookId, setSelectedBookId] = useState<string | null>(current.bookId);
   const currentBookName = bibleBooks.find((book) => book.id === current.bookId)?.name ?? current.bookId;
   const newTestamentStart = bibleBooks.findIndex((book) => book.id === "matthew");
@@ -99,6 +100,7 @@ export function BibleBooksPage({ current, onChoose, onResume }: { current: Readi
         <span>Return to {currentBookName} {current.chapter}</span>
         <ArrowRight size={15} aria-hidden="true" />
       </a>
+      {nextStep}
     </main>
   );
 }

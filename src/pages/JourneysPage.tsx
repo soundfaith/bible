@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
+import type { ReactNode } from "react";
 import { CardArt } from "../components/LandingSmallCard";
-import { journeyCatalog, journeyList, type AvailableJourneyId } from "../data/journeyCatalog";
+import { journeyCadence, journeyCatalog, journeyList, type AvailableJourneyId } from "../data/journeyCatalog";
 import { noWorryJourney } from "../data/noWorryJourney";
 import { getJourneyOverview } from "../lib/journeyOverview";
 import type { GuidedJourneyProgress } from "../lib/guidedJourneyProgress";
@@ -11,6 +12,7 @@ type JourneysPageProps = {
   lastVisitedPeriodId: string | null;
   onSelectJourney: (id: AvailableJourneyId) => void;
   onContinueBibleJourney: () => void;
+  nextStep?: ReactNode;
 };
 
 export function JourneysPage({
@@ -19,6 +21,7 @@ export function JourneysPage({
   lastVisitedPeriodId,
   onSelectJourney,
   onContinueBibleJourney,
+  nextStep,
 }: JourneysPageProps) {
   const overview = getJourneyOverview(guidedProgress, bibleCompletedIds, lastVisitedPeriodId);
   const { noWorry, bible } = overview;
@@ -45,6 +48,7 @@ export function JourneysPage({
                   <p className="eyebrow">In progress</p>
                   <h3>{journeyCatalog["no-worry"].title}</h3>
                   <p>Day {noWorry.nextDay} of {noWorryJourney.length} · Scripture, reflection, and prayer for a more trusting heart.</p>
+                  <p>Recommended cadence: {journeyCadence("no-worry")}</p>
                   <span className="text-link">Continue Day {noWorry.nextDay} <ArrowRight size={15} /></span>
                 </div>
               </button>
@@ -56,6 +60,7 @@ export function JourneysPage({
                   <p className="eyebrow">In progress</p>
                   <h3>{journeyCatalog.bible.title}</h3>
                   <p>Continue with {bible.resumePeriod.title} in the story of salvation.</p>
+                  <p>Recommended cadence: {journeyCadence("bible")}</p>
                   <span className="text-link">Continue journey <ArrowRight size={15} /></span>
                 </div>
               </button>
@@ -81,6 +86,7 @@ export function JourneysPage({
                   <div className="landing-card-copy">
                     <h3>{journey.title}</h3>
                     <p>{journey.description}</p>
+                    <p>Recommended cadence: {journeyCadence(journey.id)}</p>
                     <span className="journey-coming-soon-pill">Coming soon</span>
                   </div>
                 </article>
@@ -103,6 +109,7 @@ export function JourneysPage({
           })}
         </div>
       </section>
+      {nextStep}
     </main>
   );
 }
