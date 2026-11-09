@@ -58,8 +58,8 @@
 	.landing-hero { min-height:0; padding:55px 0 78px; }
 	.landing-hero h1 { max-width:520px; font-size:clamp(52px,14vw,68px); }
 	.hero-description { font-size:12px; }
-	.landing-hero .hero-actions { gap:3px; }
-	.landing-hero .hero-actions .button { min-height:42px; gap:5px; padding-inline:5px; font-size:9px; white-space:nowrap; }
+	.landing-hero .hero-actions { gap:10px; }
+	.landing-hero .hero-actions .button { min-height:46px; gap:8px; padding-inline:16px; font-size:10px; white-space:normal; }
 	.landing-actions { padding:10px 0 55px; }
 	.landing-section-heading h2 { font-size:34px; }
 	.landing-routine { padding-bottom:26px; }
@@ -669,7 +669,7 @@ input,textarea,select { border-radius:var(--radius-sm); } .site-footer { positio
 .journey-complete-button.completed { border-color:var(--line); background:transparent; color:var(--accent-deep); }
 .journey-complete-button.completed:hover { border-color:var(--accent); }
 .landing-journey-wrap { padding-bottom:48px; }
-.landing-journey-card { position:relative; display:grid; grid-template-columns:54px minmax(0,1fr) auto; align-items:center; gap:25px; overflow:hidden; padding:32px; border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line)); border-radius:var(--radius-md); background:linear-gradient(112deg,color-mix(in srgb,var(--accent) 11%,var(--white)),var(--white) 70%); box-shadow:0 18px 42px color-mix(in srgb,var(--accent) 13%,transparent),inset 4px 0 0 var(--accent); }
+.landing-journey-card { position:relative; display:grid; grid-template-columns:54px minmax(0,1fr) auto; align-items:center; gap:25px; overflow:hidden; padding:32px; border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line)); border-radius:var(--radius-md); background:linear-gradient(112deg,color-mix(in srgb,var(--accent) 11%,var(--white)),var(--white) 70%); box-shadow:0 18px 42px color-mix(in srgb,var(--accent) 13%,transparent); }
 .landing-journey-mark { display:grid; place-items:center; width:48px; height:48px; border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line)); border-radius:13px; background:color-mix(in srgb,var(--white) 76%,transparent); color:var(--accent-deep); }
 .landing-journey-copy .eyebrow { display:flex; align-items:center; gap:9px; margin-bottom:9px; color:var(--accent-deep); }
 .landing-journey-featured { display:inline-flex; align-items:center; min-height:20px; padding:0 8px; border-radius:999px; background:var(--accent-deep); color:var(--white); font-size:8px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }

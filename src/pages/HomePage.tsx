@@ -129,9 +129,6 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
             <button className="button button-coral" onClick={nextStepCard.onClick}>
               {nextStepCard.action} <ArrowRight size={16} />
             </button>
-            <button className="button button-outline" onClick={onResume}>
-              {bible.started ? `Continue ${bible.label}` : "Start with Genesis"}
-            </button>
             <button className="button button-outline" onClick={onDaily}>Today's rhythm</button>
           </div>
         </div>
