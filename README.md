@@ -1,5 +1,20 @@
 # SoundFaith
 
+## Listening
+
+The mobile Listen tab brings Scripture, prayer, formation, saints, and journeys
+together. Use a collection's play button or start narration from a reading or
+prayer to open the player. Expand Transcript in the player to read along; close
+the player to continue browsing with the mini-player above the bottom navigation.
+Listening position is saved locally on the device and restored paused after a
+reload. Bible chapters, Bible Journey stories, Rosary clips, Breviary segments,
+No-Worry days, Catechism lessons, and Summa articles continue in order. Listening
+to a No-Worry day does not mark it complete. At the end of a collection or a
+standalone reading, Up Next offers a recommendation that plays when selected;
+it does not automatically start unrelated content. If a recording becomes
+unavailable, playback continues using device speech at approximately the same
+relative position. Device speech timings are estimates.
+
 ## Build an Android APK
 
 The web app can be packaged as a native Android app with Capacitor. Install
@@ -109,9 +124,9 @@ selected passages are resolved from the same local Bible text used by the app.
 One runner generates story WAV files with Kokoro, converts them to MP3 with
 FFmpeg, uploads them to GitHub Releases, and checks that remote MP3 responses
 contain playable MPEG audio frames. Playback uses GitHub MP3s when available,
-then falls back to browser text-to-speech. On a period page, Listen plays its
-story MP3s in order. Choose a story with its play button on desktop or the
-vertical story dots on mobile.
+then falls back to device text-to-speech. On a period page, Listen plays its
+story MP3s in order. Choose a story with its play button on desktop or mobile,
+or use the vertical story dots on mobile.
 
 ## Bible chapter narrations
 

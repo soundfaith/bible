@@ -40,10 +40,10 @@ const REFERENCE = /^\s*((?:[1-4]\s*)?[a-z][a-z ]*?)\.?\s+(\d+)\s*:\s*(\d+)(?:\s*
 
 const LEADS = [
   "Here is what Scripture offers on this.",
-  "I found passages that speak directly to this.",
+  "These passages speak to this question.",
   "This is a question many people carry. Here is what the Word says.",
-  "Let us look at what the Bible says about this.",
-  "Here are the passages I would turn to first."
+  "Explore what the Bible says about this.",
+  "Begin with these passages."
 ];
 const FALLBACK_STARTERS = ["prayer", "anxiety", "forgiveness", "suffering", "purpose"];
 const pick = <T,>(items: T[]) => items[Math.floor(Math.random() * items.length)];

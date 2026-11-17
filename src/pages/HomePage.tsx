@@ -1,9 +1,10 @@
 import { ArrowRight, Share2 } from "lucide-react";
 import { useState } from "react";
+import { FeedCard } from "../components/FeedCard";
 import { SofiAvatar } from "../components/ChatWidget";
 import { CardArt, SmallCard, type CardArtKey } from "../components/LandingSmallCard";
 import { NextStepPrompt } from "../components/NextStepPrompt";
-import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "../lib/assistant";
+import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT, openAssistant } from "../lib/assistant";
 import { breviaryHourInfo, currentBreviaryHour } from "../lib/breviary";
 import { doneToday, hasEverDone, routineStreak, type DailyItem, type DailyStreakState } from "../lib/dailyStreak";
 import { noWorryJourney } from "../data/noWorryJourney";
@@ -11,6 +12,9 @@ import { journeyCadence, journeyCatalog, journeyList } from "../data/journeyCata
 import type { GuidedJourneyProgress } from "../lib/guidedJourneyProgress";
 import { getJourneyOverview } from "../lib/journeyOverview";
 import { selectDailyRecommendation } from "../lib/dailyRecommendations";
+import { narrationDescription, type NarrationSnapshot } from "../components/NarratorButton";
+import { useHeaderAutoHide } from "../lib/useHeaderAutoHide";
+import type { PlayKind } from "./ListenPage";
 
 type HomePageProps = {
   onJourney: () => void;
@@ -30,7 +34,15 @@ type HomePageProps = {
   streak: DailyStreakState;
   onOpenDaily: (item: DailyItem) => void;
   onShare: () => Promise<"shared" | "copied">;
+  narration: NarrationSnapshot;
+  onPlay: (kind: PlayKind, autoplay?: boolean) => void;
+  onPlayHero: () => void;
+  onPlayDaily: () => void;
 };
+
+const routineDuration = { breviary: "10 min", mass: "5 min", rosary: "20 min", saints: "3 min" };
+
+const popularSofiQuestions = ["Why does God allow suffering?", "What is grace?", "What is the purpose of prayer?"];
 
 function streakText(days: number) {
   if (days >= 2) return `${days} days in a row`;
@@ -38,8 +50,10 @@ function streakText(days: number) {
   return "A new rhythm begins today";
 }
 
-export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatechism, onSumma, onResume, onGuidedJourney, onContinueBibleJourney, onAllJourneys, onDaily, bible, bibleJourney, guidedJourney, streak, onOpenDaily, onShare }: HomePageProps) {
+export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatechism, onSumma, onResume, onGuidedJourney, onContinueBibleJourney, onAllJourneys, onDaily, bible, bibleJourney, guidedJourney, streak, onOpenDaily, onShare, narration, onPlayHero, onPlay }: HomePageProps) {
   const [shareNote, setShareNote] = useState("");
+  const [sofiQuestion, setSofiQuestion] = useState("");
+  useHeaderAutoHide();
   const hour = currentBreviaryHour();
   const hourName = breviaryHourInfo[hour].name;
   const done = doneToday(streak);
@@ -51,16 +65,16 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
   const featuredJourney = journeyOverview.featuredJourney;
   const featuredJourneyInfo = journeyCatalog[featuredJourney];
   const routineCards = [
-    { routine: "breviary" as const, art: "prayer" as const, title: "Breviary", stat: hasEverDone(streak, "breviary") ? streakText(routineStreak(streak, "breviary")) : undefined, action: breviaryDone ? `${hourName} prayed` : `Pray ${hourName}`, done: breviaryDone, onClick: () => onOpenDaily(hour) },
-    { routine: "mass" as const, art: "readings" as const, title: "Mass Readings", stat: hasEverDone(streak, "mass") ? streakText(routineStreak(streak, "mass")) : undefined, action: massDone ? "Read today" : "Today's readings", done: massDone, onClick: () => onOpenDaily("mass") },
-    { routine: "rosary" as const, art: "rosary" as const, title: "Rosary", stat: hasEverDone(streak, "rosary") ? streakText(routineStreak(streak, "rosary")) : undefined, action: rosaryDone ? "Prayed today" : "Pray the Rosary", done: rosaryDone, onClick: onRosary },
-    { routine: "saints" as const, art: "saints" as const, title: "Saint of the Day", stat: hasEverDone(streak, "saints") ? streakText(routineStreak(streak, "saints")) : undefined, action: saintsDone ? "Visited today" : "Meet today's saint", done: saintsDone, onClick: onSaintToday },
+    { routine: "breviary" as const, art: "prayer" as const, title: "Breviary", stat: hasEverDone(streak, "breviary") ? streakText(routineStreak(streak, "breviary")) : undefined, action: breviaryDone ? `${hourName} prayed` : `Pray ${hourName}`, done: breviaryDone, onClick: () => onOpenDaily(hour), play: "breviary" as const },
+    { routine: "mass" as const, art: "readings" as const, title: "Mass Readings", stat: hasEverDone(streak, "mass") ? streakText(routineStreak(streak, "mass")) : undefined, action: massDone ? "Read today" : "Today's readings", done: massDone, onClick: () => onOpenDaily("mass"), play: "mass" as const },
+    { routine: "rosary" as const, art: "rosary" as const, title: "Rosary", stat: hasEverDone(streak, "rosary") ? streakText(routineStreak(streak, "rosary")) : undefined, action: rosaryDone ? "Prayed today" : "Pray the Rosary", done: rosaryDone, onClick: onRosary, play: "rosary" as const },
+    { routine: "saints" as const, art: "saints" as const, title: "Saint of the Day", stat: hasEverDone(streak, "saints") ? streakText(routineStreak(streak, "saints")) : undefined, action: saintsDone ? "Visited today" : "Meet today's saint", done: saintsDone, onClick: onSaintToday, play: "saint" as const },
   ];
 
-  const formationCards: { art: CardArtKey; title: string; description: string; action: string; onClick: () => void }[] = [
-    { art: "bible", title: "Bible", description: "Read the Scriptures from Genesis to Revelation, one chapter at a time.", action: bible.started ? `Continue ${bible.label}` : "Open the Bible", onClick: onChoose },
-    { art: "catechism", title: "Baltimore Catechism", description: "Explore the Catholic faith by lesson and question.", action: "Browse lessons", onClick: onCatechism },
-    { art: "summa", title: "Summa Theologiae", description: "Study St. Thomas Aquinas's enduring work of theology.", action: "Explore the Summa", onClick: onSumma },
+  const formationCards: { art: CardArtKey; title: string; description: string; action: string; onClick: () => void; play: PlayKind }[] = [
+    { art: "bible", title: "Bible", description: "Read the Scriptures from Genesis to Revelation, one chapter at a time.", action: bible.started ? `Continue ${bible.label}` : "Open the Bible", onClick: onChoose, play: "old-testament" },
+    { art: "catechism", title: "Baltimore Catechism", description: "Explore the Catholic faith by lesson and question.", action: "Browse lessons", onClick: onCatechism, play: "catechism" },
+    { art: "summa", title: "Summa Theologiae", description: "Study St. Thomas Aquinas's enduring work of theology.", action: "Explore the Summa", onClick: onSumma, play: "summa" },
   ];
 
   const journeyNextSteps = {
@@ -70,6 +84,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
       description: `Continue with day ${journeyOverview.noWorry.nextDay} of Scripture, reflection, and prayer.`,
       action: `Continue Day ${journeyOverview.noWorry.nextDay}`,
       onClick: onGuidedJourney,
+      play: "no-worry" as const,
     },
     "journey-bible": {
       art: journeyCatalog.bible.artwork,
@@ -79,6 +94,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
         : journeyCatalog.bible.description,
       action: "Continue Bible Journey",
       onClick: journeyOverview.bible.active ? onContinueBibleJourney : onJourney,
+      play: "bible-journey" as const,
     },
   };
   const recommendation = selectDailyRecommendation("home", streak, journeyOverview);
@@ -97,6 +113,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
         description: "Choose a guided journey through Scripture and daily life.",
         action: "Explore journeys",
         onClick: onAllJourneys,
+        play: "no-worry" as const,
       }
       : recommendation === "bible"
         ? {
@@ -105,6 +122,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
           description: "Spend a little time with God's Word today.",
           action: bible.started ? `Continue ${bible.label}` : "Start with Genesis",
           onClick: onResume,
+          play: "old-testament" as const,
         }
         : recommendation === "catechism" || recommendation === "summa"
           ? formationCards.find((card) => card.title.toLowerCase().includes(recommendation))!
@@ -120,6 +138,42 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
 
   return (
     <main className="landing-page">
+      <div className="mobile-home section-wrap">
+        <section className="feed-section feed-bleed">
+          {narration.status !== "idle" && narration.track
+            ? <FeedCard art={narration.track.art} title={narration.track.title} meta={narrationDescription(narration)} playBadge onClick={onPlayHero} />
+            : <FeedCard art="bible" title="Find something to listen to" meta="Scripture, prayer and more" onClick={() => { window.location.hash = "#/listen"; }} />}
+        </section>
+        <section className="feed-section"><p className="feed-eyebrow">Today's Rhythm</p>
+          <div className="feed-carousel">
+            {routineCards.map((card) => <FeedCard key={card.title} art={card.art} title={card.title} meta={card.done ? "Done today" : routineDuration[card.routine]} onClick={() => onPlay(card.play)} />)}
+          </div>
+        </section>
+        <section className="feed-section feed-bleed"><p className="feed-eyebrow">{journeyOverview.hasActiveJourney ? "Current Journey" : "A Journey for You"}</p>
+          <FeedCard
+            art={featuredJourneyInfo.artwork}
+            title={featuredJourneyInfo.title}
+            meta={featuredJourney === "no-worry" ? `Day ${journeyOverview.noWorry.nextDay} of ${noWorryJourney.length}` : `${journeyOverview.bible.completedCount} of ${journeyOverview.bible.totalCount} periods complete`}
+            progress={featuredJourney === "no-worry" ? guidedJourney.completedDays.length / noWorryJourney.length : journeyOverview.bible.totalCount ? journeyOverview.bible.completedCount / journeyOverview.bible.totalCount : 0}
+            onClick={() => onPlay(featuredJourney === "no-worry" ? "no-worry" : "bible-journey")}
+          />
+        </section>
+        <section className="feed-section"><p className="feed-eyebrow">Recommended</p>
+          <div className="feed-carousel">
+            {[nextStepCard, ...formationCards.filter((card) => card.title !== nextStepCard.title)].map((card) => <FeedCard key={card.title} art={card.art} title={card.title} meta={card.action} onClick={() => onPlay(card.play)} />)}
+          </div>
+        </section>
+        <section className="feed-section home-sofi"><p className="feed-eyebrow">Ask Sofi</p>
+          <form className="home-sofi-form" onSubmit={(event) => { event.preventDefault(); const q = sofiQuestion.trim(); if (q) { openAssistant(q); setSofiQuestion(""); } }}>
+            <input value={sofiQuestion} onChange={(event) => setSofiQuestion(event.target.value)} placeholder="Ask a Catholic question" aria-label="Ask Sofi a Catholic question" />
+            <button type="submit" aria-label="Ask"><ArrowRight size={16} aria-hidden="true" /></button>
+          </form>
+          <div className="home-sofi-chips">
+            {popularSofiQuestions.map((question) => <button key={question} type="button" onClick={() => openAssistant(question)}>{question}</button>)}
+          </div>
+        </section>
+      </div>
+      <div className="desktop-home">
       <section className="landing-hero section-wrap" aria-labelledby="landing-title">
         <div className="landing-hero-copy">
           <p className="eyebrow"><span className="eyebrow-dot" /> A daily rhythm of prayer and formation</p>
@@ -188,15 +242,15 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
 
       <section className="landing-ask section-wrap" aria-labelledby="ask-title">
         <div className="landing-section-heading landing-centered-heading">
-          <p className="eyebrow">Faith conversation</p>
+          <p className="eyebrow">Curated Catholic Questions &amp; Answers</p>
           <h2 id="ask-title">Ask {ASSISTANT_NAME}</h2>
         </div>
         <button className="landing-ask-card" type="button" onClick={() => window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT))}>
           <SofiAvatar size={56} />
           <span className="landing-ask-copy">
-            <strong>Bring {ASSISTANT_NAME} what is on your heart.</strong>
-            <span>A question, a worry, or a verse you’re wondering about. {ASSISTANT_NAME} will point you to passages that speak to it.</span>
-            <span className="text-link">Start a conversation <ArrowRight size={14} /></span>
+            <strong>Explore questions rooted in the faith.</strong>
+            <span>Find answers and passages from Scripture, the Baltimore Catechism, and the Summa Theologiae.</span>
+            <span className="text-link">Explore questions <ArrowRight size={14} /></span>
           </span>
         </button>
       </section>
@@ -246,6 +300,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
         </button>
         <p className="landing-share-note" role="status">{shareNote}</p>
       </section>
+      </div>
     </main>
   );
 }

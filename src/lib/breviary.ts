@@ -23,6 +23,10 @@ export type BreviaryDay = {
   segments: BreviarySegment[];
 };
 
+export function breviaryNarrationText(segment: BreviarySegment) {
+  return segment.id === "reading" && segment.reference ? `${segment.reference}. ${segment.text}` : segment.text;
+}
+
 type Season = { name: string; antiphon: string; shortPrayer: string; intercessions: string; concludingPrayer: string };
 type Saint = { id: string; name: string; date: string; rank: string; shortBiography: string; antiphon: string; intercession: string; concludingPrayer: string };
 

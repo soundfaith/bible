@@ -5,6 +5,7 @@ import './styles.css'
 import './motion.css'
 import './reader-fonts.css'
 import './design-system.css'
+import './audio-first.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -35,7 +35,7 @@ export function RosaryLibrary({ nextStep }: { nextStep?: ReactNode }) {
       <div className="journey-library-heading">
         <div><p className="eyebrow">The four sets of mysteries</p><h2 id="rosary-mysteries-title">Choose a mystery.</h2></div>
       </div>
-      <ol className="journey-library-list rosary-library-list">
+      <ol className="journey-library-list rosary-library-list library-stack">
         {rosaryMysteries.map((mystery, index) => <li className="journey-library-item" key={mystery.title}>
           <a className="journey-library-card" href={`#/rosary/${["joyful", "luminous", "sorrowful", "glorious"][index]}`} aria-label={`Pray the ${mystery.title}`}>
             <RosaryArtwork index={index} />

@@ -61,7 +61,7 @@ export function BreviaryLibrary({ date, seasonName, saintName, onDateChange, nex
             <h2 id="breviary-library-title">Pray the hours.</h2>
           </div>
         </div>
-        <ol className="journey-library-list breviary-library-list">
+        <ol className="journey-library-list breviary-library-list library-stack">
           {breviaryHours.map((hour) => {
             const info = breviaryHourInfo[hour];
             return (

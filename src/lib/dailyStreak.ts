@@ -132,11 +132,14 @@ const inRoutine = (routine: Routine, item: DailyItem) => routine === "mass"
       : item === "lauds" || item === "vespers" || item === "compline";
 
 export function nextDailyRoutine(state: DailyStreakState, today = localDateKey()): Routine | null {
-  const completed = (routine: Routine) => (state.log[today] ?? []).some((item) => inRoutine(routine, item));
   const available: Routine[] = ["breviary", "mass", "rosary", "saints"];
-  const unfinished = available.filter((routine) => !completed(routine));
+  const unfinished = available.filter((routine) => !routineDoneToday(state, routine, today));
   if (unfinished.length === 0) return null;
   return unfinished.sort((left, right) => routineStreak(state, right, today) - routineStreak(state, left, today))[0];
+}
+
+export function routineDoneToday(state: DailyStreakState, routine: Routine, today = localDateKey()) {
+  return (state.log[today] ?? []).some((item) => inRoutine(routine, item));
 }
 
 /** Consecutive days with this routine. Today is not required yet, so a streak stays alive until a full day is missed. */

@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 export type SummaArtworkVariant =
   | "prima-pars"
   | "prima-secundae"
@@ -23,7 +25,7 @@ const palettes: Record<SummaArtworkVariant, Palette> = {
 
 export function SummaArtwork({ variant, hero = false }: { variant: SummaArtworkVariant; hero?: boolean }) {
   const colors = palettes[variant];
-  const id = `summa-art-${variant}`;
+  const id = `summa-art-${useId().replace(/:/g, "")}-${variant}`;
 
   return (
     <div className={`summa-artwork summa-artwork--${variant}${hero ? " summa-artwork--hero" : ""}`} aria-hidden="true">

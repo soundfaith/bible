@@ -276,7 +276,7 @@ export function BibleJourneyLibrary({
             <h2 id="journey-library-title">Twelve places to pause.</h2>
           </div>
         </div>
-        <ol className="journey-library-list">
+        <ol className="journey-library-list library-stack">
           {bibleJourney.map((period, index) => {
             const done = completedIds.includes(period.id);
             const isNext = nextPeriod?.id === period.id;

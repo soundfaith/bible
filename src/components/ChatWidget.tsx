@@ -90,7 +90,7 @@ function AssistantBubble({ message, onOpen, onOpenCatechism, onOpenSumma, onPick
   if (message.kind === "welcome") {
     return (
       <div className="chat-bubble assistant">
-        <p>Peace be with you. I am {BOT_NAME}, your guide through Scripture and Catholic teaching. Ask a question, share a worry, or name a verse; I can draw on the Bible, the Baltimore Catechism, and St. Thomas Aquinas’s Summa Theologiae.</p>
+        <p>Explore questions and answers from the Bible, the Baltimore Catechism, and St. Thomas Aquinas's Summa Theologiae.</p>
         <div className="chat-chips">{SUGGESTED_PROMPTS.map((prompt) => <button type="button" key={prompt} data-prompt={prompt}>{prompt}</button>)}</div>
       </div>
     );
@@ -166,7 +166,7 @@ function AssistantBubble({ message, onOpen, onOpenCatechism, onOpenSumma, onPick
   if (message.kind === "suggest") {
     return (
       <div className="chat-bubble assistant">
-        <p>I want to make sure I understand you. Is your question closest to one of these?</p>
+        <p>Explore a related question:</p>
         <Chips ids={message.optionIds ?? []} onPick={onPick} label="Possible topics" />
       </div>
     );
@@ -174,7 +174,7 @@ function AssistantBubble({ message, onOpen, onOpenCatechism, onOpenSumma, onPick
   if (message.kind === "fallback") {
     return (
       <div className="chat-bubble assistant">
-        <p>I could not find a close match for that. Try describing what you are feeling or asking in a few different words, type a verse such as “John 3:16”, or start from one of these.</p>
+        <p>No close match was found. Try different words, a verse such as “John 3:16”, or one of these topics.</p>
         <Chips ids={message.optionIds ?? []} onPick={onPick} label="Starting topics" />
       </div>
     );
@@ -213,8 +213,13 @@ export function ChatWidget({ onOpenVerse }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { saveChatHistory(messages); }, [messages]);
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
   useEffect(() => {
-    const openFromPage = () => setOpen(true);
+    const openFromPage = (event: Event) => {
+      const question = (event as CustomEvent<{ question?: string }>).detail?.question;
+      if (question) setPendingQuestion(question);
+      setOpen(true);
+    };
     window.addEventListener(OPEN_ASSISTANT_EVENT, openFromPage);
     return () => window.removeEventListener(OPEN_ASSISTANT_EVENT, openFromPage);
   }, []);
@@ -259,6 +264,12 @@ export function ChatWidget({ onOpenVerse }: Props) {
     setBusy(false);
   };
 
+  useEffect(() => {
+    if (!open || !pendingQuestion) return;
+    setPendingQuestion(null);
+    void ask(pendingQuestion);
+  }, [open, pendingQuestion]);
+
   const openVerse = (bookId: string, chapter: number, verse: number) => {
     setOpen(false);
     onOpenVerse(bookId, chapter, verse);
@@ -284,7 +295,7 @@ export function ChatWidget({ onOpenVerse }: Props) {
       {!open && (
         <button type="button" className="chat-fab" aria-label={`Ask ${BOT_NAME} about Scripture and Catholic teaching`} onClick={() => setOpen(true)} onPointerEnter={() => warmUpChatModel()}>
           <SparkleIcon size={22} tone="white" />
-          <span>Ask {BOT_NAME}</span>
+          <span>{BOT_NAME} Q&amp;A</span>
         </button>
       )}
       {open && (
@@ -293,23 +304,23 @@ export function ChatWidget({ onOpenVerse }: Props) {
             <span className="chat-avatar"><SofiAvatar size={46} /></span>
             <div>
               <strong>{BOT_NAME}</strong>
-              <span>Scripture &amp; Catholic teaching</span>
+              <span>Curated Catholic Questions &amp; Answers</span>
             </div>
-            <button type="button" aria-label="Clear conversation" title="Clear conversation" onClick={reset}><Trash2 size={16} /></button>
+            <button type="button" aria-label="Clear questions" title="Clear questions" onClick={reset}><Trash2 size={16} /></button>
             <button type="button" aria-label="Close" onClick={() => setOpen(false)}><X size={18} /></button>
           </header>
           <div className="chat-list" ref={listRef} aria-live="polite" onClick={(event) => {
             const prompt = (event.target as HTMLElement).closest<HTMLElement>("[data-prompt]")?.dataset.prompt;
             if (prompt) void ask(prompt);
           }}>
-            {messages.map((message) => message.role === "user"
-              ? <div key={message.id} className="chat-bubble user">{message.text}</div>
+            {messages.slice(busy ? -1 : -2).map((message) => message.role === "user"
+              ? <h2 className="sofi-question" key={message.id}>{message.text}</h2>
               : <AssistantBubble key={message.id} message={message} onOpen={openVerse} onOpenCatechism={openCatechism} onOpenSumma={openSumma} onPick={(id) => void ask(getTopic(id)?.title ?? "", id)} />)}
-            {busy && <div className="chat-bubble assistant chat-typing" aria-label="Searching Scripture"><i /><i /><i /></div>}
+            {busy && <p role="status">Searching the sources…</p>}
           </div>
           <form className="chat-form" onSubmit={(event) => { event.preventDefault(); void ask(draft); }}>
-            <input ref={inputRef} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={`Ask ${BOT_NAME} about faith, life, or a verse…`} maxLength={300} aria-label="Your question" />
-            <button type="submit" aria-label="Send" disabled={busy || !draft.trim()}><Send size={17} /></button>
+            <input ref={inputRef} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Search questions or a verse…" maxLength={300} aria-label="Your question" />
+            <button type="submit" aria-label="Search questions" disabled={busy || !draft.trim()}><Send size={17} /></button>
           </form>
         </section>
       )}

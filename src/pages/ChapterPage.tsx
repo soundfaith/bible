@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Bookmark, ChevronDown } from "lucide-r
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { bibleBooks, getBook, getChapter, getChapterCount, getParagraphs, type BibleBookSummary } from "../lib/bible";
-import { NarrationProgress, NarratorButton } from "../components/NarratorButton";
+import { NarrationProgress, NarratorButton, type NarrationTrack } from "../components/NarratorButton";
 import { narrationAudioUrlsFor } from "../lib/narrationAudio";
 import type { NarrationGender } from "../lib/narrationVoice";
 
@@ -26,7 +26,7 @@ export function getLastReading(): ReadingPosition {
   return { bookId: "genesis", chapter: 1 };
 }
 
-export function ChapterPage({ position, voicePreference, onPositionChange, onSelectChapter, highlightVerse, isBookmarked, isChapterBookmarked, onToggleBookmark, onNarrationEnded, nextStep }: { position: ReadingPosition; voicePreference: NarrationGender; onPositionChange: (position: ReadingPosition) => void; onSelectChapter: () => void; highlightVerse?: number | null; isBookmarked: boolean; isChapterBookmarked: boolean; onToggleBookmark: (range?: SelectedVerseRange) => void; onNarrationEnded: () => void; nextStep?: ReactNode }) {
+export function ChapterPage({ position, voicePreference, onPositionChange, onSelectChapter, highlightVerse, isBookmarked, isChapterBookmarked, onToggleBookmark, onNarrationEnded, narrationTrack, nextStep }: { position: ReadingPosition; voicePreference: NarrationGender; onPositionChange: (position: ReadingPosition) => void; onSelectChapter: () => void; highlightVerse?: number | null; isBookmarked: boolean; isChapterBookmarked: boolean; onToggleBookmark: (range?: SelectedVerseRange) => void; onNarrationEnded: () => void; narrationTrack: NarrationTrack; nextStep?: ReactNode }) {
   const touchStart = useRef<number | null>(null);
   const readingCopyRef = useRef<HTMLDivElement | null>(null);
   const [selectedVerseRange, setSelectedVerseRange] = useState<(SelectedVerseRange & { top: number; left: number }) | null>(null);
@@ -84,7 +84,7 @@ export function ChapterPage({ position, voicePreference, onPositionChange, onSel
     <header className="journey-detail-heading">
       <p className="eyebrow"><span className="eyebrow-dot" /> SoundFaith <span aria-hidden="true">/</span> Chapter {position.chapter} of {getChapterCount(position.bookId)}</p>
       <h1>{book.name} <em>{position.chapter}</em></h1>
-      <div className="journey-audio-controls"><NarratorButton text={narrationText} audioUrls={narrationAudioUrls} voicePreference={voicePreference} onEnded={onNarrationEnded} /></div>
+      <div className="journey-audio-controls"><NarratorButton text={narrationText} audioUrls={narrationAudioUrls} voicePreference={voicePreference} onEnded={onNarrationEnded} track={narrationTrack} /></div>
     </header>
     <NarrationProgress className="narration-progress-desktop narration-progress-centered" />
     <article className="bible-reading-panel"><div className="bible-reading-copy" ref={readingCopyRef}>{paragraphs.map((paragraph) => <p key={paragraph.id}>{paragraph.verses.map((verse) => <span key={verse.verse} data-verse={verse.verse} className={highlightVerse === verse.verse ? "verse-highlight" : ""}><sup>{verse.verse}</sup>{verse.text} </span>)}</p>)}</div></article>

@@ -10,8 +10,9 @@ import {
   type CatechismEdition,
   type CatechismGroup,
 } from "../lib/catechism";
-import { NarrationProgress, NarratorButton, stopSpeaking } from "../components/NarratorButton";
+import { NarrationProgress, NarratorButton } from "../components/NarratorButton";
 import type { NarrationGender } from "../lib/narrationVoice";
+import { catechismItem, displayLessonTitle } from "../lib/audioPlaylists";
 
 type Address = { edition: number | null; groupId: string | null; questionNumber: number | null };
 
@@ -30,23 +31,6 @@ function readAddress(): Address {
 
 function splitParagraphs(text: string) {
   return text.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
-}
-
-function displayLessonTitle(title: string) {
-  const minorWords = new Set(["a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "nor", "of", "on", "or", "the", "to", "with"]);
-  let firstWord = true;
-  return title.toLocaleLowerCase("en-US").split(/(\s+)/).map((part) => {
-    if (!part.trim()) return part;
-    return part.split(/(-)/).map((segment) => {
-      if (segment === "-") return segment;
-      const word = segment.match(/^([^a-z0-9]*)([a-z0-9])(.*)$/i);
-      if (!word) return segment;
-      const [, punctuation, initial, rest] = word;
-      const lowerCaseWord = !firstWord && minorWords.has(`${initial}${rest}`.toLocaleLowerCase("en-US"));
-      firstWord = false;
-      return `${punctuation}${lowerCaseWord ? initial.toLocaleLowerCase("en-US") : initial.toLocaleUpperCase("en-US")}${rest}`;
-    }).join("");
-  }).join("");
 }
 
 function AskSofiPrompt() {
@@ -85,7 +69,7 @@ function CatechismLibrary({ edition }: { edition: CatechismEdition | null }) {
         </div>
         <p>Three editions meet students at different stages, from First Communion through more advanced study.</p>
       </div>
-      <ol className="journey-library-list breviary-library-list">
+      <ol className="journey-library-list breviary-library-list library-stack">
         {catechismEditions.map((item) => <li className="journey-library-item" key={item.id}>
           <a className="journey-library-card" href={`#/catechism/${item.number}`} aria-label={`${item.title}: ${editionBlurb(item)}`}>
             <CatechismArtwork edition={item.number} />
@@ -157,12 +141,7 @@ function LessonReader({ edition, group, questionNumber, voicePreference }: { edi
     return { ...current, [group.id]: nextCollapsed };
   });
   const lessonTitle = displayLessonTitle(group.title);
-  const narrationText = useMemo(() => [
-    `${lessonTitle}.`,
-    ...group.questions.map((question) => `Question ${question.number}. ${question.question}\n${splitParagraphs(question.answer).join("\n")}`),
-  ].join("\n\n"), [group, lessonTitle]);
-
-  useEffect(() => () => stopSpeaking(), [group.id]);
+  const narrationItem = useMemo(() => catechismItem(edition, group), [edition, group]);
 
   useEffect(() => {
     if (questionNumber === null) return;
@@ -186,7 +165,7 @@ function LessonReader({ edition, group, questionNumber, voicePreference }: { edi
       <h1>{lessonTitle}</h1>
       <p className="catechism-audience">{edition.audience}</p>
       {edition.note && <p className="catechism-edition-note">{edition.note}</p>}
-      {group.questions.length > 0 && <div className="journey-audio-controls"><NarratorButton text={narrationText} voicePreference={voicePreference} /></div>}
+      {group.questions.length > 0 && <div className="journey-audio-controls"><NarratorButton text={narrationItem.text} voicePreference={voicePreference} track={narrationItem.track} /></div>}
       <NarrationProgress className="narration-progress-desktop narration-progress-centered" />
     </header>
 

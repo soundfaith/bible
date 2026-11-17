@@ -1,10 +1,10 @@
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
-import { useMemo } from "react";
 import { NarrationProgress, NarratorButton } from "../components/NarratorButton";
 import { noWorryJourney } from "../data/noWorryJourney";
 import type { GuidedJourneyProgress } from "../lib/guidedJourneyProgress";
 import type { NarrationGender } from "../lib/narrationVoice";
 import type { ReactNode } from "react";
+import { noWorryItem } from "../lib/audioPlaylists";
 
 type Props = {
   progress: GuidedJourneyProgress;
@@ -19,12 +19,9 @@ type Props = {
 export function NoWorryJourneyPage({ progress, voicePreference, nextStep, selectedDay, onSelectDay, onStart, onCompleteDay }: Props) {
   const isComplete = progress.completedDays.length === noWorryJourney.length;
   const currentDay = Math.min(progress.completedDays.length + 1, noWorryJourney.length);
-  const dayNumber = selectedDay && selectedDay <= currentDay ? selectedDay : currentDay;
+  const dayNumber = selectedDay ?? currentDay;
   const day = noWorryJourney[dayNumber - 1];
-  const narration = useMemo(
-    () => [day.scripture, day.reference, day.reflection, day.prayer].join(". "),
-    [day],
-  );
+  const narration = noWorryItem(dayNumber)!;
   const canCompleteDay = progress.started && !isComplete && dayNumber === currentDay;
 
   return (
@@ -38,7 +35,7 @@ export function NoWorryJourneyPage({ progress, voicePreference, nextStep, select
         <h1>{`Day ${dayNumber} of the No-Worry Journey`}</h1>
         <p className="journey-detail-overview">{isComplete ? "Journey complete. Revisit any day whenever you need it." : "A 15-day journey through Scripture, reflection, and prayer."}</p>
         <div className="journey-audio-controls">
-          <NarratorButton text={narration} voicePreference={voicePreference} />
+          <NarratorButton text={narration.text} voicePreference={voicePreference} track={narration.track} />
         </div>
         <NarrationProgress className="narration-progress-desktop no-worry-narration-progress" />
       </header>
@@ -82,7 +79,7 @@ export function NoWorryJourneyPage({ progress, voicePreference, nextStep, select
           <ArrowLeft size={16} /> Previous
         </button>
         <span>Day {dayNumber} of {noWorryJourney.length}</span>
-        <button type="button" className="button button-outline" onClick={() => onSelectDay(dayNumber + 1)} disabled={dayNumber >= currentDay}>
+        <button type="button" className="button button-outline" onClick={() => onSelectDay(dayNumber + 1)} disabled={dayNumber >= noWorryJourney.length}>
           Next <ArrowRight size={16} />
         </button>
       </nav>

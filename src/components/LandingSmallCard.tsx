@@ -1,5 +1,7 @@
 import { ArrowRight, Check, Flame } from "lucide-react";
-import { LandingBibleArtwork, LandingBreviaryArtwork, LandingChurchArtwork } from "./LandingArtwork";
+import { useEffect, useState } from "react";
+import { getNarrationSnapshot, subscribeNarration } from "./NarratorButton";
+import { LandingBibleArtwork, LandingBreviaryArtwork, LandingChurchArtwork, LandingGospelsArtwork, LandingNewTestamentArtwork, LandingOldTestamentArtwork } from "./LandingArtwork";
 import { RosaryArtwork } from "./RosaryArtwork";
 import { SaintArtwork } from "./SaintArtwork";
 import { SummaArtwork } from "./SummaArtwork";
@@ -7,7 +9,7 @@ import { CatechismArtwork as CatechismBookArtwork } from "./CatechismArtwork";
 import { bibleJourney } from "../data/bibleJourney";
 import { JourneyArtwork } from "./JourneyArtwork";
 
-export type CardArtKey = "bible" | "journey" | "bible-journey" | "prayer" | "readings" | "rosary" | "saints" | "catechism" | "summa";
+export type CardArtKey = "bible" | "old-testament" | "new-testament" | "gospels" | "journey" | "bible-journey" | "prayer" | "readings" | "rosary" | "saints" | "catechism" | "summa";
 
 function NoWorryJourneyArtwork() {
   return (
@@ -30,9 +32,25 @@ function NoWorryJourneyArtwork() {
   );
 }
 
-export function CardArt({ art, className = "" }: { art: CardArtKey; className?: string }) {
+const currentlyPlayingArt = () => {
+  const snapshot = getNarrationSnapshot();
+  return snapshot.status === "playing" && snapshot.track ? snapshot.track.art : null;
+};
+
+export function useCardPlaying(art: CardArtKey, enabled: boolean) {
+  const [playingArt, setPlayingArt] = useState(currentlyPlayingArt);
+  useEffect(() => {
+    if (!enabled) return undefined;
+    return subscribeNarration(() => setPlayingArt(currentlyPlayingArt()));
+  }, [enabled]);
+  return enabled && playingArt === art;
+}
+
+export function CardArt({ art, className = "", showPlaying = false }: { art: CardArtKey; className?: string; showPlaying?: boolean }) {
+  const isPlaying = useCardPlaying(art, showPlaying);
   return <div className={`landing-card-art landing-card-art--${art} ${className}`.trim()} aria-hidden="true">
-    {art === "bible" ? <LandingBibleArtwork /> : art === "journey" ? <NoWorryJourneyArtwork /> : art === "bible-journey" ? <JourneyArtwork periodId={bibleJourney[0].id} /> : art === "prayer" ? <LandingBreviaryArtwork /> : art === "rosary" ? <RosaryArtwork home /> : art === "saints" ? <SaintArtwork /> : art === "catechism" ? <CatechismBookArtwork edition={1} /> : art === "summa" ? <SummaArtwork variant="prima-pars" /> : <LandingChurchArtwork />}
+    {art === "bible" ? <LandingBibleArtwork /> : art === "old-testament" ? <LandingOldTestamentArtwork /> : art === "new-testament" ? <LandingNewTestamentArtwork /> : art === "gospels" ? <LandingGospelsArtwork /> : art === "journey" ? <NoWorryJourneyArtwork /> : art === "bible-journey" ? <JourneyArtwork periodId={bibleJourney[0].id} /> : art === "prayer" ? <LandingBreviaryArtwork /> : art === "rosary" ? <RosaryArtwork home /> : art === "saints" ? <SaintArtwork /> : art === "catechism" ? <CatechismBookArtwork edition={1} /> : art === "summa" ? <SummaArtwork variant="prima-pars" /> : <LandingChurchArtwork />}
+        {isPlaying && <span className="card-playing-eq"><span className="mobile-nav-player-bars"><i /><i /><i /></span></span>}
   </div>;
 }
 
@@ -48,7 +66,7 @@ export type SmallCardProps = {
 
 export function SmallCard({ art, title, stat, description, action, done, onClick }: SmallCardProps) {
   return <button className={`landing-card landing-card--small${done ? " is-done" : ""}`} type="button" aria-label={`${title}: ${action}`} onClick={onClick}>
-    <CardArt art={art} />
+    <CardArt art={art} showPlaying />
     <div className="landing-card-copy">
       <h3>{title}</h3>
       {stat && <p className="landing-card-stat"><Flame size={12} aria-hidden="true" /> {stat}</p>}

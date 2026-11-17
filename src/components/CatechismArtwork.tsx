@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 type CatechismArtworkProps = { edition: number; hero?: boolean };
 
 type Palette = {
@@ -15,7 +17,7 @@ const palettes: Record<number, Palette> = {
 
 export function CatechismArtwork({ edition, hero = false }: CatechismArtworkProps) {
   const colors = palettes[edition] ?? palettes[2];
-  const id = `catechism-edition-${edition}`;
+  const id = `catechism-${useId().replace(/:/g, "")}-${edition}`;
 
   return <div className={`catechism-artwork catechism-artwork--${edition}${hero ? " catechism-artwork--hero" : ""}`} aria-hidden="true">
     <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" focusable="false">

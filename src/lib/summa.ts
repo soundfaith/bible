@@ -35,6 +35,7 @@ export type SummaDataset = {
 };
 
 let datasetPromise: Promise<SummaDataset> | null = null;
+let loadedDataset: SummaDataset | null = null;
 
 async function parseJsonBytes<T>(bytes: ArrayBuffer): Promise<T> {
   const signature = new Uint8Array(bytes, 0, Math.min(bytes.byteLength, 2));
@@ -90,11 +91,19 @@ async function loadDataset(): Promise<SummaDataset> {
 }
 
 export function loadSummaData() {
-  datasetPromise ??= loadDataset().catch((error: unknown) => {
+  datasetPromise ??= loadDataset().then((dataset) => {
+    loadedDataset = dataset;
+    return dataset;
+  }).catch((error: unknown) => {
     datasetPromise = null;
     throw error;
   });
   return datasetPromise;
+}
+
+// Lets synchronous series lookups use the dataset once it has been loaded for playback or the page.
+export function loadedSummaData() {
+  return loadedDataset;
 }
 
 export function summaQuestionHref(partSlug: string, questionNumber: number) {
