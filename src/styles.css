@@ -1136,7 +1136,9 @@ details.journey-intro > summary:focus-visible { outline:2px solid var(--accent);
 .journey-library-card { position:relative; display:grid; grid-template-rows:auto auto; height:100%; overflow:hidden; border:1px solid color-mix(in srgb,var(--ink) 13%,var(--line)); border-radius:18px; background:var(--white); color:var(--ink); box-shadow:0 7px 20px rgb(23 25 22 / 6%); transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease; }
 .journey-library-card:hover { border-color:var(--accent-deep); box-shadow:0 15px 32px rgb(35 38 34 / 13%); transform:translateY(-3px); }
 .journey-library-card:focus-visible { outline:2px solid var(--accent); outline-offset:4px; }
-.journey-library-card .journey-artwork { aspect-ratio:2/1; min-height:125px; max-height:175px; border:0; border-radius:17px 17px 0 0; }
+button.journey-library-card { width:100%; padding:0; font:inherit; text-align:left; cursor:pointer; }
+.journey-library-card .journey-artwork,
+.journey-library-card > .landing-card-art { aspect-ratio:2/1; min-height:125px; max-height:175px; border:0; border-radius:17px 17px 0 0; }
 .journey-library-copy { display:grid; align-content:start; min-height:167px; padding:18px 19px 17px; }
 .journey-library-copy .journey-period-label { margin-bottom:9px; font-size:8px; }
 .journey-library-copy > strong { font:normal 23px/1.06 var(--font-display); }

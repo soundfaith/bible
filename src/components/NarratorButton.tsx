@@ -4,6 +4,7 @@ import type { NarrationGender } from "../lib/narrationVoice";
 import { Capacitor } from "@capacitor/core";
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
 import { pickDeviceVoice, pickVoiceIndex } from "../lib/deviceVoice";
+import type { GuidedJourneyId } from "../data/guidedJourneys";
 
 const ESTIMATED_CHARS_PER_SECOND = 14;
 
@@ -13,12 +14,12 @@ export type NarrationTimeline = { parts: { urls: string[]; chars: number }[]; in
 export type NarrationTrack = {
   title: string;
   path: string;
-  art: "bible" | "old-testament" | "new-testament" | "gospels" | "journey" | "bible-journey" | "prayer" | "readings" | "rosary" | "saints" | "catechism" | "summa";
+  art: "bible" | "old-testament" | "new-testament" | "gospels" | "journey" | "freedom-journey" | "bible-journey" | "prayer" | "readings" | "rosary" | "saints" | "catechism" | "summa";
   next?: { title: string; path: string };
   timeline?: NarrationTimeline;
   // Full text of the whole item when its audio is split into parts; the player shows this as the transcript.
   transcript?: string;
-  sequence?: { kind: "bible-journey"; periodId: string; storyIndex: number } | { kind: "rosary"; mysteryIndex: number; mode: "traditional" | "gospel"; clipIndex: number } | { kind: "breviary"; hour: string; date: string; segmentIndex: number } | { kind: "no-worry"; day: number } | { kind: "catechism"; edition: number; groupId: string } | { kind: "summa"; partSlug: string; question: number; article?: number };
+  sequence?: { kind: "bible-journey"; periodId: string; storyIndex: number } | { kind: "rosary"; mysteryIndex: number; mode: "traditional" | "gospel"; clipIndex: number } | { kind: "breviary"; hour: string; date: string; segmentIndex: number } | { kind: "guided"; journeyId: GuidedJourneyId; day: number } | { kind: "catechism"; edition: number; groupId: string } | { kind: "summa"; partSlug: string; question: number; article?: number };
 };
 export type NarrationSnapshot = { status: NarrationStatus; text: string; position: number; duration: number; elapsedSeconds: number; usesAudioFile: boolean; track?: NarrationTrack; error?: string };
 type SavedNarration = { snapshot: NarrationSnapshot; sources: string[]; preference: NarrationGender };
@@ -159,7 +160,7 @@ function loadSavedNarration(): SavedNarration | null {
 
 function currentTrack(): NarrationTrack {
   const path = window.location.hash || "#/";
-  const art = path.startsWith("#/read") ? "bible" : path.startsWith("#/journeys") ? "journey" : path.startsWith("#/journey") ? "bible-journey" : path.startsWith("#/breviary") ? "prayer" : path.startsWith("#/rosary") ? "rosary" : path.startsWith("#/saints") ? "saints" : path.startsWith("#/catechism") ? "catechism" : path.startsWith("#/summa") ? "summa" : "readings";
+  const art = path.startsWith("#/read") ? "bible" : path.startsWith("#/journeys/freedom") ? "freedom-journey" : path.startsWith("#/journeys") ? "journey" : path.startsWith("#/journey") ? "bible-journey" : path.startsWith("#/breviary") ? "prayer" : path.startsWith("#/rosary") ? "rosary" : path.startsWith("#/saints") ? "saints" : path.startsWith("#/catechism") ? "catechism" : path.startsWith("#/summa") ? "summa" : "readings";
   return { title: document.querySelector("main h1")?.textContent?.trim() || "SoundFaith narration", path, art };
 }
 

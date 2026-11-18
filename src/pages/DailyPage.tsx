@@ -1,5 +1,5 @@
-import { ArrowRight } from "lucide-react";
-import { SmallCard, type CardArtKey } from "../components/LandingSmallCard";
+import { ArrowRight, Check } from "lucide-react";
+import { CardArt, type CardArtKey } from "../components/LandingSmallCard";
 import { breviaryHourInfo, currentBreviaryHour } from "../lib/breviary";
 import { doneToday, nextDailyRoutine, routineStreak, type DailyItem, type DailyStreakState, type Routine } from "../lib/dailyStreak";
 
@@ -66,20 +66,25 @@ export function DailyPage({ streak, onOpenDaily }: DailyPageProps) {
           <p className="eyebrow">Prayer and daily anchors</p>
           <h2 id="daily-practices-title">Choose a practice.</h2>
         </div>
-        <div className="daily-practice-grid">
-          {routines.map((routine) => (
-            <SmallCard
-              key={routine.routine}
-              art={routine.art}
-              title={routine.title}
-              description={routine.description}
-              stat={routineStreak(streak, routine.routine) > 0 ? `${routineStreak(streak, routine.routine)} day rhythm` : undefined}
-              action={routine.done ? "Done for today" : routine.action}
-              done={routine.done}
-              onClick={() => openRoutine(routine.routine)}
-            />
-          ))}
-        </div>
+        <ol className="journey-library-list library-stack daily-library-list">
+          {routines.map((routine) => {
+            const streakDays = routineStreak(streak, routine.routine);
+            const action = routine.done ? "Done for today" : routine.action;
+            return (
+              <li className="journey-library-item" key={routine.routine}>
+                <button type="button" className={`journey-library-card${routine.done ? " is-done" : ""}`} aria-label={`${routine.title}: ${action}`} onClick={() => openRoutine(routine.routine)}>
+                  <CardArt art={routine.art} showPlaying />
+                  <span className="journey-library-copy">
+                    <span className="journey-period-label"><span>{streakDays > 0 ? `${streakDays} day rhythm` : "Today"}</span></span>
+                    <strong>{routine.title}</strong>
+                    <span className="journey-library-teaser">{routine.description}</span>
+                    <span className="journey-library-meta">{routine.done && <Check size={13} aria-hidden="true" />}{action}{!routine.done && <ArrowRight size={14} aria-hidden="true" />}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
         {streak.storageError && <p className="daily-page-storage-error" role="status">Daily progress could not be saved on this device. Your changes will remain only for this visit.</p>}
       </section>
     </main>

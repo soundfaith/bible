@@ -62,7 +62,7 @@ import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress"
 import { loadGuidedJourneyProgress, saveGuidedJourneyProgress } from "./lib/guidedJourneyProgress";
 import { journeyProgressStorageKey, loadJourneyProgressData, updateJourneyProgressData } from "./lib/journeyProgressStore";
 import { getJourneyOverview } from "./lib/journeyOverview";
-import { noWorryJourney } from "./data/noWorryJourney";
+import { guidedJourneyDays, isGuidedJourneyId, type GuidedJourneyId } from "./data/guidedJourneys";
 import { journeyCadence } from "./data/journeyCatalog";
 import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor, rosaryAudioUrlsFor, saintNarrationAudioUrlsFor } from "./lib/narrationAudio";
 import { getNarrationGender, saveNarrationGender, type NarrationGender } from "./lib/narrationVoice";
@@ -92,7 +92,7 @@ import {
 } from "./components/NarratorButton";
 import { AudioPlayer, NavPlayer } from "./components/AudioPlayer";
 import { ListenPage, type PlayKind } from "./pages/ListenPage";
-import { catechismItem, noWorryItem, summaQuestionItem } from "./lib/audioPlaylists";
+import { catechismItem, guidedItem, summaQuestionItem } from "./lib/audioPlaylists";
 import { loadSummaData } from "./lib/summa";
 import { catechismEditions } from "./lib/catechism";
 
@@ -197,13 +197,19 @@ function readJourneyStoryAnchor() {
   return new URLSearchParams(query).get("story");
 }
 
-function readGuidedJourneyDay() {
+function readGuidedJourney(): { journeyId: GuidedJourneyId; day: number | null } | null {
   const path = window.location.hash.replace(/^#\/?/, "").split("?")[0];
-  const match = path.match(/^journeys\/no-worry\/(\d+)$/);
-  if (!match) return null;
-  const day = Number(match[1]);
-  return Number.isInteger(day) && day >= 1 && day <= noWorryJourney.length ? day : null;
+  const match = path.match(/^journeys\/([^/]+)(?:\/(\d+))?$/);
+  if (!match || !isGuidedJourneyId(match[1])) return null;
+  const journeyId = match[1];
+  const day = match[2] === undefined ? NaN : Number(match[2]);
+  return { journeyId, day: Number.isInteger(day) && day >= 1 && day <= guidedJourneyDays[journeyId].length ? day : null };
 }
+
+const guidedDailyItem: Record<GuidedJourneyId, DailyItem> = {
+  freedom: "journey-freedom",
+  "no-worry": "journey-no-worry",
+};
 
 function RosaryMenuIcon() {
   return (
@@ -222,7 +228,7 @@ export default function App() {
   const [journeyPeriodId, setJourneyPeriodId] = useState<string | null>(readJourneyPeriodId);
   const [lastJourneyPeriodId, setLastJourneyPeriodId] = useState<string | null>(getLastJourneyPeriodId);
   const [journeyStoryAnchor, setJourneyStoryAnchor] = useState<string | null>(readJourneyStoryAnchor);
-  const [guidedJourneyDay, setGuidedJourneyDay] = useState<number | null>(readGuidedJourneyDay);
+  const [guidedJourneyRoute, setGuidedJourneyRoute] = useState(readGuidedJourney);
   const [menuOpen, setMenuOpen] = useState(false);
   const [fontSize, setFontSize] = useState(() => {
     const saved = Number(window.localStorage.getItem("reader-font-size"));
@@ -250,9 +256,16 @@ export default function App() {
       const { data, error } = loadJourneyProgressData();
       setJourneyProgress({ completedIds: data.bibleCompletedIds, storageError: error });
       setGuidedJourneyProgress({
-        started: data.noWorryStarted || data.noWorryCompletedDays.length > 0,
-        completedDays: data.noWorryCompletedDays,
-        storageError: error,
+        freedom: {
+          started: data.freedomStarted || data.freedomCompletedDays.length > 0,
+          completedDays: data.freedomCompletedDays,
+          storageError: error,
+        },
+        "no-worry": {
+          started: data.noWorryStarted || data.noWorryCompletedDays.length > 0,
+          completedDays: data.noWorryCompletedDays,
+          storageError: error,
+        },
       });
       setLastJourneyPeriodId(data.lastVisitedPeriodId);
     };
@@ -282,10 +295,23 @@ export default function App() {
   const [highlightVerse, setHighlightVerse] = useState<number | null>(null);
   const [narration, setNarration] = useState(getNarrationSnapshot);
   const [playerOpen, setPlayerOpenState] = useState(false);
+  // Stays mounted while the close animation runs so the player can slide down before unmounting.
+  const [playerClosing, setPlayerClosing] = useState(false);
+  const playerCloseTimerRef = useRef<number | undefined>(undefined);
   // The full player is mobile-only. On desktop, playback continues without opening it.
   const setPlayerOpen = (open: boolean) => {
     if (open && window.innerWidth > 760) return;
-    setPlayerOpenState(open);
+    window.clearTimeout(playerCloseTimerRef.current);
+    if (open) {
+      setPlayerClosing(false);
+      setPlayerOpenState(true);
+      return;
+    }
+    if (!playerOpen) return;
+    setPlayerOpenState(false);
+    setPlayerClosing(true);
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    playerCloseTimerRef.current = window.setTimeout(() => setPlayerClosing(false), reduceMotion ? 0 : 280);
   };
   const [loadingListen, setLoadingListen] = useState<PlayKind | null>(null);
   const listenRequestRef = useRef(0);
@@ -293,17 +319,23 @@ export default function App() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(getBookmarks);
   const [bookmarkCategories, setBookmarkCategories] = useState<string[]>(getBookmarkCategories);
   const [journeyProgress, setJourneyProgress] = useState(loadJourneyProgress);
-  const [guidedJourneyProgress, setGuidedJourneyProgress] = useState(loadGuidedJourneyProgress);
+  const [guidedJourneyProgress, setGuidedJourneyProgress] = useState(() => ({
+    freedom: loadGuidedJourneyProgress("freedom"),
+    "no-worry": loadGuidedJourneyProgress("no-worry"),
+  }));
+  const activeGuidedId = guidedJourneyRoute?.journeyId ?? "freedom";
+  const activeGuidedDay = guidedJourneyRoute?.day ?? null;
   const [journeyArtwork, setJourneyArtwork] = useState(loadJourneyArtworkSelections);
   const menuRef = useRef<HTMLElement | null>(null);
+  const activeGuidedStarted = guidedJourneyProgress[activeGuidedId].started;
 
   useEffect(() => {
-    if (route === "guided-journey" && guidedJourneyProgress.started) {
-      setDailyStreak((state) => recordJourneySession(state, "no-worry", journeyCadence("no-worry")));
+    if (route === "guided-journey" && activeGuidedStarted) {
+      setDailyStreak((state) => recordJourneySession(state, activeGuidedId, journeyCadence(activeGuidedId)));
     } else if (route === "journey" && journeyPeriodId) {
       setDailyStreak((state) => recordJourneySession(state, "bible", journeyCadence("bible")));
     }
-  }, [route, journeyPeriodId, guidedJourneyProgress.started]);
+  }, [route, journeyPeriodId, activeGuidedId, activeGuidedStarted]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -798,7 +830,7 @@ export default function App() {
       setBreviaryHour(readBreviaryHour());
       setJourneyPeriodId(readJourneyPeriodId());
       setJourneyStoryAnchor(readJourneyStoryAnchor());
-      setGuidedJourneyDay(readGuidedJourneyDay());
+      setGuidedJourneyRoute(readGuidedJourney());
       setMenuOpen(false);
       if (!readJourneyStoryAnchor()) window.scrollTo(0, 0);
     };
@@ -898,22 +930,21 @@ export default function App() {
     setJourneyProgress({ completedIds, storageError: !saved });
     if (!wasCompleted) setDailyStreak((state) => recordDailyItem(state, "journey-bible"));
   };
-  const startGuidedJourney = () => {
-    const progress = { ...guidedJourneyProgress, started: true };
-    setGuidedJourneyProgress({ ...progress, storageError: !saveGuidedJourneyProgress(progress) });
-    setDailyStreak((state) => recordJourneySession(state, "no-worry", journeyCadence("no-worry")));
+  const updateGuidedProgress = (journeyId: GuidedJourneyId, progress: (typeof guidedJourneyProgress)[GuidedJourneyId]) => {
+    const storageError = !saveGuidedJourneyProgress(journeyId, progress);
+    setGuidedJourneyProgress((current) => ({ ...current, [journeyId]: { ...progress, storageError } }));
   };
-  const completeGuidedJourneyDay = () => {
-    if (!guidedJourneyProgress.started || guidedJourneyProgress.completedDays.length >= noWorryJourney.length) return;
-    const nextDay = guidedJourneyProgress.completedDays.length + 1;
-    const progress = {
-      ...guidedJourneyProgress,
-      started: true,
-      completedDays: [...guidedJourneyProgress.completedDays, nextDay],
-    };
-    setGuidedJourneyProgress({ ...progress, storageError: !saveGuidedJourneyProgress(progress) });
-    setDailyStreak((state) => recordDailyItem(state, "journey-no-worry"));
-    setDailyStreak((state) => recordJourneySession(state, "no-worry", journeyCadence("no-worry")));
+  const startGuidedJourney = (journeyId: GuidedJourneyId) => {
+    updateGuidedProgress(journeyId, { ...guidedJourneyProgress[journeyId], started: true });
+    setDailyStreak((state) => recordJourneySession(state, journeyId, journeyCadence(journeyId)));
+  };
+  const completeGuidedJourneyDay = (journeyId: GuidedJourneyId) => {
+    const current = guidedJourneyProgress[journeyId];
+    if (!current.started || current.completedDays.length >= guidedJourneyDays[journeyId].length) return;
+    const nextDay = current.completedDays.length + 1;
+    updateGuidedProgress(journeyId, { ...current, started: true, completedDays: [...current.completedDays, nextDay] });
+    setDailyStreak((state) => recordDailyItem(state, guidedDailyItem[journeyId]));
+    setDailyStreak((state) => recordJourneySession(state, journeyId, journeyCadence(journeyId)));
   };
   const journeyOverview = getJourneyOverview(guidedJourneyProgress, journeyProgress.completedIds, lastJourneyPeriodId);
   const selectJourneyArtwork = (periodId: string, optionId: string) => {
@@ -986,16 +1017,17 @@ export default function App() {
     const periodId = journeyOverview.bible.resumePeriod?.id ?? bibleJourney[0].id;
     window.location.hash = `#/journey/${periodId}`;
   };
-  const openJourneyRecommendation = (journey: "no-worry" | "bible") => {
-    if (journey === "no-worry") {
-      window.location.hash = "#/journeys/no-worry";
-    } else {
+  const openJourneyRecommendation = (journey: GuidedJourneyId | "bible") => {
+    if (journey === "bible") {
       resumeJourney();
+    } else {
+      window.location.hash = `#/journeys/${journey}`;
     }
   };
   const openExploreJourneys = () => {
     if (route === "journeys") {
-      if (!journeyOverview.noWorry.complete) openJourneyRecommendation("no-worry");
+      if (!journeyOverview.freedom.complete) openJourneyRecommendation("freedom");
+      else if (!journeyOverview.noWorry.complete) openJourneyRecommendation("no-worry");
       else window.location.hash = "#/journey";
     } else {
       window.location.hash = "#/journeys";
@@ -1019,6 +1051,8 @@ export default function App() {
       window.location.hash = "#/catechism";
     } else if (item === "summa") {
       window.location.hash = "#/summa";
+    } else if (item === "journey-freedom") {
+      window.location.hash = "#/journeys/freedom";
     } else if (item === "journey-no-worry") {
       window.location.hash = "#/journeys/no-worry";
     } else if (item === "journey-bible") {
@@ -1119,12 +1153,12 @@ export default function App() {
     itemLabel="Segment"
     positionLabel="Rosary segment position"
   /> : null;
-  const markNoWorryDayPlayed = (day: number) => {
-    if (guidedJourneyProgress.completedDays.includes(day)) return;
-    const completedDays = [...guidedJourneyProgress.completedDays, day].sort((a, b) => a - b);
-    const progress = { ...guidedJourneyProgress, started: true, completedDays };
-    setGuidedJourneyProgress({ ...progress, storageError: !saveGuidedJourneyProgress(progress) });
-    setDailyStreak((state) => recordDailyItem(state, "journey-no-worry"));
+  const markGuidedDayPlayed = (journeyId: GuidedJourneyId, day: number) => {
+    const current = guidedJourneyProgress[journeyId];
+    if (current.completedDays.includes(day)) return;
+    const completedDays = [...current.completedDays, day].sort((a, b) => a - b);
+    updateGuidedProgress(journeyId, { ...current, started: true, completedDays });
+    setDailyStreak((state) => recordDailyItem(state, guidedDailyItem[journeyId]));
   };
   const playMassReading = (entry: ReturnType<typeof getTodaysMassReading>) => {
     const text = Object.values(entry.readings).map((reading) => reading.text).join("\n\n");
@@ -1184,15 +1218,19 @@ export default function App() {
         if (!part || !question) throw new Error("The first Summa question is unavailable.");
         const item = summaQuestionItem(part, question, data.questions.find((item) => item.part_id === part.id && item.number > question.number && item.articles.length));
         if (start(() => startSpeaking(item.text, [], undefined, undefined, voicePreferenceRef.current, item.track))) setPlayerOpen(true);
+      } else if (kind === "freedom" || kind === "no-worry") {
+        const item = guidedItem(kind, kind === "freedom" ? journeyOverview.freedom.nextDay : journeyOverview.noWorry.nextDay);
+        if (!item) throw new Error("This listening item is unavailable.");
+        if (start(() => startSpeaking(item.text, [], undefined, undefined, voicePreferenceRef.current, item.track))) {
+          if (!hold && item.track.sequence?.kind === "guided") markGuidedDayPlayed(kind, item.track.sequence.day);
+          setPlayerOpen(true);
+        }
       } else {
         const edition = catechismEditions[0];
         const group = edition?.groups.find((item) => item.questions.length > 0);
-        const item = kind === "no-worry" ? noWorryItem(journeyOverview.noWorry.nextDay) : edition && group ? catechismItem(edition, group) : null;
+        const item = edition && group ? catechismItem(edition, group) : null;
         if (!item) throw new Error("This listening item is unavailable.");
-        if (start(() => startSpeaking(item.text, [], undefined, undefined, voicePreferenceRef.current, item.track))) {
-          if (item.track.sequence?.kind === "no-worry") markNoWorryDayPlayed(item.track.sequence.day);
-          setPlayerOpen(true);
-        }
+        if (start(() => startSpeaking(item.text, [], undefined, undefined, voicePreferenceRef.current, item.track))) setPlayerOpen(true);
       }
     } catch (error) {
       if (listenRequestRef.current !== request || getNarrationSnapshot().track !== previousTrack) return;
@@ -1207,7 +1245,14 @@ export default function App() {
     if (getNarrationSnapshot().status !== "playing") toggleActiveNarration();
   };
   const openActiveJourney = () => {
-    void playListening(journeyOverview.bible.active ? "bible-journey" : "no-worry", false);
+    const kind: PlayKind = journeyOverview.freedom.active
+      ? "freedom"
+      : journeyOverview.noWorry.active
+        ? "no-worry"
+        : journeyOverview.bible.active
+          ? "bible-journey"
+          : "freedom";
+    void playListening(kind, false);
   };
   const openDailyRoutine = () => {
     const routines: Routine[] = ["breviary", "mass", "rosary", "saints"];
@@ -1293,17 +1338,18 @@ export default function App() {
       />
     ) : route === "guided-journey" ? (
       <NoWorryJourneyPage
-        progress={guidedJourneyProgress}
+        journeyId={activeGuidedId}
+        progress={guidedJourneyProgress[activeGuidedId]}
         voicePreference={voicePreference}
         nextStep={recommendation("journey")}
-        selectedDay={guidedJourneyDay}
+        selectedDay={activeGuidedDay}
         onSelectDay={(day) => {
-          window.location.hash = day === null ? "#/journeys/no-worry" : `#/journeys/no-worry/${day}`;
+          window.location.hash = day === null ? `#/journeys/${activeGuidedId}` : `#/journeys/${activeGuidedId}/${day}`;
         }}
-        onStart={startGuidedJourney}
+        onStart={() => startGuidedJourney(activeGuidedId)}
         onCompleteDay={() => {
-          completeGuidedJourneyDay();
-          window.location.hash = "#/journeys/no-worry";
+          completeGuidedJourneyDay(activeGuidedId);
+          window.location.hash = `#/journeys/${activeGuidedId}`;
         }}
       />
     ) : route === "journeys" ? (
@@ -1312,7 +1358,7 @@ export default function App() {
         bibleCompletedIds={journeyProgress.completedIds}
         lastVisitedPeriodId={lastJourneyPeriodId}
         onSelectJourney={(id) => {
-          window.location.hash = id === "no-worry" ? "#/journeys/no-worry" : "#/journey";
+          window.location.hash = id === "bible" ? "#/journey" : `#/journeys/${id}`;
         }}
         onContinueBibleJourney={resumeJourney}
         nextStep={recommendation("journey")}
@@ -1323,7 +1369,8 @@ export default function App() {
         "new-testament": estimatedNarrationDuration(getChapter("matthew", 1).map((verse) => verse.text).join(" ")),
         "gospels": estimatedNarrationDuration(getChapter("matthew", 1).map((verse) => verse.text).join(" ")),
         "bible-journey": estimatedNarrationDuration(journeyIntroText(bibleJourney[0].id)),
-        "no-worry": estimatedNarrationDuration(noWorryItem(journeyOverview.noWorry.nextDay)?.text ?? ""),
+        "freedom": estimatedNarrationDuration(guidedItem("freedom", journeyOverview.freedom.nextDay)?.text ?? ""),
+        "no-worry": estimatedNarrationDuration(guidedItem("no-worry", journeyOverview.noWorry.nextDay)?.text ?? ""),
         "catechism": estimatedNarrationDuration(catechismItem(catechismEditions[0], catechismEditions[0].groups.find((item) => item.questions.length > 0)!).text),
         "mass": estimatedNarrationDuration(Object.values(getTodaysMassReading().readings).map((reading) => reading.text).join("\n\n")),
         "rosary": estimatedNarrationDuration(buildRosarySequence(rosaryMode, todaysRosaryMysteryIndex()).clips.map((clip) => clip.spokenText).join(" ")),
@@ -1374,7 +1421,7 @@ export default function App() {
         onSaintToday={() => { window.location.hash = "#/saints/today"; }}
         onCatechism={() => { window.location.hash = "#/catechism"; }}
         onSumma={() => { window.location.hash = "#/summa"; }}
-        onGuidedJourney={() => { window.location.hash = "#/journeys/no-worry"; }}
+        onGuidedJourney={(journey) => { window.location.hash = `#/journeys/${journey}`; }}
         onContinueBibleJourney={resumeJourney}
         onAllJourneys={() => { window.location.hash = "#/journeys"; }}
         onDaily={() => { window.location.hash = "#/daily"; }}
@@ -1485,7 +1532,7 @@ export default function App() {
       )}
       {page}
       {narration.error && <div className="audio-error" role="alert">{narration.error}<button type="button" onClick={dismissNarrationError} aria-label="Dismiss audio error"><X size={16} /></button></div>}
-      {playerOpen && narration.track && <AudioPlayer narration={narration} onClose={() => setPlayerOpen(false)} onToggle={toggleActiveNarration} onSelectEpisode={selectRosarySegment} onSkipIntro={playerIntroSkip} onPrevious={() => {
+      {(playerOpen || playerClosing) && narration.track && <AudioPlayer narration={narration} closing={!playerOpen} onClose={() => setPlayerOpen(false)} onToggle={toggleActiveNarration} onSelectEpisode={selectRosarySegment} onSkipIntro={playerIntroSkip} onPrevious={() => {
         const track = getNarrationSnapshot().track;
         if (track && isBibleArt(track.art)) {
           const query = new URLSearchParams(track.path.split("?")[1] ?? "");
@@ -1494,7 +1541,7 @@ export default function App() {
           if (bookId && bibleBooks.some((book) => book.id === bookId) && chapter > 1) advanceNarration({ bookId, chapter: chapter - 1 }, track.art);
         } else if (track?.art === "readings") {
           stepMassReading(track.path, -1);
-        } else if (track?.sequence?.kind === "no-worry" || track?.sequence?.kind === "catechism") {
+        } else if (track?.sequence?.kind === "guided" || track?.sequence?.kind === "catechism") {
           void playPreviousPlaylistItem();
         }
       }} onNext={() => {
@@ -1512,7 +1559,7 @@ export default function App() {
           playRosaryClip(rosaryAudioStateRef.current.clipIndex + 1);
         } else if (track?.sequence?.kind === "breviary") {
           playBreviarySegment(breviaryAudioStateRef.current.segmentIndex + 1);
-        } else if (track?.sequence?.kind === "no-worry" || track?.sequence?.kind === "catechism" || track?.sequence?.kind === "summa") {
+        } else if (track?.sequence?.kind === "guided" || track?.sequence?.kind === "catechism" || track?.sequence?.kind === "summa") {
           void playNextPlaylistItem();
         } else if (track?.next) {
           setPlayerOpen(false);

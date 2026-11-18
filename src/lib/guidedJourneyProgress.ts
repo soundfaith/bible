@@ -1,5 +1,5 @@
-import { noWorryJourney } from "../data/noWorryJourney";
-import { loadJourneyProgressData, saveJourneyProgressData } from "./journeyProgressStore";
+import type { GuidedJourneyId } from "../data/guidedJourneys";
+import { getGuidedSlot, loadJourneyProgressData, saveJourneyProgressData, withGuidedSlot } from "./journeyProgressStore";
 
 export type GuidedJourneyProgress = {
   started: boolean;
@@ -7,20 +7,20 @@ export type GuidedJourneyProgress = {
   storageError: boolean;
 };
 
-export function loadGuidedJourneyProgress(): GuidedJourneyProgress {
+export function loadGuidedJourneyProgress(journeyId: GuidedJourneyId): GuidedJourneyProgress {
   const { data, error } = loadJourneyProgressData();
+  const slot = getGuidedSlot(data, journeyId);
   return {
-    started: data.noWorryStarted || data.noWorryCompletedDays.length > 0,
-    completedDays: data.noWorryCompletedDays,
+    started: slot.started || slot.completedDays.length > 0,
+    completedDays: slot.completedDays,
     storageError: error,
   };
 }
 
-export function saveGuidedJourneyProgress(progress: GuidedJourneyProgress): boolean {
+export function saveGuidedJourneyProgress(journeyId: GuidedJourneyId, progress: GuidedJourneyProgress): boolean {
   const { data, error } = loadJourneyProgressData();
-  return saveJourneyProgressData({
-    ...data,
-    noWorryStarted: progress.started,
-    noWorryCompletedDays: progress.completedDays,
-  }) && !error;
+  return saveJourneyProgressData(withGuidedSlot(data, journeyId, {
+    started: progress.started,
+    completedDays: progress.completedDays,
+  })) && !error;
 }

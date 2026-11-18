@@ -1,5 +1,5 @@
 import { bibleJourney } from "../data/bibleJourney";
-import { noWorryJourney } from "../data/noWorryJourney";
+import { guidedJourneyDays, type GuidedJourneyId } from "../data/guidedJourneys";
 import { resolveJourneyPeriodId } from "../data/journeyArtwork";
 
 const STORAGE_KEY = "soundfaith-journey-progress-v1";
@@ -8,11 +8,15 @@ const LEGACY_GUIDED_KEY = "soundfaith-guided-journey-no-worry-v1";
 const LEGACY_LAST_PERIOD_KEY = "soundfaith-bible-journey-last-period-v1";
 const validPeriodIds = new Set(bibleJourney.map((period) => period.id));
 
+export type GuidedSlot = { started: boolean; completedDays: number[] };
+
 export type JourneyProgressData = {
   bibleCompletedIds: string[];
   lastVisitedPeriodId: string | null;
   noWorryStarted: boolean;
   noWorryCompletedDays: number[];
+  freedomStarted: boolean;
+  freedomCompletedDays: number[];
 };
 
 const EMPTY_PROGRESS: JourneyProgressData = {
@@ -20,7 +24,21 @@ const EMPTY_PROGRESS: JourneyProgressData = {
   lastVisitedPeriodId: null,
   noWorryStarted: false,
   noWorryCompletedDays: [],
+  freedomStarted: false,
+  freedomCompletedDays: [],
 };
+
+export function getGuidedSlot(data: JourneyProgressData, journeyId: GuidedJourneyId): GuidedSlot {
+  return journeyId === "freedom"
+    ? { started: data.freedomStarted, completedDays: data.freedomCompletedDays }
+    : { started: data.noWorryStarted, completedDays: data.noWorryCompletedDays };
+}
+
+export function withGuidedSlot(data: JourneyProgressData, journeyId: GuidedJourneyId, slot: GuidedSlot): JourneyProgressData {
+  return journeyId === "freedom"
+    ? { ...data, freedomStarted: slot.started, freedomCompletedDays: slot.completedDays }
+    : { ...data, noWorryStarted: slot.started, noWorryCompletedDays: slot.completedDays };
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -36,12 +54,13 @@ function parseBibleIds(value: unknown) {
   return { ids: [...new Set(ids)], error: ids.length !== value.length };
 }
 
-function parseNoWorry(value: unknown) {
+function parseGuidedDays(value: unknown, journeyId: GuidedJourneyId) {
   if (!isRecord(value) || typeof value.started !== "boolean" || !Array.isArray(value.completedDays)) {
     return { started: false, days: [] as number[], error: true };
   }
+  const length = guidedJourneyDays[journeyId].length;
   const savedDays = [...new Set(value.completedDays.filter(
-    (day): day is number => Number.isInteger(day) && Number(day) >= 1 && Number(day) <= noWorryJourney.length,
+    (day): day is number => Number.isInteger(day) && Number(day) >= 1 && Number(day) <= length,
   ))].sort((a, b) => a - b);
   const days: number[] = [];
   for (let day = 1; savedDays.includes(day); day += 1) days.push(day);
@@ -55,7 +74,8 @@ function parseNoWorry(value: unknown) {
 function normalizeProgress(value: unknown) {
   if (!isRecord(value)) return { data: EMPTY_PROGRESS, error: true };
   const bible = parseBibleIds(value.bibleCompletedIds);
-  const noWorry = parseNoWorry({ started: value.noWorryStarted, completedDays: value.noWorryCompletedDays });
+  const noWorry = parseGuidedDays({ started: value.noWorryStarted, completedDays: value.noWorryCompletedDays }, "no-worry");
+  const freedom = parseGuidedDays({ started: value.freedomStarted, completedDays: value.freedomCompletedDays }, "freedom");
   const lastVisitedPeriodId = typeof value.lastVisitedPeriodId === "string"
     ? resolveJourneyPeriodId(value.lastVisitedPeriodId)
     : null;
@@ -68,8 +88,10 @@ function normalizeProgress(value: unknown) {
       lastVisitedPeriodId: validLastPeriod,
       noWorryStarted: noWorry.started,
       noWorryCompletedDays: noWorry.days,
+      freedomStarted: freedom.started,
+      freedomCompletedDays: freedom.days,
     },
-    error: bible.error || noWorry.error || (value.lastVisitedPeriodId !== null && value.lastVisitedPeriodId !== undefined && !validLastPeriod),
+    error: bible.error || noWorry.error || freedom.error || (value.lastVisitedPeriodId !== null && value.lastVisitedPeriodId !== undefined && !validLastPeriod),
   };
 }
 
@@ -93,7 +115,7 @@ function readLegacyProgress(): { data: JourneyProgressData; error: boolean } {
   try { savedGuided = window.localStorage.getItem(LEGACY_GUIDED_KEY); } catch { error = true; }
   if (savedGuided !== null) {
     try {
-      const guided = parseNoWorry(JSON.parse(savedGuided) as unknown);
+      const guided = parseGuidedDays(JSON.parse(savedGuided) as unknown, "no-worry");
       data = { ...data, noWorryStarted: guided.started, noWorryCompletedDays: guided.days };
       error ||= guided.error;
     } catch {

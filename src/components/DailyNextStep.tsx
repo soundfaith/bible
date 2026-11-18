@@ -3,6 +3,7 @@ import { breviaryHourInfo, type BreviaryHour } from "../lib/breviary";
 import { type DailyStreakState } from "../lib/dailyStreak";
 import { selectDailyRecommendation, type RecommendationPage } from "../lib/dailyRecommendations";
 import { journeyCatalog } from "../data/journeyCatalog";
+import { guidedJourneyDays, type GuidedJourneyId } from "../data/guidedJourneys";
 import type { JourneyOverview } from "../lib/journeyOverview";
 import type { SmallCardProps } from "./LandingSmallCard";
 
@@ -18,7 +19,7 @@ type Props = {
   onOpenBreviary: () => void;
   onOpenRosary: () => void;
   onOpenSaints: () => void;
-  onOpenJourney: (journey: "no-worry" | "bible") => void;
+  onOpenJourney: (journey: GuidedJourneyId | "bible") => void;
   onExploreJourneys: () => void;
   onOpenCatechism: () => void;
   onOpenSumma: () => void;
@@ -42,14 +43,16 @@ export function DailyNextStep({
   onOpenReference,
 }: Props) {
   const recommendation = selectDailyRecommendation(page, streak, journeyOverview);
-  const journeyCard = (journey: "no-worry" | "bible"): SmallCardProps => journey === "no-worry"
-    ? {
-      art: journeyCatalog["no-worry"].artwork,
-      title: journeyCatalog["no-worry"].title,
-      description: `Continue with day ${journeyOverview.noWorry.nextDay} of Scripture, reflection, and prayer.`,
-      action: `Continue Day ${journeyOverview.noWorry.nextDay}`,
-      onClick: () => onOpenJourney("no-worry"),
-    }
+  const guidedOverview = { freedom: journeyOverview.freedom, "no-worry": journeyOverview.noWorry };
+  const guidedCard = (journey: GuidedJourneyId): SmallCardProps => ({
+    art: journeyCatalog[journey].artwork,
+    title: journeyCatalog[journey].title,
+    description: `Continue with day ${guidedOverview[journey].nextDay} of ${guidedJourneyDays[journey].length}.`,
+    action: `Continue Day ${guidedOverview[journey].nextDay}`,
+    onClick: () => onOpenJourney(journey),
+  });
+  const journeyCard = (journey: GuidedJourneyId | "bible"): SmallCardProps => journey !== "bible"
+    ? guidedCard(journey)
     : {
       art: journeyCatalog.bible.artwork,
       title: journeyCatalog.bible.title,
@@ -68,6 +71,7 @@ export function DailyNextStep({
     saints: { art: "saints", title: "Saint of the Day", description: "Spend a moment with a witness to the Gospel.", action: "Meet today's saint", onClick: onOpenSaints },
     catechism: { art: "catechism", title: "Baltimore Catechism", description: "Explore a lesson from the historic Baltimore Catechism.", action: "Browse the lessons", onClick: onOpenCatechism },
     summa: { art: "summa", title: "Summa Theologiae", description: "Explore a question from the Summa Theologiae.", action: "Browse the Summa", onClick: onOpenSumma },
+    "journey-freedom": journeyCard("freedom"),
     "journey-no-worry": journeyCard("no-worry"),
     "journey-bible": journeyCard("bible"),
     "journey-library": {

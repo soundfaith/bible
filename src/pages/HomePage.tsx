@@ -7,7 +7,7 @@ import { NextStepPrompt } from "../components/NextStepPrompt";
 import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT, openAssistant } from "../lib/assistant";
 import { breviaryHourInfo, currentBreviaryHour } from "../lib/breviary";
 import { doneToday, hasEverDone, routineStreak, type DailyItem, type DailyStreakState } from "../lib/dailyStreak";
-import { noWorryJourney } from "../data/noWorryJourney";
+import { isGuidedJourneyId, guidedJourneyDays, type GuidedJourneyId } from "../data/guidedJourneys";
 import { journeyCadence, journeyCatalog, journeyList } from "../data/journeyCatalog";
 import type { GuidedJourneyProgress } from "../lib/guidedJourneyProgress";
 import { getJourneyOverview } from "../lib/journeyOverview";
@@ -24,13 +24,13 @@ type HomePageProps = {
   onCatechism: () => void;
   onSumma: () => void;
   onResume: () => void;
-  onGuidedJourney: () => void;
+  onGuidedJourney: (journey: GuidedJourneyId) => void;
   onContinueBibleJourney: () => void;
   onAllJourneys: () => void;
   onDaily: () => void;
   bible: { started: boolean; label: string };
   bibleJourney: { completedIds: string[]; lastVisitedPeriodId: string | null };
-  guidedJourney: GuidedJourneyProgress;
+  guidedJourney: Record<GuidedJourneyId, GuidedJourneyProgress>;
   streak: DailyStreakState;
   onOpenDaily: (item: DailyItem) => void;
   onShare: () => Promise<"shared" | "copied">;
@@ -77,13 +77,26 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
     { art: "summa", title: "Summa Theologiae", description: "Study St. Thomas Aquinas's enduring work of theology.", action: "Explore the Summa", onClick: onSumma, play: "summa" },
   ];
 
+  const guidedOverview = { freedom: journeyOverview.freedom, "no-worry": journeyOverview.noWorry };
+  const guidedTotal = (id: GuidedJourneyId) => guidedJourneyDays[id].length;
+  const guidedDone = (id: GuidedJourneyId) => guidedJourney[id].completedDays.length;
+  const featuredGuidedId: GuidedJourneyId | null = featuredJourney === "bible" ? null : featuredJourney;
+  const featuredGuidedOverview = featuredGuidedId ? guidedOverview[featuredGuidedId] : null;
   const journeyNextSteps = {
+    "journey-freedom": {
+      art: journeyCatalog.freedom.artwork,
+      title: journeyCatalog.freedom.title,
+      description: `Continue with day ${guidedOverview.freedom.nextDay} of ${guidedTotal("freedom")} of Scripture, reflection, and prayer.`,
+      action: `Continue Day ${guidedOverview.freedom.nextDay}`,
+      onClick: () => onGuidedJourney("freedom"),
+      play: "freedom" as const,
+    },
     "journey-no-worry": {
       art: journeyCatalog["no-worry"].artwork,
       title: journeyCatalog["no-worry"].title,
-      description: `Continue with day ${journeyOverview.noWorry.nextDay} of Scripture, reflection, and prayer.`,
-      action: `Continue Day ${journeyOverview.noWorry.nextDay}`,
-      onClick: onGuidedJourney,
+      description: `Continue with day ${guidedOverview["no-worry"].nextDay} of Scripture, reflection, and prayer.`,
+      action: `Continue Day ${guidedOverview["no-worry"].nextDay}`,
+      onClick: () => onGuidedJourney("no-worry"),
       play: "no-worry" as const,
     },
     "journey-bible": {
@@ -104,7 +117,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
     rosary: "rosary",
     saints: "saints",
   } as const;
-  const nextStepCard = recommendation === "journey-no-worry" || recommendation === "journey-bible"
+  const nextStepCard = recommendation === "journey-freedom" || recommendation === "journey-no-worry" || recommendation === "journey-bible"
     ? journeyNextSteps[recommendation]
     : recommendation === "journey-library"
       ? {
@@ -153,9 +166,9 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
           <FeedCard
             art={featuredJourneyInfo.artwork}
             title={featuredJourneyInfo.title}
-            meta={featuredJourney === "no-worry" ? `Day ${journeyOverview.noWorry.nextDay} of ${noWorryJourney.length}` : `${journeyOverview.bible.completedCount} of ${journeyOverview.bible.totalCount} periods complete`}
-            progress={featuredJourney === "no-worry" ? guidedJourney.completedDays.length / noWorryJourney.length : journeyOverview.bible.totalCount ? journeyOverview.bible.completedCount / journeyOverview.bible.totalCount : 0}
-            onClick={() => onPlay(featuredJourney === "no-worry" ? "no-worry" : "bible-journey")}
+            meta={featuredGuidedId ? `Day ${featuredGuidedOverview!.nextDay} of ${guidedTotal(featuredGuidedId)}` : `${journeyOverview.bible.completedCount} of ${journeyOverview.bible.totalCount} periods complete`}
+            progress={featuredGuidedId ? guidedDone(featuredGuidedId) / guidedTotal(featuredGuidedId) : journeyOverview.bible.totalCount ? journeyOverview.bible.completedCount / journeyOverview.bible.totalCount : 0}
+            onClick={() => onPlay(featuredGuidedId ?? "bible-journey")}
           />
         </section>
         <section className="feed-section"><p className="feed-eyebrow">Recommended</p>
@@ -191,19 +204,19 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
       <section className="landing-current-journey section-wrap" aria-labelledby="current-journey-title">
         <div className="landing-section-heading">
           <p className="eyebrow">{journeyOverview.hasActiveJourney ? "Your current journey" : "A journey for today"}</p>
-          <h2 id="current-journey-title">{journeyOverview.hasActiveJourney ? "Keep walking, one day at a time." : featuredJourney === "no-worry" && journeyOverview.noWorry.complete ? "Celebrate the journey you completed." : "A little more peace, one day at a time."}</h2>
+          <h2 id="current-journey-title">{journeyOverview.hasActiveJourney ? "Keep walking, one day at a time." : featuredGuidedOverview?.complete ? "Celebrate the journey you completed." : "A little more peace, one day at a time."}</h2>
         </div>
-        <button className="landing-journey-card" type="button" onClick={featuredJourney === "no-worry" ? onGuidedJourney : journeyOverview.bible.active ? onContinueBibleJourney : onJourney}>
+        <button className="landing-journey-card" type="button" onClick={featuredGuidedId ? () => onGuidedJourney(featuredGuidedId) : journeyOverview.bible.active ? onContinueBibleJourney : onJourney}>
           <CardArt art={featuredJourneyInfo.artwork} />
           <span className="landing-journey-copy">
-            {featuredJourney === "no-worry" ? <>
-              <span className="eyebrow">{journeyOverview.noWorry.active ? "In progress" : journeyOverview.noWorry.complete ? "Journey complete" : "Featured journey"}</span>
+            {featuredGuidedId && featuredGuidedOverview ? <>
+              <span className="eyebrow">{featuredGuidedOverview.active ? "In progress" : featuredGuidedOverview.complete ? "Journey complete" : "Featured journey"}</span>
               <strong>{featuredJourneyInfo.title}</strong>
-              <span>{journeyOverview.noWorry.complete ? "Return to the reflections and prayers whenever you need them." : featuredJourneyInfo.description}</span>
-              <span className="landing-journey-day">Recommended cadence: {journeyCadence("no-worry")}</span>
-              <span className="landing-journey-day">{journeyOverview.noWorry.complete ? `${noWorryJourney.length} of ${noWorryJourney.length} days complete` : `Day ${journeyOverview.noWorry.nextDay} of ${noWorryJourney.length}`}</span>
-              <progress value={guidedJourney.completedDays.length} max={noWorryJourney.length} aria-label={`${guidedJourney.completedDays.length} of ${noWorryJourney.length} days complete`} />
-              <span className="text-link">{journeyOverview.noWorry.active ? "Continue journey" : journeyOverview.noWorry.complete ? "Revisit journey" : "Begin journey"} <ArrowRight size={15} /></span>
+              <span>{featuredGuidedOverview.complete ? "Return to the reflections and prayers whenever you need them." : featuredJourneyInfo.description}</span>
+              <span className="landing-journey-day">Recommended cadence: {journeyCadence(featuredGuidedId)}</span>
+              <span className="landing-journey-day">{featuredGuidedOverview.complete ? `${guidedTotal(featuredGuidedId)} of ${guidedTotal(featuredGuidedId)} days complete` : `Day ${featuredGuidedOverview.nextDay} of ${guidedTotal(featuredGuidedId)}`}</span>
+              <progress value={guidedDone(featuredGuidedId)} max={guidedTotal(featuredGuidedId)} aria-label={`${guidedDone(featuredGuidedId)} of ${guidedTotal(featuredGuidedId)} days complete`} />
+              <span className="text-link">{featuredGuidedOverview.active ? "Continue journey" : featuredGuidedOverview.complete ? "Revisit journey" : "Begin journey"} <ArrowRight size={15} /></span>
             </> : <>
               <span className="eyebrow">{journeyOverview.bible.active ? "In progress" : "Featured journey"}</span>
               <strong>{featuredJourneyInfo.title}</strong>
@@ -214,7 +227,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
             </>}
           </span>
         </button>
-        {guidedJourney.storageError && <p className="guided-journey-notice" role="status">Journey progress could not be saved on this device. Your changes will remain only for this visit.</p>}
+        {Object.values(guidedJourney).some((progress) => progress.storageError) && <p className="guided-journey-notice" role="status">Journey progress could not be saved on this device. Your changes will remain only for this visit.</p>}
       </section>
 
       <section className="landing-routine section-wrap" aria-labelledby="routine-title">
@@ -274,9 +287,10 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
                 </article>
               );
             }
-            const onSelect = journey.id === "no-worry" ? onGuidedJourney : onJourney;
-            const action = journey.id === "no-worry"
-              ? journeyOverview.noWorry.complete ? "Revisit journey" : journeyOverview.noWorry.active ? "Continue journey" : "Begin journey"
+            const guidedId = isGuidedJourneyId(journey.id) ? journey.id : null;
+            const onSelect = guidedId ? () => onGuidedJourney(guidedId) : onJourney;
+            const action = guidedId
+              ? guidedOverview[guidedId].complete ? "Revisit journey" : guidedOverview[guidedId].active ? "Continue journey" : "Begin journey"
               : journeyOverview.bible.complete ? "Revisit Bible Journey" : journeyOverview.bible.active ? "Continue Bible Journey" : "Explore Bible Journey";
             return (
               <button className="landing-card" type="button" key={journey.id} onClick={onSelect}>

@@ -1,17 +1,25 @@
-export type JourneyCatalogId = "no-worry" | "bible" | "advent" | "lent";
-export type AvailableJourneyId = "no-worry" | "bible";
+export type JourneyCatalogId = "freedom" | "no-worry" | "bible" | "advent" | "lent";
+export type AvailableJourneyId = "freedom" | "no-worry" | "bible";
 export type JourneyCadence = "daily" | "weekly";
 
 export type JourneyCatalogEntry = {
   id: JourneyCatalogId;
   title: string;
   description: string;
-  artwork: "journey" | "bible-journey";
+  artwork: "journey" | "freedom-journey" | "bible-journey";
   available: boolean;
   cadence?: JourneyCadence;
 };
 
 export const journeyCatalog: Record<JourneyCatalogId, JourneyCatalogEntry> = {
+  freedom: {
+    id: "freedom",
+    title: "15-Day Journey to Freedom",
+    description: "Learning to let go of what keeps us from God.",
+    artwork: "freedom-journey",
+    available: true,
+    cadence: "daily",
+  },
   "no-worry": {
     id: "no-worry",
     title: "15-Day No-Worry Journey",

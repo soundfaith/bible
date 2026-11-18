@@ -164,6 +164,57 @@ export function LandingBreviaryArtwork() {
   );
 }
 
+export function LandingFreedomArtwork() {
+  return (
+    <svg {...svgProps}>
+      <defs>
+        <linearGradient id="fj-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#14283f" />
+          <stop offset=".58" stopColor="#4d6378" />
+          <stop offset="1" stopColor="#e9b77a" />
+        </linearGradient>
+        <radialGradient id="fj-glow" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stopColor="#fff1c9" stopOpacity=".95" />
+          <stop offset=".45" stopColor="#ffd98f" stopOpacity=".4" />
+          <stop offset="1" stopColor="#ffd98f" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="fj-hill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#2b3d52" />
+          <stop offset="1" stopColor="#1a2a3c" />
+        </linearGradient>
+      </defs>
+      <rect width="400" height="200" fill="url(#fj-sky)" />
+      <g fill="#fff6dc">
+        <circle cx="40" cy="28" r="1.2" opacity=".7" />
+        <circle cx="112" cy="14" r="1" opacity=".55" />
+        <circle cx="168" cy="40" r="1.3" opacity=".7" />
+        <circle cx="300" cy="18" r="1.2" opacity=".6" />
+        <circle cx="362" cy="46" r="1.4" opacity=".75" />
+      </g>
+      <g className="art-shimmer" fill="#fff6dc">
+        <circle cx="92" cy="54" r="1.6" />
+        <circle cx="318" cy="72" r="1.4" />
+      </g>
+      <circle className="art-glow" cx="200" cy="96" r="120" fill="url(#fj-glow)" />
+      <path d="M0 150q60-22 118-6t82-2 100-10 100 14v54H0z" fill="url(#fj-hill)" opacity=".85" />
+      <path d="M0 172q90-16 190-4t210-6v38H0z" fill="#17263a" />
+      <g fill="none" stroke="#b9c7d4" strokeWidth="3" strokeLinecap="round" opacity=".75">
+        <ellipse cx="74" cy="158" rx="8" ry="5" transform="rotate(-30 74 158)" />
+        <ellipse cx="88" cy="150" rx="8" ry="5" transform="rotate(20 88 150)" />
+      </g>
+      <g transform="translate(200 84)">
+        <path d="M0 2C-18-22-52-32-70-22C-46-16-32-6-20 6Z" fill="#fbf3e0" opacity=".95" />
+        <path d="M0 2C18-22 52-32 70-22C46-16 32-6 20 6Z" fill="#fbf3e0" opacity=".95" />
+        <path d="M-8 10L-20 26L-2 18Z" fill="#f1e2c4" />
+        <ellipse cx="0" cy="8" rx="14" ry="9" fill="#fff8ea" />
+        <circle cx="12" cy="-1" r="6.5" fill="#fff8ea" />
+        <path d="M17.5-3L26-1L17.5 1Z" fill="#e0a24e" />
+        <circle cx="13.5" cy="-2.5" r="1.1" fill="#24344a" />
+      </g>
+    </svg>
+  );
+}
+
 export function LandingOldTestamentArtwork() {
   return (
     <svg {...svgProps}>

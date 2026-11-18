@@ -1,12 +1,19 @@
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { NarrationProgress, NarratorButton } from "../components/NarratorButton";
-import { noWorryJourney } from "../data/noWorryJourney";
+import { guidedJourneyDays, type GuidedJourneyId } from "../data/guidedJourneys";
+import { freedomJourneyIntro } from "../data/freedomJourney";
 import type { GuidedJourneyProgress } from "../lib/guidedJourneyProgress";
 import type { NarrationGender } from "../lib/narrationVoice";
 import type { ReactNode } from "react";
-import { noWorryItem } from "../lib/audioPlaylists";
+import { guidedItem } from "../lib/audioPlaylists";
+
+const journeyNames: Record<GuidedJourneyId, string> = {
+  freedom: "15-Day Journey to Freedom",
+  "no-worry": "No-Worry Journey",
+};
 
 type Props = {
+  journeyId: GuidedJourneyId;
   progress: GuidedJourneyProgress;
   voicePreference: NarrationGender;
   nextStep: ReactNode;
@@ -16,13 +23,16 @@ type Props = {
   onCompleteDay: () => void;
 };
 
-export function NoWorryJourneyPage({ progress, voicePreference, nextStep, selectedDay, onSelectDay, onStart, onCompleteDay }: Props) {
-  const isComplete = progress.completedDays.length === noWorryJourney.length;
-  const currentDay = Math.min(progress.completedDays.length + 1, noWorryJourney.length);
+export function NoWorryJourneyPage({ journeyId, progress, voicePreference, nextStep, selectedDay, onSelectDay, onStart, onCompleteDay }: Props) {
+  const days = guidedJourneyDays[journeyId];
+  const journeyName = journeyNames[journeyId];
+  const isComplete = progress.completedDays.length === days.length;
+  const currentDay = Math.min(progress.completedDays.length + 1, days.length);
   const dayNumber = selectedDay ?? currentDay;
-  const day = noWorryJourney[dayNumber - 1];
-  const narration = noWorryItem(dayNumber)!;
+  const day = days[dayNumber - 1];
+  const narration = guidedItem(journeyId, dayNumber)!;
   const canCompleteDay = progress.started && !isComplete && dayNumber === currentDay;
+  const intro = journeyId === "freedom" ? freedomJourneyIntro : null;
 
   return (
     <main className="journey-page journey-detail-page section-wrap saints-page no-worry-page has-next-step">
@@ -31,8 +41,8 @@ export function NoWorryJourneyPage({ progress, voicePreference, nextStep, select
       </nav>
 
       <header className="journey-detail-heading saints-detail-heading no-worry-heading">
-        <p className="eyebrow"><span className="eyebrow-dot" /> No-Worry Journey</p>
-        <h1>{`Day ${dayNumber} of the No-Worry Journey`}</h1>
+        <p className="eyebrow"><span className="eyebrow-dot" /> {journeyName}</p>
+        <h1>{`Day ${dayNumber} of the ${journeyName}`}</h1>
         <p className="journey-detail-overview">{isComplete ? "Journey complete. Revisit any day whenever you need it." : "A 15-day journey through Scripture, reflection, and prayer."}</p>
         <div className="journey-audio-controls">
           <NarratorButton text={narration.text} voicePreference={voicePreference} track={narration.track} />
@@ -46,7 +56,24 @@ export function NoWorryJourneyPage({ progress, voicePreference, nextStep, select
         </p>
       )}
 
-      <article className="journey-story breviary-segment no-worry-content" aria-label={`Day ${dayNumber} of the No-Worry Journey`}>
+      <article className="journey-story breviary-segment no-worry-content" aria-label={`Day ${dayNumber} of the ${journeyName}`}>
+        {intro && dayNumber === 1 && (
+          <section className="journey-scripture">
+            <div className="rosary-prayer-parts">
+              <div className="rosary-prayer-part">
+                <div className="rosary-prayer-heading"><h4>Anchor Verse</h4></div>
+                <div className="rosary-prayer-reading no-worry-scripture">
+                  <p>“{intro.anchorVerse}”</p>
+                  <p className="rosary-scripture-reference">{intro.anchorReference}</p>
+                </div>
+              </div>
+              <div className="rosary-prayer-part">
+                <div className="rosary-prayer-heading"><h4>Grace We Seek</h4></div>
+                <div className="rosary-prayer-reading no-worry-reading"><p>{intro.grace}</p></div>
+              </div>
+            </div>
+          </section>
+        )}
         <section className="journey-scripture">
           <div className="rosary-prayer-parts">
             <div className="rosary-prayer-part">
@@ -68,6 +95,18 @@ export function NoWorryJourneyPage({ progress, voicePreference, nextStep, select
             </div>
           </div>
         </section>
+        {intro && dayNumber === days.length && (
+          <section className="journey-scripture">
+            <div className="rosary-prayer-parts">
+              <div className="rosary-prayer-part">
+                <div className="rosary-prayer-heading"><h4>Journey Takeaway</h4></div>
+                <div className="rosary-prayer-reading no-worry-reading">
+                  {intro.takeaway.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
         {!progress.started && dayNumber === currentDay ? (
           <button className="button button-coral no-worry-complete" type="button" onClick={onStart}>Begin the journey <ArrowRight size={15} /></button>
         ) : canCompleteDay ? (
@@ -78,8 +117,8 @@ export function NoWorryJourneyPage({ progress, voicePreference, nextStep, select
         <button type="button" className="button button-outline" onClick={() => onSelectDay(dayNumber - 1)} disabled={dayNumber <= 1}>
           <ArrowLeft size={16} /> Previous
         </button>
-        <span>Day {dayNumber} of {noWorryJourney.length}</span>
-        <button type="button" className="button button-outline" onClick={() => onSelectDay(dayNumber + 1)} disabled={dayNumber >= noWorryJourney.length}>
+        <span>Day {dayNumber} of {days.length}</span>
+        <button type="button" className="button button-outline" onClick={() => onSelectDay(dayNumber + 1)} disabled={dayNumber >= days.length}>
           Next <ArrowRight size={16} />
         </button>
       </nav>

@@ -1,4 +1,5 @@
 export type GuidedJourneyDay = {
+  title?: string;
   scripture: string;
   reference: string;
   reflection: string;

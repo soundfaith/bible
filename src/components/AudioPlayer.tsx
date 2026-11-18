@@ -9,7 +9,7 @@ type Props = { narration: NarrationSnapshot; onToggle: () => void };
 function contentActions(track: NarrationTrack): { label: string; href: string }[] {
   const sequence = track.sequence;
   if (track.path.startsWith("#/read?")) return [{ label: "Read Chapter", href: track.path }, { label: "Browse Book", href: "#/bible" }];
-  if (sequence?.kind === "no-worry") return [{ label: "Browse Journey", href: "#/journeys/no-worry" }];
+  if (sequence?.kind === "guided") return [{ label: "Browse Journey", href: `#/journeys/${sequence.journeyId}` }];
   if (sequence?.kind === "breviary") return [{ label: "Read Hour", href: track.path }, { label: "Browse Hours", href: "#/breviary" }];
   if (sequence?.kind === "rosary") return [{ label: "Read Rosary", href: track.path }, { label: "Browse Mysteries", href: "#/rosary" }];
   if (sequence?.kind === "bible-journey") return [{ label: "Read Period", href: `#/journey/${sequence.periodId}` }, { label: "Browse Journey", href: "#/journey" }];
@@ -52,7 +52,7 @@ export function NavPlayer({ narration, playerOpen, onToggle, onOpen, onListen }:
   </button>;
 }
 
-export function AudioPlayer({ narration, onToggle, onClose, onPrevious, onNext, onNavigate, onSelectEpisode, onSkipIntro }: Props & { onClose: () => void; onPrevious: () => void; onNext: () => void; onNavigate: (path: string) => void; onSelectEpisode?: (index: number) => void; onSkipIntro?: () => void }) {
+export function AudioPlayer({ narration, closing = false, onToggle, onClose, onPrevious, onNext, onNavigate, onSelectEpisode, onSkipIntro }: Props & { closing?: boolean; onClose: () => void; onPrevious: () => void; onNext: () => void; onNavigate: (path: string) => void; onSelectEpisode?: (index: number) => void; onSkipIntro?: () => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -79,14 +79,15 @@ export function AudioPlayer({ narration, onToggle, onClose, onPrevious, onNext, 
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", release);
       window.removeEventListener("pointercancel", release);
-      if (panel) panel.style.transition = "transform 220ms ease";
-      if (overlay) overlay.style.transition = "opacity 220ms ease";
       if (dy > MINIMISE_DISTANCE) {
-        if (panel) panel.style.transform = "translateY(100vh)";
-        if (overlay) overlay.style.opacity = "0";
-        window.setTimeout(() => onCloseRef.current(), 220);
+        // The close animation starts from the current drag position so the sheet doesn't snap back first.
+        panel?.style.setProperty("--drag-y", `${dy}px`);
+        overlay?.style.setProperty("--overlay-o", overlay.style.opacity || "1");
+        onCloseRef.current();
         return;
       }
+      if (panel) panel.style.transition = "transform 220ms ease";
+      if (overlay) overlay.style.transition = "opacity 220ms ease";
       if (panel) panel.style.transform = "";
       if (overlay) overlay.style.opacity = "";
     };
@@ -99,8 +100,9 @@ export function AudioPlayer({ narration, onToggle, onClose, onPrevious, onNext, 
   const series = seriesFor(track);
   const currentIndex = series?.entries.findIndex((entry) => entry.current) ?? -1;
   const actions = contentActions(track);
-  return <div ref={overlayRef} className="audio-player-overlay" role="dialog" aria-modal="true" aria-label={`Player: ${track.title}`}>
+  return <div ref={overlayRef} className={`audio-player-overlay${closing ? " is-closing" : ""}`} role="dialog" aria-modal="true" aria-label={`Player: ${track.title}`}>
     <div ref={panelRef} className="audio-player">
+
       <div className={`audio-player-art${narration.status === "playing" ? " is-playing" : ""}`} onPointerDown={startDrag}>
         <CardArt art={track.art} />
         <button ref={closeRef} className="audio-player-close" type="button" onClick={onClose} aria-label="Back"><ArrowLeft size={20} /></button>

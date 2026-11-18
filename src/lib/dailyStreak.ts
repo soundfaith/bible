@@ -1,6 +1,6 @@
 import type { BreviaryHour } from "./breviary";
 
-export type DailyItem = BreviaryHour | "mass" | "rosary" | "saints" | "bible" | "catechism" | "summa" | "journey-no-worry" | "journey-bible";
+export type DailyItem = BreviaryHour | "mass" | "rosary" | "saints" | "bible" | "catechism" | "summa" | "journey-freedom" | "journey-no-worry" | "journey-bible";
 export type DailyStreakState = {
   log: Record<string, DailyItem[]>;
   journeySessions: Record<string, string[]>;
@@ -11,7 +11,7 @@ export type DailyStreakState = {
 const KEY = "soundfaith-daily-streak-v1";
 const KEEP_DAYS = 400;
 const KEEP_JOURNEY_WINDOWS = 100;
-const ITEMS: DailyItem[] = ["lauds", "vespers", "compline", "mass", "rosary", "saints", "bible", "catechism", "summa", "journey-no-worry", "journey-bible"];
+const ITEMS: DailyItem[] = ["lauds", "vespers", "compline", "mass", "rosary", "saints", "bible", "catechism", "summa", "journey-freedom", "journey-no-worry", "journey-bible"];
 const validDateKey = (key: string) => /^\d{4}-\d{2}-\d{2}$/.test(key);
 
 export function localDateKey(date = new Date()) {

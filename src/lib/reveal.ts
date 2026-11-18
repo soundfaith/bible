@@ -12,6 +12,11 @@ const REVEAL_SELECTOR = [
   ".journey-story",
   ".mass-reading-card",
   ".bookmark-item",
+  ".listen-grid > *",
+  ".listen-discovery-item",
+  ".daily-practice-grid > *",
+  ".audio-player-art",
+  ".audio-player-section",
 ].join(",");
 
 const STAGGER_MS = 70;

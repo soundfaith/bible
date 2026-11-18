@@ -1,16 +1,18 @@
 import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
-import { CardArt } from "../components/LandingSmallCard";
+import { CardArt, type CardArtKey } from "../components/LandingSmallCard";
 import { journeyCadence, journeyCatalog, journeyList, type AvailableJourneyId } from "../data/journeyCatalog";
-import { noWorryJourney } from "../data/noWorryJourney";
+import { guidedJourneyDays, isGuidedJourneyId, type GuidedJourneyId } from "../data/guidedJourneys";
 import { getJourneyOverview } from "../lib/journeyOverview";
 import type { GuidedJourneyProgress } from "../lib/guidedJourneyProgress";
 
+type JourneyRecommendation = GuidedJourneyId | "bible";
+
 type JourneysPageProps = {
-  guidedProgress: GuidedJourneyProgress;
+  guidedProgress: Record<GuidedJourneyId, GuidedJourneyProgress>;
   bibleCompletedIds: string[];
   lastVisitedPeriodId: string | null;
-  onSelectJourney: (id: AvailableJourneyId) => void;
+  onSelectJourney: (id: JourneyRecommendation) => void;
   onContinueBibleJourney: () => void;
   nextStep?: ReactNode;
 };
@@ -24,7 +26,8 @@ export function JourneysPage({
   nextStep,
 }: JourneysPageProps) {
   const overview = getJourneyOverview(guidedProgress, bibleCompletedIds, lastVisitedPeriodId);
-  const { noWorry, bible } = overview;
+  const guided = { freedom: overview.freedom, "no-worry": overview.noWorry };
+  const { bible } = overview;
 
   return (
     <main className="journeys-hub-page section-wrap">
@@ -40,34 +43,31 @@ export function JourneysPage({
           <h2 id="journeys-current-title">{overview.hasActiveJourney ? "Continue where you left off." : "Choose a place to begin."}</h2>
         </div>
         {overview.hasActiveJourney ? (
-          <div className="journeys-hub-current-grid">
-            {noWorry.active && (
-              <button className="landing-card" type="button" onClick={() => onSelectJourney("no-worry")}>
-                <CardArt art={journeyCatalog["no-worry"].artwork} />
-                <div className="landing-card-copy">
-                  <p className="eyebrow">In progress</p>
-                  <h3>{journeyCatalog["no-worry"].title}</h3>
-                  <p>Day {noWorry.nextDay} of {noWorryJourney.length} · Scripture, reflection, and prayer for a more trusting heart.</p>
-                  <p>Recommended cadence: {journeyCadence("no-worry")}</p>
-                  <span className="text-link">Continue Day {noWorry.nextDay} <ArrowRight size={15} /></span>
-                </div>
-              </button>
-            )}
+          <ol className="journey-library-list library-stack">
+            {(["freedom", "no-worry"] as const).filter((id) => guided[id].active).map((id) => (
+              <JourneyLibraryItem
+                key={id}
+                art={journeyCatalog[id].artwork}
+                label={`In progress · ${journeyCadence(id)} cadence`}
+                title={journeyCatalog[id].title}
+                teaser={`Day ${guided[id].nextDay} of ${guidedJourneyDays[id].length} · Scripture, reflection, and prayer.`}
+                meta={`Continue Day ${guided[id].nextDay}`}
+                onClick={() => onSelectJourney(id)}
+              />
+            ))}
             {bible.active && bible.resumePeriod && (
-              <button className="landing-card" type="button" onClick={onContinueBibleJourney}>
-                <CardArt art={journeyCatalog.bible.artwork} />
-                <div className="landing-card-copy">
-                  <p className="eyebrow">In progress</p>
-                  <h3>{journeyCatalog.bible.title}</h3>
-                  <p>Continue with {bible.resumePeriod.title} in the story of salvation.</p>
-                  <p>Recommended cadence: {journeyCadence("bible")}</p>
-                  <span className="text-link">Continue journey <ArrowRight size={15} /></span>
-                </div>
-              </button>
+              <JourneyLibraryItem
+                art={journeyCatalog.bible.artwork}
+                label={`In progress · ${journeyCadence("bible")} cadence`}
+                title={journeyCatalog.bible.title}
+                teaser={`Continue with ${bible.resumePeriod.title} in the story of salvation.`}
+                meta="Continue journey"
+                onClick={onContinueBibleJourney}
+              />
             )}
-          </div>
+          </ol>
         ) : (
-          <p className="journeys-hub-empty">No journey in progress yet. The No-Worry Journey is a gentle place to start, or explore the Bible Journey below.</p>
+          <p className="journeys-hub-empty">No journey in progress yet. The 15-Day Journey to Freedom is a gentle place to start, or explore the Bible Journey below.</p>
         )}
       </section>
 
@@ -77,39 +77,56 @@ export function JourneysPage({
           <h2 id="journeys-explore-title">Explore journeys.</h2>
           <p className="landing-section-description">Choose a guided path that meets you where you are.</p>
         </div>
-        <div className="landing-card-grid">
-          {journeyList.filter((journey) => !(journey.id === "no-worry" && noWorry.active) && !(journey.id === "bible" && bible.active)).map((journey) => {
+        <ol className="journey-library-list library-stack">
+          {journeyList.filter((journey) => !(isGuidedJourneyId(journey.id) && guided[journey.id].active) && !(journey.id === "bible" && bible.active)).map((journey) => {
             if (journey.id === "advent" || journey.id === "lent") {
               return (
-                <article className="landing-card landing-card--coming-soon" key={journey.id}>
-                  <CardArt art={journey.artwork} className="is-blurred" />
-                  <div className="landing-card-copy">
-                    <h3>{journey.title}</h3>
-                    <p>{journey.description}</p>
-                    <p>Recommended cadence: {journeyCadence(journey.id)}</p>
-                    <span className="journey-coming-soon-pill">Coming soon</span>
-                  </div>
-                </article>
+                <JourneyLibraryItem
+                  key={journey.id}
+                  art={journey.artwork}
+                  label={`Coming soon · ${journeyCadence(journey.id)} cadence`}
+                  title={journey.title}
+                  teaser={journey.description}
+                  meta="Coming soon"
+                  comingSoon
+                />
               );
             }
-            const journeyId: AvailableJourneyId = journey.id === "no-worry" ? "no-worry" : "bible";
-            const action = journeyId === "no-worry"
-              ? noWorry.complete ? "Revisit journey" : noWorry.active ? "Continue journey" : "Begin journey"
+            const guidedId = isGuidedJourneyId(journey.id) ? journey.id : null;
+            const journeyId: JourneyRecommendation = guidedId ?? "bible";
+            const action = guidedId
+              ? guided[guidedId].complete ? "Revisit journey" : guided[guidedId].active ? "Continue journey" : "Begin journey"
               : bible.complete ? "Revisit Bible Journey" : bible.active ? "Continue Bible Journey" : "Explore Bible Journey";
             return (
-              <button className="landing-card" type="button" key={journey.id} onClick={() => onSelectJourney(journeyId)}>
-                <CardArt art={journey.artwork} />
-                <div className="landing-card-copy">
-                  <h3>{journey.title}</h3>
-                  <p>{journey.description}</p>
-                  <span className="text-link">{action} <ArrowRight size={15} /></span>
-                </div>
-              </button>
+              <JourneyLibraryItem
+                key={journey.id}
+                art={journey.artwork}
+                label={`${journeyCadence(journeyId)} cadence`}
+                title={journey.title}
+                teaser={journey.description}
+                meta={action}
+                onClick={() => onSelectJourney(journeyId)}
+              />
             );
           })}
-        </div>
+        </ol>
       </section>
       {nextStep}
     </main>
   );
+}
+
+function JourneyLibraryItem({ art, label, title, teaser, meta, onClick, comingSoon = false }: { art: CardArtKey; label: string; title: string; teaser: string; meta: string; onClick?: () => void; comingSoon?: boolean }) {
+  const body = <>
+    <CardArt art={art} className={comingSoon ? "is-blurred" : ""} />
+    <span className="journey-library-copy">
+      <span className="journey-period-label"><span>{label}</span></span>
+      <strong>{title}</strong>
+      <span className="journey-library-teaser">{teaser}</span>
+      <span className="journey-library-meta">{meta}{onClick && <ArrowRight size={14} aria-hidden="true" />}</span>
+    </span>
+  </>;
+  return <li className="journey-library-item">
+    {onClick ? <button type="button" className="journey-library-card" onClick={onClick}>{body}</button> : <div className="journey-library-card is-coming-soon">{body}</div>}
+  </li>;
 }

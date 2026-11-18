@@ -1,4 +1,4 @@
-import { noWorryJourney } from "../data/noWorryJourney";
+import { guidedJourneyDays, type GuidedJourneyId } from "../data/guidedJourneys";
 import { buildRosarySequence } from "../data/rosary";
 import { bibleBooks, getChapterCount } from "./bible";
 import { catechismEditions, catechismGroupHref, type CatechismEdition, type CatechismGroup } from "./catechism";
@@ -7,13 +7,20 @@ import type { NarrationTrack } from "../components/NarratorButton";
 
 export type PlaylistItem = { text: string; track: NarrationTrack };
 
-export function noWorryItem(day: number): PlaylistItem | null {
-  const entry = noWorryJourney[day - 1];
+const guidedJourneyTitles: Record<GuidedJourneyId, string> = {
+  freedom: "15-Day Journey to Freedom",
+  "no-worry": "No-Worry Journey",
+};
+
+export function guidedItem(journeyId: GuidedJourneyId, day: number): PlaylistItem | null {
+  const days = guidedJourneyDays[journeyId];
+  const entry = days[day - 1];
   if (!entry) return null;
-  const path = `#/journeys/no-worry/${day}`;
+  const name = guidedJourneyTitles[journeyId];
+  const path = `#/journeys/${journeyId}/${day}`;
   return {
-    text: [entry.scripture, entry.reference, entry.reflection, entry.prayer].join("\n\n"),
-    track: { title: `Day ${day} – No-Worry Journey`, path, art: "journey", sequence: { kind: "no-worry", day }, next: day < noWorryJourney.length ? { title: `Day ${day + 1} – No-Worry Journey`, path: `#/journeys/no-worry/${day + 1}` } : undefined },
+    text: [entry.title, entry.scripture, entry.reference, entry.reflection, entry.prayer].filter(Boolean).join("\n\n"),
+    track: { title: `Day ${day} – ${name}`, path, art: journeyId === "freedom" ? "freedom-journey" : "journey", sequence: { kind: "guided", journeyId, day }, next: day < days.length ? { title: `Day ${day + 1} – ${name}`, path: `#/journeys/${journeyId}/${day + 1}` } : undefined },
   };
 }
 
@@ -89,10 +96,11 @@ export type SeriesInfo = { title: string; entries: SeriesEntry[] };
 
 export function seriesFor(track: NarrationTrack): SeriesInfo | null {
   const sequence = track.sequence;
-  if (sequence?.kind === "no-worry") {
-    return { title: "No-Worry Journey", entries: noWorryJourney.map((_, index) => {
+  if (sequence?.kind === "guided") {
+    const days = guidedJourneyDays[sequence.journeyId];
+    return { title: guidedJourneyTitles[sequence.journeyId], entries: days.map((_, index) => {
       const day = index + 1;
-      return { label: `Day ${day}`, path: `#/journeys/no-worry/${day}`, done: day < sequence.day, current: day === sequence.day };
+      return { label: `Day ${day}`, path: `#/journeys/${sequence.journeyId}/${day}`, done: day < sequence.day, current: day === sequence.day };
     }) };
   }
   if (sequence?.kind === "rosary") {
@@ -139,7 +147,7 @@ export function seriesFor(track: NarrationTrack): SeriesInfo | null {
 
 export async function previousPlaylistItem(track: NarrationTrack): Promise<PlaylistItem | null> {
   const sequence = track.sequence;
-  if (sequence?.kind === "no-worry") return sequence.day > 1 ? noWorryItem(sequence.day - 1) : null;
+  if (sequence?.kind === "guided") return sequence.day > 1 ? guidedItem(sequence.journeyId, sequence.day - 1) : null;
   if (sequence?.kind === "catechism") {
     const edition = catechismEditions.find((item) => item.number === sequence.edition);
     const lessons = edition?.groups.filter((item) => item.kind === "lesson") ?? [];
@@ -159,7 +167,7 @@ export async function previousPlaylistItem(track: NarrationTrack): Promise<Playl
 
 export async function nextPlaylistItem(track: NarrationTrack): Promise<PlaylistItem | null> {
   const sequence = track.sequence;
-  if (sequence?.kind === "no-worry") return noWorryItem(sequence.day + 1);
+  if (sequence?.kind === "guided") return guidedItem(sequence.journeyId, sequence.day + 1);
   if (sequence?.kind === "catechism") {
     const edition = catechismEditions.find((item) => item.number === sequence.edition);
     const lessons = edition?.groups.filter((item) => item.kind === "lesson") ?? [];
