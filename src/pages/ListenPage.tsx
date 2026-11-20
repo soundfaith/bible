@@ -23,7 +23,7 @@ const sections: { title: string; items: Item[] }[] = [
     { title: "Summa Theologiae", detail: "Begin with the first article", art: "summa", path: "#/summa", play: "summa" },
   ] },
   { title: "Saints", items: [{ title: "Saint of the Day", detail: "A life of faith", art: "saints", path: "#/saints/today", play: "saint" }, { title: "Explore the Saints", detail: "Stories of holy lives", art: "saints", path: "#/saints" }] },
-  { title: "Journeys", items: [{ title: "15-Day Journey to Freedom", detail: "Learning to let go", art: "freedom-journey", path: "#/journeys/freedom", play: "freedom" }, { title: "No-Worry Journey", detail: "Scripture, reflection and prayer", art: "journey", path: "#/journeys/no-worry", play: "no-worry" }, { title: "Bible Journey", detail: "Walk through Scripture", art: "bible-journey", path: "#/journey", play: "bible-journey" }] },
+  { title: "Journeys", items: [{ title: "15-Day Journey to Freedom from Attachment", detail: "Learning to let go", art: "freedom-journey", path: "#/journeys/freedom", play: "freedom" }, { title: "No-Worry Journey", detail: "Scripture, reflection and prayer", art: "journey", path: "#/journeys/no-worry", play: "no-worry" }, { title: "Bible Journey", detail: "Walk through Scripture", art: "bible-journey", path: "#/journey", play: "bible-journey" }] },
 ];
 
 export function ListenPage({ narration, onOpenPlayer, onPlay, onPlayHero, durations, loading }: { narration: NarrationSnapshot; onOpenPlayer: () => void; onPlay: (kind: PlayKind, autoplay?: boolean) => void; onPlayHero: () => void; durations: Partial<Record<PlayKind, string>>; loading: PlayKind | null }) {
@@ -40,7 +40,7 @@ export function ListenPage({ narration, onOpenPlayer, onPlay, onPlayHero, durati
     disabled={loading !== null && item.play !== undefined}
     onClick={() => openItem(item)}
   />;
-  const recentlyAdded: Item = { title: "15-Day Journey to Freedom", detail: "Learning to let go", art: "freedom-journey", path: "#/journeys/freedom", play: "freedom" };
+  const recentlyAdded: Item = { title: "15-Day Journey to Freedom from Attachment", detail: "Learning to let go", art: "freedom-journey", path: "#/journeys/freedom", play: "freedom" };
   const renderItem = (item: Item) => <div className="listen-item listen-discovery-item" key={item.title}>
     <a className="listen-item-link" href={item.path}><CardArt art={item.art} showPlaying /><span><strong>{item.title}</strong><small>{item.detail}{item.play && durations[item.play] ? ` · ${durations[item.play]}` : ""}{loading && loading === item.play ? " · Loading…" : ""}</small></span></a>
     {item.play ? <button className="listen-play" type="button" aria-label={`Play ${item.title}`} disabled={loading !== null} onClick={() => item.play && onPlay(item.play)}><Play size={16} fill="currentColor" /></button> : <a className="listen-browse" href={item.path} aria-label={`Browse ${item.title}`}><ArrowRight size={16} /></a>}

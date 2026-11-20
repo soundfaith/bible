@@ -8,7 +8,7 @@ import type { NarrationTrack } from "../components/NarratorButton";
 export type PlaylistItem = { text: string; track: NarrationTrack };
 
 const guidedJourneyTitles: Record<GuidedJourneyId, string> = {
-  freedom: "15-Day Journey to Freedom",
+  freedom: "15-Day Journey to Freedom from Attachment",
   "no-worry": "No-Worry Journey",
 };
 

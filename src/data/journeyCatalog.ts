@@ -14,7 +14,7 @@ export type JourneyCatalogEntry = {
 export const journeyCatalog: Record<JourneyCatalogId, JourneyCatalogEntry> = {
   freedom: {
     id: "freedom",
-    title: "15-Day Journey to Freedom",
+    title: "15-Day Journey to Freedom from Attachment",
     description: "Learning to let go of what keeps us from God.",
     artwork: "freedom-journey",
     available: true,

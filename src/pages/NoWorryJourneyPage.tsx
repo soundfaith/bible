@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 import { guidedItem } from "../lib/audioPlaylists";
 
 const journeyNames: Record<GuidedJourneyId, string> = {
-  freedom: "15-Day Journey to Freedom",
+  freedom: "15-Day Journey to Freedom from Attachment",
   "no-worry": "No-Worry Journey",
 };
 

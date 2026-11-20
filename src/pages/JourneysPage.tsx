@@ -67,7 +67,7 @@ export function JourneysPage({
             )}
           </ol>
         ) : (
-          <p className="journeys-hub-empty">No journey in progress yet. The 15-Day Journey to Freedom is a gentle place to start, or explore the Bible Journey below.</p>
+          <p className="journeys-hub-empty">No journey in progress yet. The 15-Day Journey to Freedom from Attachment is a gentle place to start, or explore the Bible Journey below.</p>
         )}
       </section>
 
