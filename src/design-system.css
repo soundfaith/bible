@@ -971,7 +971,7 @@ body::before {
     transition: translate .6s cubic-bezier(.65, 0, .35, 1), opacity .6s cubic-bezier(.65, 0, .35, 1);
   }
 
-  html[data-chrome="nav"] .site-header {
+  html[data-chrome="nav"]:not(:has(.main-nav.nav-open)) .site-header {
     translate: 0 -100%;
   }
 

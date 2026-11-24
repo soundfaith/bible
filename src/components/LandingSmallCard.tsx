@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Flame } from "lucide-react";
+import { ArrowRight, Check, Flame, Pause } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getNarrationSnapshot, subscribeNarration } from "./NarratorButton";
 import { LandingBibleArtwork, LandingBreviaryArtwork, LandingChurchArtwork, LandingFreedomArtwork, LandingGospelsArtwork, LandingNewTestamentArtwork, LandingOldTestamentArtwork } from "./LandingArtwork";
@@ -32,25 +32,26 @@ function NoWorryJourneyArtwork() {
   );
 }
 
-const currentlyPlayingArt = () => {
+const currentAudioArt = () => {
   const snapshot = getNarrationSnapshot();
-  return snapshot.status === "playing" && snapshot.track ? snapshot.track.art : null;
+  return (snapshot.status === "playing" || snapshot.status === "paused") && snapshot.track ? { art: snapshot.track.art, status: snapshot.status } : null;
 };
 
 export function useCardPlaying(art: CardArtKey, enabled: boolean) {
-  const [playingArt, setPlayingArt] = useState(currentlyPlayingArt);
+  const [activeAudio, setActiveAudio] = useState(currentAudioArt);
   useEffect(() => {
     if (!enabled) return undefined;
-    return subscribeNarration(() => setPlayingArt(currentlyPlayingArt()));
+    return subscribeNarration(() => setActiveAudio(currentAudioArt()));
   }, [enabled]);
-  return enabled && playingArt === art;
+  return enabled && activeAudio?.art === art ? activeAudio.status : null;
 }
 
 export function CardArt({ art, className = "", showPlaying = false }: { art: CardArtKey; className?: string; showPlaying?: boolean }) {
-  const isPlaying = useCardPlaying(art, showPlaying);
+  const activeStatus = useCardPlaying(art, showPlaying);
   return <div className={`landing-card-art landing-card-art--${art} ${className}`.trim()} aria-hidden="true">
     {art === "bible" ? <LandingBibleArtwork /> : art === "old-testament" ? <LandingOldTestamentArtwork /> : art === "new-testament" ? <LandingNewTestamentArtwork /> : art === "gospels" ? <LandingGospelsArtwork /> : art === "journey" ? <NoWorryJourneyArtwork /> : art === "freedom-journey" ? <LandingFreedomArtwork /> : art === "bible-journey" ? <JourneyArtwork periodId={bibleJourney[0].id} /> : art === "prayer" ? <LandingBreviaryArtwork /> : art === "rosary" ? <RosaryArtwork home /> : art === "saints" ? <SaintArtwork /> : art === "catechism" ? <CatechismBookArtwork edition={1} /> : art === "summa" ? <SummaArtwork variant="prima-pars" /> : <LandingChurchArtwork />}
-        {isPlaying && <span className="card-playing-eq"><span className="mobile-nav-player-bars"><i /><i /><i /></span></span>}
+        {activeStatus === "playing" && <span className="card-playing-eq"><span className="mobile-nav-player-bars"><i /><i /><i /></span></span>}
+        {activeStatus === "paused" && <span className="card-playing-eq card-playing-paused"><Pause size={14} fill="currentColor" /></span>}
   </div>;
 }
 

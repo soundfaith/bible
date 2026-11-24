@@ -1,4 +1,5 @@
 import { guidedJourneyDays, type GuidedJourneyId } from "../data/guidedJourneys";
+import { bibleJourney } from "../data/bibleJourney";
 import { buildRosarySequence } from "../data/rosary";
 import { bibleBooks, getChapterCount } from "./bible";
 import { catechismEditions, catechismGroupHref, type CatechismEdition, type CatechismGroup } from "./catechism";
@@ -96,6 +97,21 @@ export type SeriesInfo = { title: string; entries: SeriesEntry[] };
 
 export function seriesFor(track: NarrationTrack): SeriesInfo | null {
   const sequence = track.sequence;
+  if (sequence?.kind === "bible-journey") {
+    const period = bibleJourney.find((item) => item.id === sequence.periodId);
+    if (!period) return null;
+    const entries = [
+      { label: `${period.title}: Introduction`, path: "", playIndex: 0, done: sequence.storyIndex >= 0, current: sequence.storyIndex === -1 },
+      ...period.stories.map((story, index) => ({
+        label: story.title,
+        path: "",
+        playIndex: index + 1,
+        done: index < sequence.storyIndex,
+        current: index === sequence.storyIndex,
+      })),
+    ];
+    return { title: period.title, entries };
+  }
   if (sequence?.kind === "guided") {
     const days = guidedJourneyDays[sequence.journeyId];
     return { title: guidedJourneyTitles[sequence.journeyId], entries: days.map((_, index) => {

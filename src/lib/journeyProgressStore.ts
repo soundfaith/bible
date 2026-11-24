@@ -75,7 +75,9 @@ function normalizeProgress(value: unknown) {
   if (!isRecord(value)) return { data: EMPTY_PROGRESS, error: true };
   const bible = parseBibleIds(value.bibleCompletedIds);
   const noWorry = parseGuidedDays({ started: value.noWorryStarted, completedDays: value.noWorryCompletedDays }, "no-worry");
-  const freedom = parseGuidedDays({ started: value.freedomStarted, completedDays: value.freedomCompletedDays }, "freedom");
+  const freedom = value.freedomStarted === undefined && value.freedomCompletedDays === undefined
+    ? { started: false, days: [] as number[], error: false }
+    : parseGuidedDays({ started: value.freedomStarted, completedDays: value.freedomCompletedDays }, "freedom");
   const lastVisitedPeriodId = typeof value.lastVisitedPeriodId === "string"
     ? resolveJourneyPeriodId(value.lastVisitedPeriodId)
     : null;

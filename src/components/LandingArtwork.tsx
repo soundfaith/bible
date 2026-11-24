@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 const svgProps = {
   className: "landing-card-artwork",
   viewBox: "0 0 400 200",
@@ -165,25 +167,27 @@ export function LandingBreviaryArtwork() {
 }
 
 export function LandingFreedomArtwork() {
+  // Unique gradient IDs per instance: the same artwork renders in several places on one page.
+  const id = useId().replace(/:/g, "");
   return (
     <svg {...svgProps}>
       <defs>
-        <linearGradient id="fj-sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-sky`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#14283f" />
           <stop offset=".58" stopColor="#4d6378" />
           <stop offset="1" stopColor="#e9b77a" />
         </linearGradient>
-        <radialGradient id="fj-glow" cx=".5" cy=".5" r=".5">
+        <radialGradient id={`${id}-glow`} cx=".5" cy=".5" r=".5">
           <stop offset="0" stopColor="#fff1c9" stopOpacity=".95" />
           <stop offset=".45" stopColor="#ffd98f" stopOpacity=".4" />
           <stop offset="1" stopColor="#ffd98f" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="fj-hill" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-hill`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#2b3d52" />
           <stop offset="1" stopColor="#1a2a3c" />
         </linearGradient>
       </defs>
-      <rect width="400" height="200" fill="url(#fj-sky)" />
+      <rect width="400" height="200" fill={`url(#${id}-sky)`} />
       <g fill="#fff6dc">
         <circle cx="40" cy="28" r="1.2" opacity=".7" />
         <circle cx="112" cy="14" r="1" opacity=".55" />
@@ -195,8 +199,8 @@ export function LandingFreedomArtwork() {
         <circle cx="92" cy="54" r="1.6" />
         <circle cx="318" cy="72" r="1.4" />
       </g>
-      <circle className="art-glow" cx="200" cy="96" r="120" fill="url(#fj-glow)" />
-      <path d="M0 150q60-22 118-6t82-2 100-10 100 14v54H0z" fill="url(#fj-hill)" opacity=".85" />
+      <circle className="art-glow" cx="200" cy="96" r="120" fill={`url(#${id}-glow)`} />
+      <path d="M0 150q60-22 118-6t82-2 100-10 100 14v54H0z" fill={`url(#${id}-hill)`} opacity=".85" />
       <path d="M0 172q90-16 190-4t210-6v38H0z" fill="#17263a" />
       <g fill="none" stroke="#b9c7d4" strokeWidth="3" strokeLinecap="round" opacity=".75">
         <ellipse cx="74" cy="158" rx="8" ry="5" transform="rotate(-30 74 158)" />

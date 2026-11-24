@@ -4,7 +4,7 @@ import { FeedCard } from "../components/FeedCard";
 import { SofiAvatar } from "../components/ChatWidget";
 import { CardArt, SmallCard, type CardArtKey } from "../components/LandingSmallCard";
 import { NextStepPrompt } from "../components/NextStepPrompt";
-import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT, openAssistant } from "../lib/assistant";
+import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "../lib/assistant";
 import { breviaryHourInfo, currentBreviaryHour } from "../lib/breviary";
 import { doneToday, hasEverDone, routineStreak, type DailyItem, type DailyStreakState } from "../lib/dailyStreak";
 import { isGuidedJourneyId, guidedJourneyDays, type GuidedJourneyId } from "../data/guidedJourneys";
@@ -42,8 +42,6 @@ type HomePageProps = {
 
 const routineDuration = { breviary: "10 min", mass: "5 min", rosary: "20 min", saints: "3 min" };
 
-const popularSofiQuestions = ["Why does God allow suffering?", "What is grace?", "What is the purpose of prayer?"];
-
 function streakText(days: number) {
   if (days >= 2) return `${days} days in a row`;
   if (days === 1) return "1 day, a lovely start";
@@ -52,7 +50,6 @@ function streakText(days: number) {
 
 export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatechism, onSumma, onResume, onGuidedJourney, onContinueBibleJourney, onAllJourneys, onDaily, bible, bibleJourney, guidedJourney, streak, onOpenDaily, onShare, narration, onPlayHero, onPlay }: HomePageProps) {
   const [shareNote, setShareNote] = useState("");
-  const [sofiQuestion, setSofiQuestion] = useState("");
   useHeaderAutoHide();
   const hour = currentBreviaryHour();
   const hourName = breviaryHourInfo[hour].name;
@@ -155,7 +152,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
         <section className="feed-section feed-bleed">
           {narration.status !== "idle" && narration.track
             ? <FeedCard art={narration.track.art} title={narration.track.title} meta={narrationDescription(narration)} playBadge onClick={onPlayHero} />
-            : <FeedCard art="bible" title="Find something to listen to" meta="Scripture, prayer and more" onClick={() => { window.location.hash = "#/listen"; }} />}
+            : <FeedCard art="bible" title="Begin with Genesis" meta="Listen to the opening story of Scripture" playBadge onClick={() => onPlay("old-testament", true)} />}
         </section>
         <section className="feed-section"><p className="feed-eyebrow">Today's Rhythm</p>
           <div className="feed-carousel">
@@ -173,17 +170,16 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
         </section>
         <section className="feed-section"><p className="feed-eyebrow">Recommended</p>
           <div className="feed-carousel">
-            {[nextStepCard, ...formationCards.filter((card) => card.title !== nextStepCard.title)].map((card) => <FeedCard key={card.title} art={card.art} title={card.title} meta={card.action} onClick={() => onPlay(card.play)} />)}
+            {[nextStepCard, ...formationCards.filter((card) => card.title !== nextStepCard.title)]
+              .filter((card) => card.title !== featuredJourneyInfo.title)
+              .map((card) => <FeedCard key={card.title} art={card.art} title={card.title} meta={card.action} onClick={() => onPlay(card.play)} />)}
           </div>
         </section>
-        <section className="feed-section home-sofi"><p className="feed-eyebrow">Ask Sofi</p>
-          <form className="home-sofi-form" onSubmit={(event) => { event.preventDefault(); const q = sofiQuestion.trim(); if (q) { openAssistant(q); setSofiQuestion(""); } }}>
-            <input value={sofiQuestion} onChange={(event) => setSofiQuestion(event.target.value)} placeholder="Ask a Catholic question" aria-label="Ask Sofi a Catholic question" />
-            <button type="submit" aria-label="Ask"><ArrowRight size={16} aria-hidden="true" /></button>
-          </form>
-          <div className="home-sofi-chips">
-            {popularSofiQuestions.map((question) => <button key={question} type="button" onClick={() => openAssistant(question)}>{question}</button>)}
-          </div>
+        <section className="feed-section home-sofi">
+          <button className="home-sofi-launch" type="button" onClick={() => window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT))} aria-label={`Chat with ${ASSISTANT_NAME}`}>
+            <span className="home-sofi-mark"><SofiAvatar size={76} /></span>
+            <span className="home-sofi-label">Ask {ASSISTANT_NAME}</span>
+          </button>
         </section>
       </div>
       <div className="desktop-home">

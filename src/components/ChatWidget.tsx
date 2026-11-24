@@ -6,6 +6,7 @@ import { clearChatHistory, loadChatHistory, saveChatHistory } from "../lib/chat/
 import { warmUpChatModel } from "../lib/chat/matcher";
 import { respondTo, SUGGESTED_PROMPTS, topicReply, welcomeMessage, type ChatMessage } from "../lib/chat/respond";
 import { getTopic, parseRef, passageLabel, passageText, type ChatVerse } from "../lib/chat/topics";
+import sofiLogo from "../../assets/sofi.svg";
 
 type Props = { onOpenVerse: (bookId: string, chapter: number, verse: number) => void };
 
@@ -15,29 +16,7 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const BOT_NAME = ASSISTANT_NAME;
 
 export function SofiAvatar({ size = 46 }: { size?: number }) {
-  const id = useId();
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id={`${id}-bg`} x1="6" y1="44" x2="42" y2="4" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#125b55" />
-          <stop offset="0.65" stopColor="#18776e" />
-          <stop offset="1" stopColor="#d3aa67" />
-        </linearGradient>
-        <radialGradient id={`${id}-glow`} cx="0.3" cy="0.2" r="0.8">
-          <stop offset="0" stopColor="#fff" stopOpacity="0.55" />
-          <stop offset="0.6" stopColor="#fff" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="24" cy="24" r="24" fill={`url(#${id}-bg)`} />
-      <circle cx="24" cy="24" r="24" fill={`url(#${id}-glow)`} />
-      <path fill="#fff" fillOpacity="0.95" d="M24 24.500c-3.500-2.400-7.300-3.200-11.500-2.700v10.700c4.200-.4 8 .4 11.500 2.800 3.500-2.400 7.300-3.200 11.500-2.800V21.800c-4.200-.5-8 .3-11.500 2.700Z" />
-      <path stroke="#125b55" strokeOpacity="0.45" strokeWidth="1.200" d="M24 24.500v10.800" />
-      <path fill="#fff" d="M24 6.500c.4 3.300 1.900 4.800 5.200 5.200-3.300.4-4.800 1.900-5.200 5.200-.4-3.300-1.900-4.800-5.200-5.200 3.300-.4 4.800-1.900 5.200-5.200Z" />
-      <circle cx="36.500" cy="14" r="1.500" fill="#fff" fillOpacity="0.85" />
-      <circle cx="11.500" cy="13" r="1" fill="#fff" fillOpacity="0.7" />
-    </svg>
-  );
+  return <img src={sofiLogo} width={size} height={size} alt="" aria-hidden="true" draggable={false} />;
 }
 
 function SparkleIcon({ size = 22, tone = "gradient" }: { size?: number; tone?: "gradient" | "white" }) {
