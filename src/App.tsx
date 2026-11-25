@@ -1,94 +1,48 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
-import {
-  Compass,
-  Church,
-  CalendarDays,
-  Bookmark as BookmarkMenuIcon,
-  House,
-  Home,
-  CircleHelp,
-  BookOpen,
-  Landmark,
-  Library,
-  Headphones,
-  Menu,
-  Minus,
-  Plus,
-  Share2,
-  Sunrise,
-  Sparkles,
-  ScrollText,
-  X,
-} from "lucide-react";
-import { Brand, ThemeToggle } from "@/shared/ui";
-import { DailyNextStep, DailyPage, hasEverDone, loadDailyStreak, localDateKey, recordDailyItem, recordJourneySession, routineDoneToday, type DailyItem, type RecommendationPage, type Routine } from "@/features/daily";
-import { BibleMark } from "@/shared/ui";
-import { ModalLayer, type Modal } from "./components/ModalLayer";
-import { SearchModal, type SearchResult } from "@/features/search";
-import { ChatWidget } from "@/features/chat";
-import { HomePage } from "@/features/home";
-import { JourneysPage, NoWorryJourneyPage, BibleJourneyLibrary, BibleJourneyPage, JourneyArtworkPage, journeyStoryNarration } from "@/features/journeys";
-import { AboutPage } from "./pages/AboutPage";
-import { BibleBooksPage, ChapterPage, bibleBooks, getChapter, getChapterCount, getLastReading, hasOpenedBible, type ReadingPosition, type SelectedVerseRange } from "@/features/bible";
-import { MassReadingPage } from "@/features/mass-readings";
-import { BreviaryLibrary, BreviaryPage } from "@/features/breviary";
-import { RosaryLibrary, RosaryPrayerPage } from "@/features/rosary/RosaryPage";
-import { buildRosarySequence, todaysRosaryMysteryIndex, todaysRosaryPath, type RosaryMode } from "@/features/rosary/rosary";
-import { featuredSaintForDate, hasSaintSlug } from "@/features/saints/saintsDaily";
-import { assembleBreviary, breviaryDayInfo, breviaryNarrationText, currentBreviaryHour, isBreviaryHour } from "@/features/breviary/breviary";
+import { X } from "lucide-react";
+import { localDateKey, type RecommendationPage } from "@/features/daily";
+import { type Modal } from "./components/ModalLayer";
+import { useAppNavigation } from "./app/navigation";
+import { useAppBookmarks } from "./app/bookmarks";
+import { useJourneyAppState } from "./app/journeys";
+import { renderDailyRecommendation, useDailyCoordination, useJourneyStreakActions } from "./app/daily";
+import { useListenLaunch } from "./app/listen";
+import { AppRoutes } from "./app/router";
+import { breviaryIntroText, isBibleArt, journeyIntroText, type BibleArt } from "./app/audio";
+import { AppOverlays } from "./app/overlays";
+import { MobileBottomNav, SiteFooter, SiteHeader } from "./app/layout";
+import { readBreviaryHour, readGuidedJourney, readJourneyPeriodId, readJourneyStoryAnchor, readRoute, readRosaryMysteryIndex, readSaintSlug, type Route } from "./app/routing";
+import { useReaderFontSize, useTheme, useVoicePreference } from "./app/preferences";
+import { journeyStoryNarration } from "@/features/journeys";
+import { bibleBooks, getChapter, getChapterCount, getLastReading, type ReadingPosition } from "@/features/bible";
+import { buildRosarySequence, type RosaryMode } from "@/features/rosary/rosary";
+import { assembleBreviary, breviaryNarrationText, isBreviaryHour, type BreviaryHour } from "@/features/breviary/breviary";
 import { useScrollReveal } from "./lib/reveal";
-import { syncSystemBars } from "@/platform/device/platform";
-import { BookmarksPage } from "@/features/bookmarks";
-import { ReferencePage } from "./pages/ReferencePage";
 import { bibleJourney } from "@/features/journeys/bibleJourney";
-import journeyIntros from "./data/journeyIntros.json";
-import breviaryIntros from "./data/breviaryIntros.json";
-import { resolveJourneyPeriodId, loadJourneyArtworkSelections, saveJourneyArtworkSelections } from "@/features/journeys/journeyArtwork";
-import { loadJourneyProgress, saveJourneyProgress } from "@/features/journeys/journeyProgress";
-import { loadGuidedJourneyProgress, saveGuidedJourneyProgress } from "@/features/journeys/guidedJourneyProgress";
-import { journeyProgressStorageKey, loadJourneyProgressData, updateJourneyProgressData } from "@/features/journeys/journeyProgressStore";
 import { getJourneyOverview } from "@/features/journeys/journeyOverview";
-import { guidedJourneyDays, isGuidedJourneyId, type GuidedJourneyId } from "@/features/journeys/guidedJourneys";
-import { journeyCadence } from "@/features/journeys/journeyCatalog";
-import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor, rosaryAudioUrlsFor, saintNarrationAudioUrlsFor } from "@/platform/audio/narrationAudio";
-import { getNarrationGender, saveNarrationGender, type NarrationGender } from "@/platform/audio/narrationVoice";
-import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "@/features/mass-readings";
-import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "@/features/bookmarks";
+import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor, rosaryAudioUrlsFor } from "@/platform/audio/narrationAudio";
+import { getTodaysMassReading } from "@/features/mass-readings";
 import {
-  changeNarrationVoice,
   getNarrationSnapshot,
   JourneyNarrationProgress,
   pauseSpeaking,
   resumeSpeaking,
   startSpeaking,
-  loadWithoutPlaying,
   stopSpeaking,
   subscribeNarration,
   toggleActiveNarration,
   setNarrationCompletionHandler,
   dismissNarrationError,
-  showNarrationError,
   playNextPlaylistItem,
   playPreviousPlaylistItem,
-  estimatedNarrationDuration,
   narrationPartProgress,
   setNarrationPartSeekHandler,
   type NarrationTimeline,
   type NarrationTrack,
 } from "@/platform/audio/NarratorButton";
-import { AudioPlayer, NavPlayer } from "@/platform/audio/AudioPlayer";
-import { ListenPage, type PlayKind } from "@/features/listen";
-import { catechismItem, guidedItem, summaQuestionItem } from "@/platform/audio/audioPlaylists";
-import { loadSummaData } from "@/features/summa/summa";
-import { catechismEditions } from "@/features/catechism/catechism";
+import { AudioPlayer } from "@/platform/audio/AudioPlayer";
 
-const SaintPage = lazy(() => import("@/features/saints/SaintsPage").then((module) => ({ default: module.SaintPage })));
-const SaintsLibrary = lazy(() => import("@/features/saints/SaintsPage").then((module) => ({ default: module.SaintsLibrary })));
-const CatechismPage = lazy(() => import("@/features/catechism/CatechismPage").then((module) => ({ default: module.CatechismPage })));
-const SummaPage = lazy(() => import("@/features/summa/SummaPage").then((module) => ({ default: module.SummaPage })));
-
-type Route = "home" | "listen" | "daily" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journeys" | "journey" | "guided-journey" | "journey-artwork" | "breviary" | "rosary" | "rosary-prayer" | "saints" | "saint-profile" | "catechism" | "summa";
 type JourneyAudioStatus = "idle" | "playing" | "paused";
 type JourneyAudioState = {
   periodId: string | null;
@@ -103,8 +57,6 @@ const INITIAL_ROSARY_AUDIO: RosaryAudioState = { segmentIndex: 0, clipIndex: 0, 
 const ROSARY_MODE_KEY = "rosary-mode";
 const INITIAL_JOURNEY_AUDIO: JourneyAudioState = { periodId: null, storyIndex: 0, status: "idle", error: null };
 const JOURNEY_INTRO_INDEX = -1;
-type BibleArt = Extract<NarrationTrack["art"], "bible" | "old-testament" | "new-testament" | "gospels">;
-const isBibleArt = (art: NarrationTrack["art"]): art is BibleArt => art === "bible" || art === "old-testament" || art === "new-testament" || art === "gospels";
 const BREVIARY_INTRO_INDEX = -1;
 // Where to resume inside a part of a multi-MP3 item, used when seeking across parts.
 type PartStart = { seconds: number; paused: boolean };
@@ -118,165 +70,25 @@ function readRosaryMode(): RosaryMode {
   }
 }
 
-function journeyIntroText(periodId: string) {
-  const intro = (journeyIntros as Record<string, string>)[periodId] ?? "";
-  return intro.replace(/\s+/g, " ").trim();
-}
-
-function breviaryIntroText(hour: string) {
-  return ((breviaryIntros as Record<string, string>)[hour] ?? "").replace(/\s+/g, " ").trim();
-}
-
-function getLastJourneyPeriodId() {
-  return loadJourneyProgressData().data.lastVisitedPeriodId;
-}
-
-function readRoute(): Route {
-  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
-  return path === "journey-artwork" ? "journey-artwork"
-    : path === "listen" ? "listen"
-    : path === "journeys" ? "journeys"
-    : path === "daily" ? "daily"
-    : path.startsWith("journeys/") ? "guided-journey"
-    : path === "summa" || path.startsWith("summa/") ? "summa"
-    : path === "catechism" || path.startsWith("catechism/") ? "catechism"
-    : path.startsWith("rosary/") ? "rosary-prayer"
-    : path === "rosary" ? "rosary"
-    : path.startsWith("saints/") ? "saint-profile"
-    : path === "saints" ? "saints"
-    : path === "breviary" || path.startsWith("breviary/") ? "breviary"
-    : path.startsWith("journey/") ? "journey"
-    : path === "read" || path === "bible" || path === "mass" || path === "bookmarks" || path === "library" || path === "about" || path === "journey"
-      ? path
-    : "home";
-}
-
-function readSaintSlug() {
-  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
-  if (!path.startsWith("saints/")) return "today";
-  try { return decodeURIComponent(path.slice("saints/".length)); } catch { return path.slice("saints/".length); }
-}
-
-function readJourneyPeriodId() {
-  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
-  if (!path.startsWith("journey/")) return null;
-  try {
-    return resolveJourneyPeriodId(decodeURIComponent(path.slice("journey/".length)));
-  } catch {
-    return resolveJourneyPeriodId(path.slice("journey/".length));
-  }
-}
-
-function readBreviaryHour() {
-  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
-  return path.startsWith("breviary/") ? path.slice("breviary/".length) : null;
-}
-
-function readRosaryMysteryIndex() {
-  const segment = window.location.hash.split("?")[0].replace(/^#\/?/, "").split("/")[1];
-  const ids = ["joyful", "luminous", "sorrowful", "glorious"];
-  const index = ids.indexOf(segment ?? "");
-  return index < 0 ? 0 : index;
-}
-
-function readJourneyStoryAnchor() {
-  const query = window.location.hash.split("?")[1] ?? "";
-  return new URLSearchParams(query).get("story");
-}
-
-function readGuidedJourney(): { journeyId: GuidedJourneyId; day: number | null } | null {
-  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0];
-  const match = path.match(/^journeys\/([^/]+)(?:\/(\d+))?$/);
-  if (!match || !isGuidedJourneyId(match[1])) return null;
-  const journeyId = match[1];
-  const day = match[2] === undefined ? NaN : Number(match[2]);
-  return { journeyId, day: Number.isInteger(day) && day >= 1 && day <= guidedJourneyDays[journeyId].length ? day : null };
-}
-
-const guidedDailyItem: Record<GuidedJourneyId, DailyItem> = {
-  freedom: "journey-freedom",
-  "no-worry": "journey-no-worry",
-};
-
-function RosaryMenuIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="8.5" r="6.2" strokeDasharray="0.2 2.45" />
-      <path d="M12 14.7v3.1m-2.7 1.2h5.4M12 17.8v4" />
-    </svg>
-  );
-}
-
 export default function App() {
   useScrollReveal();
   const [route, setRoute] = useState<Route>(readRoute);
   const [saintSlug, setSaintSlug] = useState<string>(readSaintSlug);
   const [rosaryMysteryIndex, setRosaryMysteryIndex] = useState<number>(readRosaryMysteryIndex);
   const [journeyPeriodId, setJourneyPeriodId] = useState<string | null>(readJourneyPeriodId);
-  const [lastJourneyPeriodId, setLastJourneyPeriodId] = useState<string | null>(getLastJourneyPeriodId);
   const [journeyStoryAnchor, setJourneyStoryAnchor] = useState<string | null>(readJourneyStoryAnchor);
   const [guidedJourneyRoute, setGuidedJourneyRoute] = useState(readGuidedJourney);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [fontSize, setFontSize] = useState(() => {
-    const saved = Number(window.localStorage.getItem("reader-font-size"));
-    return Number.isFinite(saved) && saved >= 16 && saved <= 30 ? saved : 22;
-  });
+  const { fontSize, setFontSize } = useReaderFontSize();
   const [modal, setModal] = useState<Modal | null>(null);
-  const [searchInteracted, setSearchInteracted] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">(() =>
-    window.localStorage.getItem("template-theme") === "dark" ? "dark" : "light",
-  );
-  const [voicePreference, setVoicePreference] = useState<NarrationGender>(getNarrationGender);
-  const [voicePreferenceError, setVoicePreferenceError] = useState(false);
-  const voicePreferenceRef = useRef(voicePreference);
-  voicePreferenceRef.current = voicePreference;
+  const { theme, setTheme } = useTheme();
+  const { voicePreference, voicePreferenceError, voicePreferenceRef, changeVoicePreference } = useVoicePreference();
   const [rosaryMode, setRosaryModeState] = useState<RosaryMode>(readRosaryMode);
   const [readingPosition, setReadingPosition] =
     useState<ReadingPosition>(getLastReading);
   const [massDate, setMassDate] = useState(() => getTodaysMassReading().date);
   const [breviaryDate, setBreviaryDate] = useState(() => new Date());
   const [breviaryHour, setBreviaryHour] = useState<string | null>(readBreviaryHour);
-  const [dailyStreak, setDailyStreak] = useState(loadDailyStreak);
-  useEffect(() => {
-    const syncJourneyProgress = (event: StorageEvent) => {
-      if (event.key !== journeyProgressStorageKey) return;
-      const { data, error } = loadJourneyProgressData();
-      setJourneyProgress({ completedIds: data.bibleCompletedIds, storageError: error });
-      setGuidedJourneyProgress({
-        freedom: {
-          started: data.freedomStarted || data.freedomCompletedDays.length > 0,
-          completedDays: data.freedomCompletedDays,
-          storageError: error,
-        },
-        "no-worry": {
-          started: data.noWorryStarted || data.noWorryCompletedDays.length > 0,
-          completedDays: data.noWorryCompletedDays,
-          storageError: error,
-        },
-      });
-      setLastJourneyPeriodId(data.lastVisitedPeriodId);
-    };
-    window.addEventListener("storage", syncJourneyProgress);
-    return () => window.removeEventListener("storage", syncJourneyProgress);
-  }, []);
-  useEffect(() => {
-    const today = localDateKey();
-    if (route === "breviary" && breviaryHour && isBreviaryHour(breviaryHour) && localDateKey(breviaryDate) === today) {
-      setDailyStreak((state) => recordDailyItem(state, breviaryHour, today));
-    } else if (route === "mass" && massDate === getTodaysMassReading().date) {
-      setDailyStreak((state) => recordDailyItem(state, "mass", today));
-    } else if (route === "rosary-prayer") {
-      setDailyStreak((state) => recordDailyItem(state, "rosary", today));
-    } else if (route === "saint-profile" && (saintSlug === "today" ? featuredSaintForDate() : hasSaintSlug(saintSlug))) {
-      setDailyStreak((state) => recordDailyItem(state, "saints", today));
-    } else if (route === "read") {
-      setDailyStreak((state) => recordDailyItem(state, "bible", today));
-    } else if (route === "catechism") {
-      setDailyStreak((state) => recordDailyItem(state, "catechism", today));
-    } else if (route === "summa") {
-      setDailyStreak((state) => recordDailyItem(state, "summa", today));
-    }
-  }, [route, breviaryHour, breviaryDate, massDate, saintSlug]);
   const [breviaryAudio, setBreviaryAudio] = useState<BreviaryAudioState>(INITIAL_BREVIARY_AUDIO);
   const [rosaryAudio, setRosaryAudio] = useState<RosaryAudioState>(INITIAL_ROSARY_AUDIO);
   const [highlightVerse, setHighlightVerse] = useState<number | null>(null);
@@ -302,29 +114,15 @@ export default function App() {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     playerCloseTimerRef.current = window.setTimeout(() => setPlayerClosing(false), reduceMotion ? 0 : 280);
   };
-  const [loadingListen, setLoadingListen] = useState<PlayKind | null>(null);
-  const listenRequestRef = useRef(0);
   const [journeyAudio, setJourneyAudio] = useState<JourneyAudioState>(INITIAL_JOURNEY_AUDIO);
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>(getBookmarks);
-  const [bookmarkCategories, setBookmarkCategories] = useState<string[]>(getBookmarkCategories);
-  const [journeyProgress, setJourneyProgress] = useState(loadJourneyProgress);
-  const [guidedJourneyProgress, setGuidedJourneyProgress] = useState(() => ({
-    freedom: loadGuidedJourneyProgress("freedom"),
-    "no-worry": loadGuidedJourneyProgress("no-worry"),
-  }));
+  const { bookmarks, bookmarkCategories, isChapterBookmarked, isBookmarked, toggleBookmark, removeBookmark, removeBookmarkCategory } = useAppBookmarks({ route, readingPosition, setModal });
+  const { lastJourneyPeriodId, journeyProgress, setJourneyProgress, guidedJourneyProgress, journeyArtwork, updateGuidedProgress, selectJourneyArtwork } = useJourneyAppState(route, journeyPeriodId);
   const activeGuidedId = guidedJourneyRoute?.journeyId ?? "freedom";
   const activeGuidedDay = guidedJourneyRoute?.day ?? null;
-  const [journeyArtwork, setJourneyArtwork] = useState(loadJourneyArtworkSelections);
   const menuRef = useRef<HTMLElement | null>(null);
   const activeGuidedStarted = guidedJourneyProgress[activeGuidedId].started;
-
-  useEffect(() => {
-    if (route === "guided-journey" && activeGuidedStarted) {
-      setDailyStreak((state) => recordJourneySession(state, activeGuidedId, journeyCadence(activeGuidedId)));
-    } else if (route === "journey" && journeyPeriodId) {
-      setDailyStreak((state) => recordJourneySession(state, "bible", journeyCadence("bible")));
-    }
-  }, [route, journeyPeriodId, activeGuidedId, activeGuidedStarted]);
+  const { dailyStreak, setDailyStreak } = useDailyCoordination({ route, breviaryHour, breviaryDate, massDate, saintSlug, journeyPeriodId, activeGuidedId, activeGuidedStarted });
+  const { toggleJourneyPeriod, startGuidedJourney, completeGuidedJourneyDay, markGuidedDayPlayed } = useJourneyStreakActions({ setDailyStreak, journeyProgress, setJourneyProgress, guidedJourneyProgress, updateGuidedProgress });
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -365,18 +163,6 @@ export default function App() {
     : null;
   const breviaryDayRef = useRef(breviaryDay);
   if (breviaryAudio.status === "idle" && breviaryDay) breviaryDayRef.current = breviaryDay;
-  const searchSheetStartY = useRef<number | null>(null);
-  const changeVoicePreference = (gender: NarrationGender) => {
-    voicePreferenceRef.current = gender;
-    setVoicePreference(gender);
-    changeNarrationVoice(gender);
-    try {
-      saveNarrationGender(gender);
-      setVoicePreferenceError(false);
-    } catch {
-      setVoicePreferenceError(true);
-    }
-  };
   const nextBiblePosition = (position: ReadingPosition): ReadingPosition | null => {
     if (position.chapter < getChapterCount(position.bookId)) return { ...position, chapter: position.chapter + 1 };
     const index = bibleBooks.findIndex((book) => book.id === position.bookId);
@@ -835,26 +621,8 @@ export default function App() {
     return () => window.cancelAnimationFrame(frame);
   }, [route, journeyPeriodId, journeyStoryAnchor]);
   useEffect(() => {
-    if (route !== "journey" || !journeyPeriodId) return;
-    setLastJourneyPeriodId(journeyPeriodId);
-    const saved = updateJourneyProgressData((progress) => ({ ...progress, lastVisitedPeriodId: journeyPeriodId }));
-    if (!saved) setJourneyProgress((progress) => ({ ...progress, storageError: true }));
-  }, [route, journeyPeriodId]);
-  useEffect(() => {
     setMenuOpen(false);
   }, [route]);
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    window.localStorage.setItem("template-theme", theme);
-    syncSystemBars(theme);
-  }, [theme]);
-  useEffect(() => {
-    document.documentElement.style.setProperty("--reader-font-size", `${fontSize}px`);
-    window.localStorage.setItem("reader-font-size", String(fontSize));
-  }, [fontSize]);
-  useEffect(() => {
-    saveBookmarks(bookmarks);
-  }, [bookmarks]);
   useEffect(() => {
     if (!highlightVerse) return;
     const timeout = window.setTimeout(() => setHighlightVerse(null), 4200);
@@ -902,178 +670,17 @@ export default function App() {
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, [menuOpen]);
-  const openReader = (
-    position = readingPosition,
-    verse: number | null = null,
-  ) => {
-    setReadingPosition(position);
-    setHighlightVerse(verse);
-    window.location.hash = "#/read";
-  };
-  const toggleJourneyPeriod = (periodId: string) => {
-    const wasCompleted = journeyProgress.completedIds.includes(periodId);
-    const completedIds = wasCompleted
-      ? journeyProgress.completedIds.filter((id) => id !== periodId)
-      : [...journeyProgress.completedIds, periodId];
-    const saved = saveJourneyProgress(completedIds);
-    setJourneyProgress({ completedIds, storageError: !saved });
-    if (!wasCompleted) setDailyStreak((state) => recordDailyItem(state, "journey-bible"));
-  };
-  const updateGuidedProgress = (journeyId: GuidedJourneyId, progress: (typeof guidedJourneyProgress)[GuidedJourneyId]) => {
-    const storageError = !saveGuidedJourneyProgress(journeyId, progress);
-    setGuidedJourneyProgress((current) => ({ ...current, [journeyId]: { ...progress, storageError } }));
-  };
-  const startGuidedJourney = (journeyId: GuidedJourneyId) => {
-    updateGuidedProgress(journeyId, { ...guidedJourneyProgress[journeyId], started: true });
-    setDailyStreak((state) => recordJourneySession(state, journeyId, journeyCadence(journeyId)));
-  };
-  const completeGuidedJourneyDay = (journeyId: GuidedJourneyId) => {
-    const current = guidedJourneyProgress[journeyId];
-    if (!current.started || current.completedDays.length >= guidedJourneyDays[journeyId].length) return;
-    const nextDay = current.completedDays.length + 1;
-    updateGuidedProgress(journeyId, { ...current, started: true, completedDays: [...current.completedDays, nextDay] });
-    setDailyStreak((state) => recordDailyItem(state, guidedDailyItem[journeyId]));
-    setDailyStreak((state) => recordJourneySession(state, journeyId, journeyCadence(journeyId)));
-  };
   const journeyOverview = getJourneyOverview(guidedJourneyProgress, journeyProgress.completedIds, lastJourneyPeriodId);
-  const selectJourneyArtwork = (periodId: string, optionId: string) => {
-    const selections = { ...journeyArtwork.selections, [periodId]: optionId };
-    setJourneyArtwork({ selections, storageError: !saveJourneyArtworkSelections(selections) });
-  };
-  const isChapterBookmarked =
-    route === "read" &&
-    bookmarks.some(
-      (bookmark) =>
-        bookmark.bookId === readingPosition.bookId &&
-        bookmark.chapter === readingPosition.chapter &&
-        !isVerseBookmark(bookmark),
-    );
-  const isBookmarked = route === "read" && bookmarks.some(
-    (bookmark) => bookmark.bookId === readingPosition.bookId && bookmark.chapter === readingPosition.chapter,
-  );
-  const toggleBookmark = (verseRange?: SelectedVerseRange) => {
-    if (!verseRange && isChapterBookmarked) {
-      setBookmarks((current) => current.filter((bookmark) => bookmark.bookId !== readingPosition.bookId || bookmark.chapter !== readingPosition.chapter || isVerseBookmark(bookmark)));
-      return;
-    }
-    setModal({ type: "bookmark", categories: bookmarkCategories, onSave: (category) => {
-      setBookmarkCategories((current) => {
-        if (current.some((item) => item.toLowerCase() === category.toLowerCase())) return current;
-        const next = [...current, category];
-        saveBookmarkCategories(next);
-        return next;
-      });
-      setBookmarks((current) => {
-        const bookmark: Bookmark = { ...readingPosition, createdAt: Date.now(), category };
-        if (verseRange) Object.assign(bookmark, verseRange);
-        return [bookmark, ...current];
-      });
-    }, onAddCategory: (category) => {
-      setBookmarkCategories((current) => {
-        const next = current.some((item) => item.toLowerCase() === category.toLowerCase()) ? current : [...current, category];
-        saveBookmarkCategories(next);
-        return next;
-      });
-    } });
-  };
-  const removeBookmark = (bookmark: Bookmark) =>
-    setBookmarks((current) =>
-      current.filter(
-        (item) =>
-          item.bookId !== bookmark.bookId || item.chapter !== bookmark.chapter ||
-          item.verseStart !== bookmark.verseStart || item.verseEnd !== bookmark.verseEnd,
-      ),
-    );
-  const removeBookmarkCategory = (category: string) => {
-    const next = bookmarkCategories.filter((item) => item !== category);
-    setBookmarkCategories(next);
-    saveBookmarkCategories(next);
-  };
-  const shareApp = async (): Promise<"shared" | "copied"> => {
-    const shareData = {
-      title: "SoundFaith",
-      text: "A quiet place to return to the Scriptures.",
-      url: window.location.href,
-    };
-    if (navigator.share) {
-      await navigator.share(shareData);
-      return "shared";
-    }
-    await navigator.clipboard?.writeText(window.location.href);
-    return "copied";
-  };
-  const resumeJourney = () => {
-    const periodId = journeyOverview.bible.resumePeriod?.id ?? bibleJourney[0].id;
-    window.location.hash = `#/journey/${periodId}`;
-  };
-  const openJourneyRecommendation = (journey: GuidedJourneyId | "bible") => {
-    if (journey === "bible") {
-      resumeJourney();
-    } else {
-      window.location.hash = `#/journeys/${journey}`;
-    }
-  };
-  const openExploreJourneys = () => {
-    if (route === "journeys") {
-      if (!journeyOverview.freedom.complete) openJourneyRecommendation("freedom");
-      else if (!journeyOverview.noWorry.complete) openJourneyRecommendation("no-worry");
-      else window.location.hash = "#/journey";
-    } else {
-      window.location.hash = "#/journeys";
-    }
-  };
-  const openCurrentBreviary = () => {
-    setBreviaryDate(new Date());
-    window.location.hash = `#/breviary/${currentBreviaryHour()}`;
-  };
-  const openDailyItem = (item: DailyItem) => {
-    if (item === "mass") {
-      setMassDate(getTodaysMassReading().date);
-      window.location.hash = "#/mass";
-    } else if (item === "rosary") {
-      window.location.hash = todaysRosaryPath();
-    } else if (item === "saints") {
-      window.location.hash = "#/saints/today";
-    } else if (item === "bible") {
-      window.location.hash = "#/bible";
-    } else if (item === "catechism") {
-      window.location.hash = "#/catechism";
-    } else if (item === "summa") {
-      window.location.hash = "#/summa";
-    } else if (item === "journey-freedom") {
-      window.location.hash = "#/journeys/freedom";
-    } else if (item === "journey-no-worry") {
-      window.location.hash = "#/journeys/no-worry";
-    } else if (item === "journey-bible") {
-      resumeJourney();
-    } else {
-      setBreviaryDate(new Date());
-      window.location.hash = `#/breviary/${item}`;
-    }
-  };
-  const openPicker = () =>
-    setModal({
-      type: "chapter",
-      current: readingPosition,
-      onChoose: (position) => openReader(position),
-    });
-  const openBibleBooks = () => {
-    window.location.hash = "#/bible";
-  };
-  const openMassReference = (reference: string) => {
-    const verses = resolveReference(reference);
-    const bookName = reference.split(/\s+\d+:/)[0].toLowerCase();
-    const book = bibleBooks.find(
-      (item) =>
-        item.name.toLowerCase() === bookName ||
-        (bookName === "psalm" && item.id === "psalms"),
-    );
-    if (book && verses[0])
-      openReader(
-        { bookId: book.id, chapter: verses[0].chapter },
-        verses[0].verse,
-      );
-  };
+  const { openReader, resumeJourney, openJourneyRecommendation, openExploreJourneys, openCurrentBreviary, openDailyItem, openPicker, openBibleBooks, openMassReference } = useAppNavigation({
+    route,
+    readingPosition,
+    setReadingPosition,
+    setHighlightVerse,
+    setModal,
+    setMassDate,
+    setBreviaryDate,
+    journeyOverview,
+  });
   const journeyAudioForPage =
     journeyPeriodId && journeyAudio.periodId === journeyPeriodId ? journeyAudio : INITIAL_JOURNEY_AUDIO;
   const activeSequence = narration.status === "idle" ? undefined : narration.track?.sequence;
@@ -1099,23 +706,7 @@ export default function App() {
     : activeSequence?.kind === "bible-journey" && journeyAudio.periodId === activeSequence.periodId && journeyAudio.storyIndex === JOURNEY_INTRO_INDEX && journeyAudio.status !== "idle"
       ? skipJourneyIntro
       : undefined;
-  const todayGospelReference = Object.entries(getTodaysMassReading().readings).find(([name]) => name.toLowerCase() === "gospel")?.[1].reference ?? "John 1:1-5";
-  const recommendation = (page: RecommendationPage) => <DailyNextStep
-    page={page}
-    streak={dailyStreak}
-    hour={currentBreviaryHour()}
-    journeyOverview={journeyOverview}
-    gospelReference={todayGospelReference}
-    onOpenMass={() => { setMassDate(getTodaysMassReading().date); window.location.hash = "#/mass"; }}
-    onOpenBreviary={openCurrentBreviary}
-    onOpenRosary={() => { window.location.hash = todaysRosaryPath(); }}
-    onOpenSaints={() => { window.location.hash = "#/saints/today"; }}
-    onOpenJourney={openJourneyRecommendation}
-    onExploreJourneys={openExploreJourneys}
-    onOpenCatechism={() => { window.location.hash = "#/catechism"; }}
-    onOpenSumma={() => { window.location.hash = "#/summa"; }}
-    onOpenReference={openMassReference}
-  />;
+  const recommendation = (page: RecommendationPage) => renderDailyRecommendation(page, { dailyStreak, journeyOverview, setMassDate, openCurrentBreviary, openJourneyRecommendation, openExploreJourneys, openMassReference });
   const journeyDesktopProgress = isJourneyDetail ? <JourneyNarrationProgress
     className="narration-progress-desktop narration-progress-centered"
     storyCount={bibleJourney.find((period) => period.id === journeyPeriodId)?.stories.length ?? 0}
@@ -1142,384 +733,112 @@ export default function App() {
     itemLabel="Segment"
     positionLabel="Rosary segment position"
   /> : null;
-  const markGuidedDayPlayed = (journeyId: GuidedJourneyId, day: number) => {
-    const current = guidedJourneyProgress[journeyId];
-    if (current.completedDays.includes(day)) return;
-    const completedDays = [...current.completedDays, day].sort((a, b) => a - b);
-    updateGuidedProgress(journeyId, { ...current, started: true, completedDays });
-    setDailyStreak((state) => recordDailyItem(state, guidedDailyItem[journeyId]));
+  const prepareRosaryPlayback = (mysteryIndex: number) => {
+    const sequence = buildRosarySequence(rosaryMode, mysteryIndex);
+    rosarySegmentsRef.current = sequence.segments;
+    rosaryClipsRef.current = sequence.clips;
+    updateRosaryAudio(INITIAL_ROSARY_AUDIO);
   };
-  const playMassReading = (entry: ReturnType<typeof getTodaysMassReading>) => {
-    const text = Object.values(entry.readings).map((reading) => reading.text).join("\n\n");
-    const date = new Date(`${entry.date}T00:00:00`).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
-    return startSpeaking(text, [], undefined, undefined, voicePreferenceRef.current, { title: `Mass Readings · ${date}`, path: `#/mass?date=${entry.date}`, art: "readings" });
+  const prepareBreviaryPlayback = (date: Date, hour: BreviaryHour) => {
+    breviaryDayRef.current = assembleBreviary(date, hour, voicePreferenceRef.current);
   };
-  const stepMassReading = (path: string, offset: number) => {
-    const current = new Date(`${path.split("date=")[1] ?? ""}T00:00:00`);
-    if (Number.isNaN(current.getTime())) return;
-    current.setDate(current.getDate() + offset);
-    const entry = getMassReadingForDate(localDateKey(current));
-    if (entry) playMassReading(entry);
-  };
-  // Mobile opens items paused so tapping a card never plays sound; only the hero card and the play action start audio.
-  const playListening = async (kind: PlayKind, autoplay = true) => {
-    const request = ++listenRequestRef.current;
-    const previousTrack = getNarrationSnapshot().track;
-    const hold = !autoplay && window.innerWidth <= 760 && getNarrationSnapshot().status === "idle";
-    const start = <T,>(load: () => T): T => (hold ? loadWithoutPlaying(load) : load());
-    setLoadingListen(kind === "summa" || kind === "saint" ? kind : null);
-    try {
-      if (kind === "old-testament" || kind === "new-testament" || kind === "gospels") {
-        const position = { bookId: kind === "old-testament" ? "genesis" : "matthew", chapter: 1 };
-        const art: BibleArt = kind;
-        const text = getChapter(position.bookId, position.chapter).map((verse) => verse.text).join(" ");
-        if (start(() => startSpeaking(text, narrationAudioUrlsFor(position.bookId, position.chapter, voicePreferenceRef.current), () => advanceNarration(position, art), undefined, voicePreferenceRef.current, bibleTrack(position, art)))) setPlayerOpen(true);
-      } else if (kind === "bible-journey") {
-        start(() => playJourneyStory(journeyOverview.bible.resumePeriod?.id ?? bibleJourney[0].id, JOURNEY_INTRO_INDEX, true));
-        setPlayerOpen(true);
-      } else if (kind === "rosary") {
-        const mysteryIndex = todaysRosaryMysteryIndex();
-        const sequence = buildRosarySequence(rosaryMode, mysteryIndex);
-        rosarySegmentsRef.current = sequence.segments;
-        rosaryClipsRef.current = sequence.clips;
-        updateRosaryAudio(INITIAL_ROSARY_AUDIO);
-        start(() => playRosaryClip(0, true, { mysteryIndex, mode: rosaryMode, path: todaysRosaryPath() }));
-        setPlayerOpen(true);
-      } else if (kind === "breviary") {
-        const date = new Date();
-        const hour = currentBreviaryHour(date);
-        breviaryDayRef.current = assembleBreviary(date, hour, voicePreferenceRef.current);
-        start(() => playBreviaryIntro(hour, date));
-        setPlayerOpen(true);
-      } else if (kind === "mass") {
-        if (start(() => playMassReading(getTodaysMassReading()))) setPlayerOpen(true);
-      } else if (kind === "saint") {
-        const { featuredSaintForDate: getSaint, saintNarrationText } = await import("@/features/saints/saints");
-        if (listenRequestRef.current !== request || getNarrationSnapshot().track !== previousTrack) return;
-        const saint = getSaint();
-        if (!saint) throw new Error("No saint is listed for today.");
-        if (start(() => startSpeaking(saintNarrationText(saint), saintNarrationAudioUrlsFor(saint.slug, voicePreferenceRef.current), undefined, undefined, voicePreferenceRef.current, { title: saint.name, path: `#/saints/${saint.slug}`, art: "saints" }))) setPlayerOpen(true);
-      } else if (kind === "summa") {
-        const data = await loadSummaData();
-        if (listenRequestRef.current !== request || getNarrationSnapshot().track !== previousTrack) return;
-        const part = data.parts[0];
-        const question = part && data.questions.filter((item) => item.part_id === part.id && item.articles.length).sort((a, b) => a.number - b.number)[0];
-        if (!part || !question) throw new Error("The first Summa question is unavailable.");
-        const item = summaQuestionItem(part, question, data.questions.find((item) => item.part_id === part.id && item.number > question.number && item.articles.length));
-        if (start(() => startSpeaking(item.text, [], undefined, undefined, voicePreferenceRef.current, item.track))) setPlayerOpen(true);
-      } else if (kind === "freedom" || kind === "no-worry") {
-        const item = guidedItem(kind, kind === "freedom" ? journeyOverview.freedom.nextDay : journeyOverview.noWorry.nextDay);
-        if (!item) throw new Error("This listening item is unavailable.");
-        if (start(() => startSpeaking(item.text, [], undefined, undefined, voicePreferenceRef.current, item.track))) {
-          if (!hold && item.track.sequence?.kind === "guided") markGuidedDayPlayed(kind, item.track.sequence.day);
-          setPlayerOpen(true);
-        }
-      } else {
-        const edition = catechismEditions[0];
-        const group = edition?.groups.find((item) => item.questions.length > 0);
-        const item = edition && group ? catechismItem(edition, group) : null;
-        if (!item) throw new Error("This listening item is unavailable.");
-        if (start(() => startSpeaking(item.text, [], undefined, undefined, voicePreferenceRef.current, item.track))) setPlayerOpen(true);
-      }
-    } catch (error) {
-      if (listenRequestRef.current !== request || getNarrationSnapshot().track !== previousTrack) return;
-      console.error("Could not start listening.", error);
-      showNarrationError(error instanceof Error ? error.message : "Could not load this listening item.");
-    } finally {
-      if (listenRequestRef.current === request) setLoadingListen(null);
-    }
-  };
-  const playHero = () => {
-    setPlayerOpen(true);
-    if (getNarrationSnapshot().status !== "playing") toggleActiveNarration();
-  };
-  const openActiveJourney = () => {
-    const kind: PlayKind = journeyOverview.freedom.active
-      ? "freedom"
-      : journeyOverview.noWorry.active
-        ? "no-worry"
-        : journeyOverview.bible.active
-          ? "bible-journey"
-          : "freedom";
-    void playListening(kind, false);
-  };
-  const openDailyRoutine = () => {
-    const routines: Routine[] = ["breviary", "mass", "rosary", "saints"];
-    const owned = routines.filter((routine) => hasEverDone(dailyStreak, routine));
-    const routine = owned.length === 0
-      ? routines[Math.floor(Math.random() * routines.length)]
-      : owned.find((item) => !routineDoneToday(dailyStreak, item)) ?? owned[0];
-    const kinds: Record<Routine, PlayKind> = { breviary: "breviary", mass: "mass", rosary: "rosary", saints: "saint" };
-    void playListening(kinds[routine], false);
-  };
-  const page =
-    route === "read" ? (
-      <ChapterPage
-        position={readingPosition}
-        voicePreference={voicePreference}
-        onPositionChange={setReadingPosition}
-        onSelectChapter={openBibleBooks}
-        highlightVerse={highlightVerse}
-        isBookmarked={isBookmarked}
-        isChapterBookmarked={isChapterBookmarked}
-        onToggleBookmark={toggleBookmark}
-        onNarrationEnded={() => advanceNarration(readingPosition)}
-        narrationTrack={bibleTrack(readingPosition)}
-        nextStep={recommendation("bible")}
-      />
-    ) : route === "bible" ? (
-      <BibleBooksPage
-        current={readingPosition}
-        onResume={() => openReader(readingPosition)}
-        onChoose={(position) => openReader(position)}
-        nextStep={recommendation("bible")}
-      />
-    ) : route === "catechism" ? (
-      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Baltimore Catechism…</p></main>}><CatechismPage voicePreference={voicePreference} nextStep={recommendation("catechism")} /></Suspense>
-    ) : route === "summa" ? (
-      <Suspense fallback={<main className="catechism-page section-wrap"><p className="eyebrow">Opening the Summa Theologiae…</p></main>}><SummaPage voicePreference={voicePreference} nextStep={recommendation("summa")} /></Suspense>
-    ) : route === "mass" ? (
-      <MassReadingPage
-        onOpenReference={openMassReference}
-        selectedDate={massDate}
-        onSelectedDateChange={setMassDate}
-        voicePreference={voicePreference}
-        nextStep={recommendation("mass")}
-      />
-    ) : route === "breviary" ? breviaryHour ? (
-      <BreviaryPage
-        hour={breviaryHour}
-        day={breviaryDay}
-        date={breviaryDate}
-        onDateChange={setBreviaryDate}
-        audioStatus={breviaryAudioForPage.status}
-        activeSegmentIndex={breviaryAudioForPage.segmentIndex}
-        audioError={breviaryAudioForPage.error}
-        onToggleAudio={() => { const wasPlaying = breviaryAudioForPage.status === "playing"; toggleBreviaryAudio(); if (!wasPlaying) setPlayerOpen(true); }}
-        onSelectSegment={(index) => { selectBreviarySegment(index); setPlayerOpen(true); }}
-        onSkipIntro={skipBreviaryIntro}
-        audioProgress={breviaryDesktopProgress}
-        nextStep={recommendation("breviary")}
-      />
-    ) : (
-      <BreviaryLibrary date={breviaryDate} onDateChange={setBreviaryDate} {...breviaryDayInfo(breviaryDate)} nextStep={recommendation("breviary")} />
-    ) : route === "rosary-prayer" ? (
-      <RosaryPrayerPage key={rosaryMysteryIndex} mysteryIndex={rosaryMysteryIndex} mode={rosaryMode} onModeChange={changeRosaryMode} audioStatus={rosaryAudioForPage.status} activeSegmentIndex={rosaryAudioForPage.segmentIndex} activePrayerGroupId={rosaryAudioForPage.status === "idle" ? null : rosaryClipsRef.current[rosaryAudioForPage.clipIndex]?.groupId ?? null} prayedBeadIndices={rosaryAudioForPage.prayedBeadIndices} activeBeadIndex={activeRosaryBeadIndex} audioError={rosaryAudioForPage.error} onToggleAudio={() => { const wasPlaying = rosaryAudioForPage.status === "playing"; toggleRosaryAudio(); if (!wasPlaying) setPlayerOpen(true); }} onSelectSegment={(index) => { selectRosarySegment(index); setPlayerOpen(true); }} audioProgress={rosaryDesktopProgress} nextStep={recommendation("rosary")} />
-    ) : route === "saints" ? (
-      <Suspense fallback={<main className="journey-page section-wrap"><p className="eyebrow">Opening the saints catalogue…</p></main>}><SaintsLibrary onOpenToday={() => { window.location.hash = "#/saints/today"; }} nextStep={recommendation("saints")} /></Suspense>
-    ) : route === "saint-profile" ? (
-      <Suspense fallback={<main className="journey-page section-wrap"><p className="eyebrow">Opening saint profile…</p></main>}><SaintPage slug={saintSlug} voicePreference={voicePreference} nextStep={recommendation("saints")} /></Suspense>
-    ) : route === "rosary" ? (
-      <RosaryLibrary nextStep={recommendation("rosary")} />
-    ) : route === "bookmarks" ? (
-      <BookmarksPage
-        bookmarks={bookmarks}
-        categories={bookmarkCategories}
-        onOpen={(bookmark) => openReader(bookmark, isVerseBookmark(bookmark) ? bookmark.verseStart! : null)}
-        onRemove={removeBookmark}
-        onRemoveCategory={removeBookmarkCategory}
-      />
-    ) : route === "journey-artwork" ? (
-      <JourneyArtworkPage
-        selections={journeyArtwork.selections}
-        storageError={journeyArtwork.storageError}
-        onSelect={selectJourneyArtwork}
-      />
-    ) : route === "guided-journey" ? (
-      <NoWorryJourneyPage
-        journeyId={activeGuidedId}
-        progress={guidedJourneyProgress[activeGuidedId]}
-        voicePreference={voicePreference}
-        nextStep={recommendation("journey")}
-        selectedDay={activeGuidedDay}
-        onSelectDay={(day) => {
-          window.location.hash = day === null ? `#/journeys/${activeGuidedId}` : `#/journeys/${activeGuidedId}/${day}`;
-        }}
-        onStart={() => startGuidedJourney(activeGuidedId)}
-        onCompleteDay={() => {
-          completeGuidedJourneyDay(activeGuidedId);
-          window.location.hash = `#/journeys/${activeGuidedId}`;
-        }}
-      />
-    ) : route === "journeys" ? (
-      <JourneysPage
-        guidedProgress={guidedJourneyProgress}
-        bibleCompletedIds={journeyProgress.completedIds}
-        lastVisitedPeriodId={lastJourneyPeriodId}
-        onSelectJourney={(id) => {
-          window.location.hash = id === "bible" ? "#/journey" : `#/journeys/${id}`;
-        }}
-        onContinueBibleJourney={resumeJourney}
-        nextStep={recommendation("journey")}
-      />
-    ) : route === "listen" ? (
-      <ListenPage narration={narration} onOpenPlayer={() => setPlayerOpen(true)} onPlayHero={playHero} loading={loadingListen} durations={{
-        "old-testament": estimatedNarrationDuration(getChapter("genesis", 1).map((verse) => verse.text).join(" ")),
-        "new-testament": estimatedNarrationDuration(getChapter("matthew", 1).map((verse) => verse.text).join(" ")),
-        "gospels": estimatedNarrationDuration(getChapter("matthew", 1).map((verse) => verse.text).join(" ")),
-        "bible-journey": estimatedNarrationDuration(journeyIntroText(bibleJourney[0].id)),
-        "freedom": estimatedNarrationDuration(guidedItem("freedom", journeyOverview.freedom.nextDay)?.text ?? ""),
-        "no-worry": estimatedNarrationDuration(guidedItem("no-worry", journeyOverview.noWorry.nextDay)?.text ?? ""),
-        "catechism": estimatedNarrationDuration(catechismItem(catechismEditions[0], catechismEditions[0].groups.find((item) => item.questions.length > 0)!).text),
-        "mass": estimatedNarrationDuration(Object.values(getTodaysMassReading().readings).map((reading) => reading.text).join("\n\n")),
-        "rosary": estimatedNarrationDuration(buildRosarySequence(rosaryMode, todaysRosaryMysteryIndex()).clips.map((clip) => clip.spokenText).join(" ")),
-        "breviary": estimatedNarrationDuration([breviaryIntroText(currentBreviaryHour()), ...assembleBreviary(new Date(), currentBreviaryHour(), voicePreference).segments.map((segment) => segment.text)].join(" ")),
-      }} onPlay={(kind, autoplay = false) => { void playListening(kind, autoplay); }} />
-    ) : route === "daily" ? (
-      <DailyPage streak={dailyStreak} onOpenDaily={openDailyItem} />
-    ) : route === "journey" ? journeyPeriodId ? (
-      <BibleJourneyPage
-        periodId={journeyPeriodId}
-        completedIds={journeyProgress.completedIds}
-        storageError={journeyProgress.storageError}
-        artworkSelections={journeyArtwork.selections}
-        audioStatus={journeyAudioForPage.status}
-        activeStoryIndex={journeyAudioForPage.storyIndex}
-        audioError={journeyAudioForPage.error}
-        onToggleComplete={toggleJourneyPeriod}
-        onToggleAudio={() => { const wasPlaying = journeyAudioForPage.status === "playing"; toggleJourneyAudio(); if (!wasPlaying) setPlayerOpen(true); }}
-        onSelectAudioStory={(index) => { selectJourneyAudioStory(index); setPlayerOpen(true); }}
-        onSkipIntro={skipJourneyIntro}
-        audioProgress={journeyDesktopProgress}
-        nextStep={recommendation("journey")}
-        onOpenPassage={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)}
-      />
-    ) : (
-      <BibleJourneyLibrary
-        completedIds={journeyProgress.completedIds}
-        storageError={journeyProgress.storageError}
-        artworkSelections={journeyArtwork.selections}
-        lastVisitedPeriodId={lastJourneyPeriodId}
-        onResume={resumeJourney}
-        nextStep={recommendation("journey")}
-      />
-    ) : route === "library" ? (
-      <ReferencePage eyebrow="Component library" title={<>A practical<br /><em>design library.</em></>} copy="A reference for the components and patterns used across the template." />
-    ) : route === "about" ? (
-      <AboutPage />
-    ) : (
-      <HomePage
-        narration={narration}
-        onPlayHero={playHero}
-        onPlayDaily={() => { void playListening("mass", false); }}
-        onPlay={(kind, autoplay = false) => { void playListening(kind, autoplay); }}
-        onResume={() => openReader()}
-        onChoose={() => { window.location.hash = "#/bible"; }}
-        onJourney={() => { window.location.hash = "#/journey"; }}
-        onRosary={() => { window.location.hash = todaysRosaryPath(); }}
-        onSaintToday={() => { window.location.hash = "#/saints/today"; }}
-        onCatechism={() => { window.location.hash = "#/catechism"; }}
-        onSumma={() => { window.location.hash = "#/summa"; }}
-        onGuidedJourney={(journey) => { window.location.hash = `#/journeys/${journey}`; }}
-        onContinueBibleJourney={resumeJourney}
-        onAllJourneys={() => { window.location.hash = "#/journeys"; }}
-        onDaily={() => { window.location.hash = "#/daily"; }}
-        streak={dailyStreak}
-        guidedJourney={guidedJourneyProgress}
-        bibleJourney={{
-          completedIds: journeyProgress.completedIds,
-          lastVisitedPeriodId: lastJourneyPeriodId,
-        }}
-        bible={{
-          started: hasOpenedBible(),
-          label: `${bibleBooks.find((book) => book.id === readingPosition.bookId)?.name ?? "Genesis"} ${readingPosition.chapter}`,
-        }}
-        onShare={shareApp}
-        onOpenDaily={openDailyItem}
-      />
-    );
+  const { loadingListen, playListening, playHero, stepMassReading, openActiveJourney, openDailyRoutine } = useListenLaunch({
+    voicePreferenceRef,
+    setPlayerOpen,
+    journeyOverview,
+    rosaryMode,
+    dailyStreak,
+    advanceNarration,
+    bibleTrack,
+    playJourneyIntro: (periodId) => playJourneyStory(periodId, JOURNEY_INTRO_INDEX, true),
+    prepareRosaryPlayback,
+    playRosaryClip,
+    prepareBreviaryPlayback,
+    playBreviaryIntro,
+    markGuidedDayPlayed,
+  });
+  const activeRosaryPrayerGroupId = rosaryAudioForPage.status === "idle" ? null : rosaryClipsRef.current[rosaryAudioForPage.clipIndex]?.groupId ?? null;
   return (
     <div className={route === "read" ? "app-shell app-shell--reader" : "app-shell"}>
-      <header className="site-header" ref={menuRef}>
-        <Brand />
-        <nav
-          id="primary-navigation"
-          className={menuOpen ? "main-nav nav-open" : "main-nav"}
-          aria-label="Primary navigation"
-        >
-          <div className="menu-heading">
-            <button
-              className="icon-button"
-              aria-label="Close menu"
-              onClick={() => setMenuOpen(false)}
-            >
-              <X size={18} />
-            </button>
-          </div>
-          <a href="#/" className="mobile-drawer-link" aria-current={route === "home" ? "page" : undefined} onClick={() => setMenuOpen(false)}><House size={17} />Home</a>
-          <a href="#/listen" className="mobile-drawer-link" aria-current={route === "listen" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Headphones size={17} />Listen</a>
-          <div className="mobile-drawer-group">
-            <p className="mobile-drawer-group-title">Scripture &amp; growth</p>
-            <a href="#/read" className="mobile-drawer-link" aria-current={route === "read" || route === "bible" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible</a>
-            <a href="#/journeys" className="mobile-drawer-link" aria-current={route === "journeys" || route === "journey" || route === "guided-journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Compass size={17} />Journeys</a>
-            <a href="#/catechism" className="mobile-drawer-link" aria-current={route === "catechism" ? "page" : undefined} onClick={() => setMenuOpen(false)}><ScrollText size={17} />Catechism</a>
-            <a href="#/summa" className="mobile-drawer-link" aria-current={route === "summa" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Landmark size={17} />Summa Theologiae</a>
-          </div>
-          <div className="mobile-drawer-group">
-            <p className="mobile-drawer-group-title">Prayer &amp; daily life</p>
-            <a href="#/daily" className="mobile-drawer-link" aria-current={route === "daily" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily rhythm</a>
-            <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sunrise size={17} />Breviary</a>
-            <a href="#/rosary" className="mobile-drawer-link" aria-current={route === "rosary" || route === "rosary-prayer" ? "page" : undefined} onClick={() => setMenuOpen(false)}><RosaryMenuIcon />Rosary</a>
-            <a href="#/saints" className="mobile-drawer-link" aria-current={route === "saints" || route === "saint-profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sparkles size={17} />Saints</a>
-            <a href="#/mass" className="mobile-drawer-link" aria-current={route === "mass" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Church size={17} />Mass Readings</a>
-          </div>
-          <div className="mobile-drawer-group">
-            <p className="mobile-drawer-group-title">Your library</p>
-            <a href="#/bookmarks" className="mobile-drawer-link" aria-current={route === "bookmarks" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
-            <a href="#/about" className="mobile-drawer-link" aria-current={route === "about" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About SoundFaith</a>
-          </div>
-          <section className="font-size-control" aria-label="Reading font size">
-            <div className="font-size-heading"><span>Text size</span><span>{fontSize}px</span></div>
-            <div className="font-size-preview">The Lord is my shepherd; I shall not want.</div>
-            <div className="font-size-buttons">
-              <button className="icon-button" aria-label="Decrease font size" disabled={fontSize <= 16} onClick={() => setFontSize((size) => Math.max(16, size - 2))}><Minus size={16} /></button>
-              <button className="icon-button" aria-label="Increase font size" disabled={fontSize >= 30} onClick={() => setFontSize((size) => Math.min(30, size + 2))}><Plus size={16} /></button>
-            </div>
-          </section>
-          <section className="voice-preference-control" aria-label="Narration voice">
-            <span className="voice-preference-label">Narration voice</span>
-            <div className="voice-preference-options">
-              {(["male", "female"] as const).map((gender) => (
-                <button
-                  key={gender}
-                  type="button"
-                  aria-pressed={voicePreference === gender}
-                  onClick={() => changeVoicePreference(gender)}
-                >
-                  {gender === "male" ? "Male" : "Female"}
-                </button>
-              ))}
-            </div>
-            {voicePreferenceError && <p role="status">Could not save this preference. It will apply until you close the app.</p>}
-          </section>
-          <div className="mobile-menu-theme">
-            <span>Theme</span>
-            <ThemeToggle
-              theme={theme}
-              onChange={setTheme}
-            />
-          </div>
-        </nav>
-        <div className="header-actions">
-          <button
-            className="icon-button mobile-toggle"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            aria-controls="primary-navigation"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-      </header>
-      {menuOpen && (
-        <button
-          className="menu-scrim"
-          aria-label="Close menu"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
-      {page}
+      <SiteHeader
+        route={route}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+        menuRef={menuRef}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
+        voicePreference={voicePreference}
+        voicePreferenceError={voicePreferenceError}
+        onChangeVoicePreference={changeVoicePreference}
+        theme={theme}
+        onThemeChange={setTheme}
+      />
+      <AppRoutes
+        route={route}
+        recommendation={recommendation}
+        voicePreference={voicePreference}
+        narration={narration}
+        setPlayerOpen={setPlayerOpen}
+        dailyStreak={dailyStreak}
+        journeyOverview={journeyOverview}
+        readingPosition={readingPosition}
+        setReadingPosition={setReadingPosition}
+        highlightVerse={highlightVerse}
+        bibleTrack={bibleTrack}
+        advanceNarration={advanceNarration}
+        bookmarks={bookmarks}
+        bookmarkCategories={bookmarkCategories}
+        isBookmarked={isBookmarked}
+        isChapterBookmarked={isChapterBookmarked}
+        toggleBookmark={toggleBookmark}
+        removeBookmark={removeBookmark}
+        removeBookmarkCategory={removeBookmarkCategory}
+        openReader={openReader}
+        openBibleBooks={openBibleBooks}
+        openMassReference={openMassReference}
+        openDailyItem={openDailyItem}
+        resumeJourney={resumeJourney}
+        massDate={massDate}
+        setMassDate={setMassDate}
+        breviaryHour={breviaryHour}
+        breviaryDate={breviaryDate}
+        setBreviaryDate={setBreviaryDate}
+        breviaryDay={breviaryDay}
+        breviaryAudioForPage={breviaryAudioForPage}
+        breviaryDesktopProgress={breviaryDesktopProgress}
+        toggleBreviaryAudio={toggleBreviaryAudio}
+        selectBreviarySegment={selectBreviarySegment}
+        skipBreviaryIntro={skipBreviaryIntro}
+        rosaryMysteryIndex={rosaryMysteryIndex}
+        rosaryMode={rosaryMode}
+        changeRosaryMode={changeRosaryMode}
+        rosaryAudioForPage={rosaryAudioForPage}
+        activeRosaryPrayerGroupId={activeRosaryPrayerGroupId}
+        activeRosaryBeadIndex={activeRosaryBeadIndex}
+        rosaryDesktopProgress={rosaryDesktopProgress}
+        toggleRosaryAudio={toggleRosaryAudio}
+        selectRosarySegment={selectRosarySegment}
+        saintSlug={saintSlug}
+        journeyPeriodId={journeyPeriodId}
+        activeGuidedId={activeGuidedId}
+        activeGuidedDay={activeGuidedDay}
+        journeyProgress={journeyProgress}
+        guidedJourneyProgress={guidedJourneyProgress}
+        journeyArtwork={journeyArtwork}
+        lastJourneyPeriodId={lastJourneyPeriodId}
+        selectJourneyArtwork={selectJourneyArtwork}
+        startGuidedJourney={startGuidedJourney}
+        completeGuidedJourneyDay={completeGuidedJourneyDay}
+        toggleJourneyPeriod={toggleJourneyPeriod}
+        journeyAudioForPage={journeyAudioForPage}
+        journeyDesktopProgress={journeyDesktopProgress}
+        toggleJourneyAudio={toggleJourneyAudio}
+        selectJourneyAudioStory={selectJourneyAudioStory}
+        skipJourneyIntro={skipJourneyIntro}
+        loadingListen={loadingListen}
+        playHero={playHero}
+        playListening={playListening}
+      />
       {narration.error && <div className="audio-error" role="alert">{narration.error}<button type="button" onClick={dismissNarrationError} aria-label="Dismiss audio error"><X size={16} /></button></div>}
       {(playerOpen || playerClosing) && getNarrationSnapshot().track && <AudioPlayer narration={getNarrationSnapshot()} closing={!playerOpen} onClose={() => setPlayerOpen(false)} onToggle={toggleActiveNarration} onSelectEpisode={(index) => {
         const track = getNarrationSnapshot().track;
@@ -1582,98 +901,17 @@ export default function App() {
         }
         window.location.hash = path;
       }} />}
-      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-        <a href="#/" className={route === "home" ? "active" : ""} aria-current={route === "home" ? "page" : undefined} onClick={() => setPlayerOpen(false)}>
-          <Home size={17} />
-          <span>Home</span>
-        </a>
-        <a
-          href="#/listen"
-          className={route === "listen" ? "active" : ""}
-          aria-current={route === "listen" ? "page" : undefined}
-          onClick={() => setPlayerOpen(false)}
-        >
-          <Library size={17} />
-          <span>Browse</span>
-        </a>
-        <NavPlayer
-          narration={narration}
-          playerOpen={playerOpen}
-          onToggle={toggleActiveNarration}
-          onOpen={() => setPlayerOpen(true)}
-          onListen={() => {
-            setPlayerOpen(false);
-            window.location.hash = "#/listen";
-          }}
-        />
-        <a href="#/journeys" onClick={(event) => { event.preventDefault(); setPlayerOpen(false); openActiveJourney(); }} className={route === "journeys" || route === "journey" || route === "guided-journey" || route === "journey-artwork" ? "mobile-listen active" : "mobile-listen"} aria-current={route === "journeys" || route === "journey" || route === "guided-journey" || route === "journey-artwork" ? "page" : undefined}>
-          <Compass size={17} />
-          <span>Journeys</span>
-        </a>
-        <a href="#/daily" onClick={(event) => { event.preventDefault(); setPlayerOpen(false); openDailyRoutine(); }} className={route === "daily" || route === "breviary" || route === "mass" || route === "rosary" || route === "rosary-prayer" || route === "saints" || route === "saint-profile" ? "active" : ""} aria-current={route === "daily" ? "page" : undefined}>
-          <CalendarDays size={17} />
-          <span>Daily</span>
-        </a>
-      </nav>
-      <footer className="site-footer">
-        <section className="footer-contact" aria-labelledby="footer-contact-title">
-          <div className="footer-contact-copy">
-            <h2 id="footer-contact-title">Questions, feedback, or ideas?</h2>
-            <p>We'd love to hear from you.</p>
-            <a href="mailto:soundfaith.core@gmail.com">soundfaith.core@gmail.com</a>
-          </div>
-          <div className="footer-contact-actions">
-            <a href="mailto:soundfaith.core@gmail.com">Contact Us</a>
-            <a href="mailto:soundfaith.core@gmail.com">Send Feedback</a>
-          </div>
-        </section>
-      </footer>
-      {(modal?.type === "chapter" || modal?.type === "bookmark") && (
-        <ModalLayer modal={modal} close={() => setModal(null)} />
-      )}
-      {modal?.type === "search" && (
-        <div
-          className="modal-backdrop"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setModal(null);
-          }}
-        >
-          <section
-            className={searchInteracted ? "modal search-modal-shell search-modal-engaged" : "modal search-modal-shell"}
-            role="dialog"
-            aria-modal="true"
-            onTouchStart={(event) => {
-              if (window.innerWidth <= 760) {
-                searchSheetStartY.current = event.touches[0].clientY;
-              }
-            }}
-            onTouchMove={(event) => {
-              if (
-                window.innerWidth <= 760 &&
-                searchSheetStartY.current !== null
-              ) {
-                const delta =
-                  event.touches[0].clientY - searchSheetStartY.current;
-                if (delta > 90) setModal(null);
-              }
-            }}
-            onTouchEnd={() => {
-              searchSheetStartY.current = null;
-            }}
-          >
-            <SearchModal
-              onInteraction={() => setSearchInteracted(true)}
-              close={() => setModal(null)}
-              onChoose={(result: SearchResult) => {
-                modal.onChoose(result);
-                setModal(null);
-              }}
-            />
-          </section>
-        </div>
-      )}
-      <ChatWidget onOpenVerse={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)} />
+      <MobileBottomNav
+        route={route}
+        narration={narration}
+        playerOpen={playerOpen}
+        onToggle={toggleActiveNarration}
+        setPlayerOpen={setPlayerOpen}
+        onOpenActiveJourney={openActiveJourney}
+        onOpenDailyRoutine={openDailyRoutine}
+      />
+      <SiteFooter />
+      <AppOverlays modal={modal} setModal={setModal} onOpenVerse={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)} />
     </div>
   );
 }
