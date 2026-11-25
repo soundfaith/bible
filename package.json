@@ -7,11 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "android:build": "powershell -ExecutionPolicy Bypass -File scripts/build_android.ps1",
-    "chat:validate": "node scripts/chat/validate-topics.mjs",
-    "chat:index": "node scripts/chat/build-index.mjs",
-    "chat:catechism-index": "node scripts/chat/build-catechism-index.mjs",
-    "chat:eval": "node scripts/chat/eval.mjs"
+    "android:build": "powershell -ExecutionPolicy Bypass -File scripts/release/build_android.ps1",
+    "chat:validate": "node scripts/chat-index/validate-topics.mjs",
+    "chat:index": "node scripts/chat-index/build-index.mjs",
+    "chat:catechism-index": "node scripts/chat-index/build-catechism-index.mjs",
+    "chat:eval": "node scripts/chat-index/eval.mjs"
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^8.0.2",

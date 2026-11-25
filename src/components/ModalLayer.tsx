@@ -1,8 +1,8 @@
 import { Plus, X } from "lucide-react";
 import { useRef, useState } from "react";
-import { ChapterPicker, type ReadingPosition } from "../pages/ChapterPage";
-import { DEFAULT_BOOKMARK_CATEGORY } from "../lib/bookmarks";
-import type { SearchResult } from "./SearchModal";
+import { ChapterPicker, type ReadingPosition } from "@/features/bible";
+import { DEFAULT_BOOKMARK_CATEGORY } from "@/features/bookmarks";
+import type { SearchResult } from "@/features/search";
 
 export type Modal = { type: "chapter"; current: ReadingPosition; onChoose: (position: ReadingPosition) => void } | { type: "bookmark"; categories: string[]; onSave: (category: string) => void; onAddCategory: (category: string) => void } | { type: "search"; onChoose: (result: SearchResult) => void };
 

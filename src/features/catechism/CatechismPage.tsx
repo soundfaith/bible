@@ -1,0 +1,266 @@
+import { ArrowLeft, ArrowRight, BookOpen, Search, X } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { CatechismArtwork } from "./CatechismArtwork";
+import { NextStepPrompt } from "@/shared/ui/NextStepPrompt";
+import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "@/features/chat/assistant";
+import {
+  catechismData,
+  catechismEditions,
+  catechismGroupHref,
+  type CatechismEdition,
+  type CatechismGroup,
+} from "./catechism";
+import { NarrationProgress, NarratorButton } from "@/platform/audio/NarratorButton";
+import type { NarrationGender } from "@/platform/audio/narrationVoice";
+import { catechismItem, displayLessonTitle } from "@/platform/audio/audioPlaylists";
+
+type Address = { edition: number | null; groupId: string | null; questionNumber: number | null };
+
+function readAddress(): Address {
+  const path = window.location.hash.replace(/^#\/?/, "").split("?")[0].replace(/\/+$/, "");
+  const [, editionPart, entry] = path.match(/^catechism(?:\/(\d+)(?:\/([^/]+))?)?$/) ?? [];
+  const requestedEdition = Number(editionPart);
+  const edition = catechismEditions.some((item) => item.number === requestedEdition) ? requestedEdition : null;
+  if (!entry) return { edition, groupId: null, questionNumber: null };
+  const question = entry.match(/^q-(\d+)$/);
+  if (question) return { edition, groupId: null, questionNumber: Number(question[1]) };
+  let groupId = entry;
+  try { groupId = decodeURIComponent(entry); } catch { /* use the literal hash segment */ }
+  return { edition, groupId, questionNumber: null };
+}
+
+function splitParagraphs(text: string) {
+  return text.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
+}
+
+function AskSofiPrompt() {
+  return <NextStepPrompt
+    heading="Looking for one particular answer?"
+    className="catechism-ask-sofi"
+    card={{
+      art: "catechism",
+      title: `Ask ${ASSISTANT_NAME}`,
+      description: "Tell Sofi what you are wondering about, and she can help you find a specific catechism question and answer.",
+      action: "Ask Sofi",
+      onClick: () => window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT)),
+    }}
+  />;
+}
+
+function editionBlurb(edition: CatechismEdition) {
+  return `${edition.audience} · ${edition.lessonCount} lessons · ${edition.questionCount} questions`;
+}
+
+function CatechismLibrary({ edition }: { edition: CatechismEdition | null }) {
+  const [query, setQuery] = useState("");
+  const lessons = useMemo(() => edition?.groups.filter((group) => group.kind === "lesson") ?? [], [edition]);
+  const filteredLessons = useMemo(() => {
+    const search = query.trim().toLocaleLowerCase("en-US");
+    if (!search) return lessons;
+    return lessons.filter((lesson) => `lesson ${lesson.number} ${lesson.title} ${displayLessonTitle(lesson.title)}`.toLocaleLowerCase("en-US").includes(search));
+  }, [lessons, query]);
+
+  return <>
+    {!edition ? <section className="journey-library catechism-editions" aria-labelledby="catechism-editions-title">
+      <div className="journey-library-heading">
+        <div>
+          <p className="eyebrow">A progressive course in the faith</p>
+          <h2 id="catechism-editions-title">Choose a book.</h2>
+        </div>
+        <p>Three editions meet students at different stages, from First Communion through more advanced study.</p>
+      </div>
+      <ol className="journey-library-list breviary-library-list library-stack">
+        {catechismEditions.map((item) => <li className="journey-library-item" key={item.id}>
+          <a className="journey-library-card" href={`#/catechism/${item.number}`} aria-label={`${item.title}: ${editionBlurb(item)}`}>
+            <CatechismArtwork edition={item.number} />
+            <span className="journey-library-copy">
+              <span className="journey-period-label"><span>Book {item.number}</span></span>
+              <strong>{item.title}</strong>
+              <span className="journey-library-teaser">{editionBlurb(item)}</span>
+              <span className="journey-library-meta">Browse lessons <ArrowRight size={14} aria-hidden="true" /></span>
+            </span>
+          </a>
+        </li>)}
+      </ol>
+    </section> : <section className="catechism-lesson-library" id="catechism-lessons" aria-labelledby="catechism-lessons-title">
+      <a className="button button-outline catechism-library-back" href="#/catechism"><ArrowLeft size={16} aria-hidden="true" /> All books</a>
+      <div className="catechism-lesson-library-heading">
+        <div>
+          <p className="eyebrow">Baltimore Catechism No. {edition.number}</p>
+          <h2 id="catechism-lessons-title">{edition.title}</h2>
+          <p className="catechism-audience">{edition.audience}</p>
+        </div>
+        <span className="catechism-lesson-count">{filteredLessons.length} of {lessons.length} lessons</span>
+      </div>
+      <label className="catechism-search">
+        <Search size={18} aria-hidden="true" />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Filter by lesson title or number"
+          aria-label="Filter lessons by title or number"
+        />
+        {query && <button type="button" onClick={() => setQuery("")} aria-label="Clear lesson filter"><X size={16} /></button>}
+      </label>
+      {filteredLessons.length ? <ol className="catechism-lesson-grid">
+        {filteredLessons.map((lesson) => <li key={lesson.id}>
+          <a className="catechism-lesson-card" href={catechismGroupHref(edition.number, lesson.id)}>
+            <span className="catechism-lesson-card-number">Lesson {lesson.number}</span>
+            <strong>{displayLessonTitle(lesson.title)}</strong>
+            <span className="catechism-lesson-card-footer">{lesson.questions.length} {lesson.questions.length === 1 ? "question" : "questions"}<ArrowRight size={15} aria-hidden="true" /></span>
+          </a>
+        </li>)}
+      </ol> : <p className="catechism-empty" aria-live="polite">No lesson titles or numbers match “{query.trim()}”. Try a shorter search.</p>}
+    </section>}
+
+    <AskSofiPrompt />
+    <footer className="catechism-rights-note">
+      <span>Torch &amp; Lily records are cross-references:</span> <a href={catechismData.sources.torchLily} target="_blank" rel="noreferrer">torch-data on GitHub</a>. {catechismData.sources.rightsNote}
+    </footer>
+  </>;
+}
+
+function LessonReader({ edition, group, questionNumber, voicePreference }: { edition: CatechismEdition; group: CatechismGroup; questionNumber: number | null; voicePreference: NarrationGender }) {
+  const lessons = edition.groups.filter((item) => item.kind === "lesson");
+  const lessonIndex = lessons.findIndex((item) => item.id === group.id);
+  const previous = lessonIndex > 0 ? lessons[lessonIndex - 1] : undefined;
+  const next = lessonIndex >= 0 ? lessons[lessonIndex + 1] : undefined;
+  const isLesson = group.kind === "lesson";
+  const [collapsedQuestionsByGroup, setCollapsedQuestionsByGroup] = useState<Record<string, Set<string>>>({});
+  const collapsedQuestions = collapsedQuestionsByGroup[group.id] ?? new Set<string>();
+  const allExpanded = group.questions.every((question) => !collapsedQuestions.has(question.id));
+  const toggleAllQuestions = () => setCollapsedQuestionsByGroup((current) => ({
+    ...current,
+    [group.id]: allExpanded ? new Set(group.questions.map((question) => question.id)) : new Set<string>(),
+  }));
+  const updateQuestionState = (questionId: string, open: boolean) => setCollapsedQuestionsByGroup((current) => {
+    const nextCollapsed = new Set(current[group.id] ?? []);
+    if (open) nextCollapsed.delete(questionId);
+    else nextCollapsed.add(questionId);
+    return { ...current, [group.id]: nextCollapsed };
+  });
+  const lessonTitle = displayLessonTitle(group.title);
+  const narrationItem = useMemo(() => catechismItem(edition, group), [edition, group]);
+
+  useEffect(() => {
+    if (questionNumber === null) return;
+    const target = group.questions.find((question) => question.number === questionNumber);
+    if (!target) return;
+    setCollapsedQuestionsByGroup((current) => {
+      if (!current[group.id]?.has(target.id)) return current;
+      const nextCollapsed = new Set(current[group.id] ?? []);
+      nextCollapsed.delete(target.id);
+      return { ...current, [group.id]: nextCollapsed };
+    });
+  }, [group.id, group.questions, questionNumber]);
+
+  return <>
+    <nav className="journey-detail-nav catechism-detail-nav" aria-label="Catechism navigation">
+      <a className="button button-outline" href={`#/catechism/${edition.number}`}><ArrowLeft size={16} /> All lessons</a>
+      <span className="catechism-detail-edition">Baltimore Catechism No. {edition.number}</span>
+    </nav>
+    <header className="journey-detail-heading catechism-detail-heading">
+      <p className="eyebrow"><span className="eyebrow-dot" /> {edition.title}{isLesson && <> <span aria-hidden="true">/</span> Lesson {group.number}</>}</p>
+      <h1>{lessonTitle}</h1>
+      <p className="catechism-audience">{edition.audience}</p>
+      {edition.note && <p className="catechism-edition-note">{edition.note}</p>}
+      {group.questions.length > 0 && <div className="journey-audio-controls"><NarratorButton text={narrationItem.text} voicePreference={voicePreference} track={narrationItem.track} /></div>}
+      <NarrationProgress className="narration-progress-desktop narration-progress-centered" />
+    </header>
+
+    <article className="catechism-reading" aria-label={`${edition.title}, ${isLesson ? `Lesson ${group.number}: ${lessonTitle}` : lessonTitle}`}>
+      {group.questions.length ? <>
+        <div className="catechism-answer-controls">
+          <button type="button" className="button button-outline" onClick={toggleAllQuestions} aria-expanded={allExpanded}>
+            {allExpanded ? "Collapse all answers" : "Expand all answers"}
+          </button>
+        </div>
+        <div className="catechism-question-list">
+        {group.questions.map((question) => <details className="catechism-question" id={`catechism-q-${edition.number}-${question.number}`} key={question.id} open={!collapsedQuestions.has(question.id)} onToggle={(event) => updateQuestionState(question.id, event.currentTarget.open)}>
+          <summary><span className="catechism-question-number">{question.number}</span><span>{question.question}</span></summary>
+          <div className="catechism-answer">
+            <p className="catechism-answer-label">Answer</p>
+            {splitParagraphs(question.answer).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+            {question.parallelNo2Question && <p className="catechism-source-note">No. 3 source annotation: parallel to No. 2, question {question.parallelNo2Question}.</p>}
+            {question.sourceAnnotation && !question.parallelNo2Question && <p className="catechism-source-note">No. 3 source annotation: {question.sourceAnnotation}.</p>}
+            {question.sourceNote && <p className="catechism-source-note">{question.sourceNote}</p>}
+          </div>
+        </details>)}
+        </div>
+      </> : <p className="catechism-empty">This section has no questions.</p>}
+
+      <footer className="catechism-attribution">
+        <span>Text source: Project Gutenberg eBook {edition.gutenbergEbookId}.</span>
+        <a href={edition.sourceUrl} target="_blank" rel="noreferrer">View source <ArrowRight size={13} /></a>
+      </footer>
+    </article>
+    {isLesson && <footer className="journey-detail-footer catechism-detail-footer">
+      <nav className="journey-detail-actions" aria-label="Lesson navigation">
+        {previous ? <a className="button button-outline journey-previous-action" href={catechismGroupHref(edition.number, previous.id)} rel="prev">
+          <ArrowLeft size={15} aria-hidden="true" /><span className="catechism-detail-action-copy"><small>Previous lesson</small><strong>Lesson {previous.number}: {displayLessonTitle(previous.title)}</strong></span>
+        </a> : <span />}
+        {next ? <a className="button button-outline journey-next-action" href={catechismGroupHref(edition.number, next.id)} rel="next">
+          <span className="catechism-detail-action-copy"><small>Next lesson</small><strong>Lesson {next.number}: {displayLessonTitle(next.title)}</strong></span><ArrowRight size={15} aria-hidden="true" />
+        </a> : <span />}
+      </nav>
+    </footer>}
+    {isLesson && next && <AskSofiPrompt />}
+    <footer className="catechism-rights-note catechism-detail-rights">
+      {catechismData.sources.attribution} {catechismData.sources.rightsNote}
+    </footer>
+  </>;
+}
+
+export function CatechismPage({ nextStep, voicePreference }: { nextStep?: ReactNode; voicePreference: NarrationGender }) {
+  const [address, setAddress] = useState<Address>(readAddress);
+
+  useEffect(() => {
+    const update = () => setAddress(readAddress());
+    window.addEventListener("hashchange", update);
+    window.addEventListener("popstate", update);
+    return () => {
+      window.removeEventListener("hashchange", update);
+      window.removeEventListener("popstate", update);
+    };
+  }, []);
+
+  const edition = catechismEditions.find((item) => item.number === address.edition) ?? null;
+  const selectedGroup = !edition ? undefined : address.questionNumber === null
+    ? edition.groups.find((group) => group.id === address.groupId)
+    : edition.groups.find((group) => group.questions.some((question) => question.number === address.questionNumber));
+  const isDetail = address.groupId !== null || address.questionNumber !== null;
+
+  useEffect(() => {
+    if (address.questionNumber === null) return;
+    const frame = window.requestAnimationFrame(() => {
+      const question = document.getElementById(`catechism-q-${address.edition}-${address.questionNumber}`);
+      question?.scrollIntoView({ behavior: "smooth", block: "center" });
+      question?.querySelector("summary")?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [address]);
+
+  const missingQuestion = address.questionNumber !== null && !selectedGroup;
+  const missingGroup = address.groupId !== null && !selectedGroup;
+
+  return <main className={`journey-page section-wrap catechism-page${isDetail ? " catechism-detail-page" : ""}`}>
+    {!isDetail ? <>
+      <header className="journey-heading catechism-library-hero">
+        <div className="journey-heading-copy">
+          <p className="eyebrow"><span className="eyebrow-dot" /> A historical catechism</p>
+          <h1>The Baltimore <em>Catechism.</em></h1>
+          <p className="journey-intro">Read the historic Baltimore Catechism by edition and lesson. No. 1 introduces the faith for First Communion, No. 2 continues for Confirmation, and No. 3 offers more advanced study.</p>
+          <div className="catechism-context"><BookOpen size={18} aria-hidden="true" /><span>This historical series is distinct from the Catechism of the Catholic Church (CCC). Browse a lesson to read its original questions and answers.</span></div>
+        </div>
+      </header>
+      <CatechismLibrary key={edition?.id ?? "books"} edition={edition} />
+    </> : edition && selectedGroup ?  <LessonReader edition={edition} group={selectedGroup} questionNumber={address.questionNumber} voicePreference={voicePreference} /> : <section className="journey-not-found catechism-not-found">
+      <p className="eyebrow">{edition ? `Baltimore Catechism No. ${edition.number}` : "Baltimore Catechism"}</p>
+      <h1>{missingQuestion ? "Question not found" : missingGroup ? "Lesson not found" : "Section not found"}</h1>
+      <p>Choose a lesson from this edition to continue reading.</p>
+      <a className="journey-action-link" href={edition ? `#/catechism/${edition.number}` : "#/catechism"}>Browse the lessons <ArrowRight size={16} /></a>
+    </section>}
+    {nextStep}
+  </main>;
+}

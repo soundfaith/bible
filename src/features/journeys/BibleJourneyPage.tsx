@@ -1,0 +1,306 @@
+import { ArrowLeft, ArrowRight, Check, Circle, Headphones, Pause, Play, SkipForward } from "lucide-react";
+import type { ReactNode } from "react";
+import { bibleJourney } from "./bibleJourney";
+import journeyIntros from "@/data/journeyIntros.json";
+import { JourneyArtwork } from "./artwork/JourneyArtwork";
+import { bibleBooks, getParagraphs } from "@/features/bible/bible";
+import { resolveReference, referenceLabel } from "@/features/mass-readings";
+
+type JourneyAudioStatus = "idle" | "playing" | "paused";
+
+type JourneyPageProps = {
+  periodId: string | null;
+  completedIds: string[];
+  storageError: boolean;
+  artworkSelections: Record<string, string>;
+  audioStatus: JourneyAudioStatus;
+  activeStoryIndex: number;
+  audioError: string | null;
+  onToggleComplete: (periodId: string) => void;
+  onToggleAudio: () => void;
+  onSelectAudioStory: (storyIndex: number) => void;
+  onSkipIntro: () => void;
+  audioProgress?: ReactNode;
+  nextStep?: ReactNode;
+  onOpenPassage: (bookId: string, chapter: number, verse: number) => void;
+};
+
+function referenceBookId(reference: string) {
+  const match = reference.match(/^(.+?)\s+\d+:/);
+  if (!match) return undefined;
+  const name = match[1].toLowerCase().replace(/\s+/g, "_");
+  if (name === "psalm") return "psalms";
+  return bibleBooks.find((book) => book.name.toLowerCase().replace(/\s+/g, "_") === name)?.id;
+}
+
+function groupReferences(references: string[]) {
+  const groups: Array<{ key: string; label: string; references: string[] }> = [];
+  for (const reference of references) {
+    const match = reference.match(/^(.+?)\s+(\d+):(.+)$/);
+    const key = match ? `${match[1]} ${match[2]}` : reference;
+    const previous = groups[groups.length - 1];
+    if (match && previous?.key === key) {
+      previous.references.push(reference);
+      previous.label += `, ${match[3]}`;
+    } else {
+      groups.push({ key, label: match ? `${match[1]} ${match[2]}:${match[3]}` : reference, references: [reference] });
+    }
+  }
+  return groups;
+}
+
+export function BibleJourneyPage({
+  periodId,
+  completedIds,
+  storageError,
+  artworkSelections,
+  audioStatus,
+  activeStoryIndex,
+  audioError,
+  onToggleComplete,
+  onToggleAudio,
+  onSelectAudioStory,
+  onSkipIntro,
+  audioProgress,
+  nextStep,
+  onOpenPassage,
+}: JourneyPageProps) {
+  const currentPeriod = bibleJourney.find((period) => period.id === periodId);
+  const periodIndex = currentPeriod ? bibleJourney.indexOf(currentPeriod) : -1;
+
+  if (!currentPeriod) {
+    return (
+      <main className="journey-page section-wrap">
+        <a className="journey-back-link" href="#/journey"><ArrowLeft size={16} /> All periods</a>
+        <section className="journey-not-found" aria-labelledby="journey-not-found-title">
+          <p className="eyebrow">Bible Journey</p>
+          <h1 id="journey-not-found-title">Period not found</h1>
+          <p>That stop is not part of this journey. Return to the library to choose a period.</p>
+          <a className="journey-action-link" href="#/journey">Back to all periods <ArrowRight size={16} /></a>
+        </section>
+      </main>
+    );
+  }
+
+  const period = currentPeriod;
+  const previous = bibleJourney[periodIndex - 1];
+  const next = bibleJourney[periodIndex + 1];
+  const isComplete = completedIds.includes(period.id);
+  const introParagraphs = ((journeyIntros as Record<string, string>)[period.id] ?? "")
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  const introPlaying = audioStatus !== "idle" && activeStoryIndex === -1;
+
+  return (
+    <main className={`journey-page journey-detail-page section-wrap${nextStep ? " has-next-step" : ""}`}>
+      <nav className="journey-detail-nav" aria-label="Period navigation">
+        <a className="button button-outline" href="#/journey"><ArrowLeft size={16} /> Back to journey</a>
+        <button
+          className={isComplete ? "journey-complete-button journey-complete-top-button completed" : "journey-complete-button journey-complete-top-button"}
+          aria-pressed={isComplete}
+          onClick={() => onToggleComplete(period.id)}
+        >
+          {isComplete ? <><Check size={14} /> Completed</> : <><Circle size={14} /> Mark as completed</>}
+        </button>
+      </nav>
+
+      <header className="journey-detail-heading">
+        <p className="eyebrow"><span className="eyebrow-dot" /> Period {String(periodIndex + 1).padStart(2, "0")} <span aria-hidden="true">/</span> {bibleJourney.length}</p>
+        <h1>{period.title}</h1>
+        <p className="journey-detail-overview">{period.overview}</p>
+        <div className="journey-audio-controls">
+          <button
+            className="button button-coral journey-audio-listen"
+            type="button"
+            onClick={onToggleAudio}
+            aria-label={audioStatus === "playing" ? "Pause period audio" : audioStatus === "paused" ? "Resume period audio" : `Listen to all stories in ${period.title}`}
+            aria-pressed={audioStatus === "playing"}
+          >
+            {audioStatus === "playing" ? <Pause size={16} /> : audioStatus === "paused" ? <Play size={16} /> : <Headphones size={17} />}
+            {audioStatus === "playing" ? "Pause audio" : audioStatus === "paused" ? "Resume audio" : "Listen to period"}
+          </button>
+          {introPlaying && (
+            <button className="button button-outline journey-skip-intro journey-skip-intro-inline" type="button" onClick={onSkipIntro}>
+              <SkipForward size={15} aria-hidden="true" /> Skip intro
+            </button>
+          )}
+        </div>
+        {audioProgress}
+        {audioError && <p className="journey-audio-error" role="status">{audioError}</p>}
+        {(audioStatus === "playing" || audioStatus === "paused") && (
+          <p className="journey-audio-status" aria-live="polite">
+            {audioStatus === "playing" ? "Playing" : "Paused"}: {introPlaying ? "Introduction" : period.stories[activeStoryIndex]?.title}
+          </p>
+        )}
+        {introParagraphs.length > 0 && (
+          <details className="journey-intro">
+            <summary>Introduction to this period</summary>
+            <div className="journey-intro-text">
+              {introParagraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}
+            </div>
+          </details>
+        )}
+      </header>
+
+      <JourneyArtwork periodId={period.id} optionId={artworkSelections[period.id]} index={periodIndex} hero />
+
+      <nav className="journey-toc" aria-label={`Stories in ${period.title}`}>
+        <p className="eyebrow">In this period</p>
+        <ol>{period.stories.map((story, storyIndex) => (
+          <li key={`${period.id}-toc-${storyIndex}`}><a
+            href={`#/journey/${period.id}`}
+            onClick={(event) => {
+              event.preventDefault();
+              document.getElementById(`story-${period.id}-${storyIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >{story.title}</a></li>
+        ))}</ol>
+      </nav>
+
+      <div className="journey-story-list">
+        {period.stories.map((story, storyIndex) => (
+          <article className="journey-story breviary-segment" id={`story-${period.id}-${storyIndex}`} key={`${period.id}-${story.title}`} aria-labelledby={`story-heading-${period.id}-${storyIndex}`}>
+            <div className="journey-story-content">
+              <h2 id={`story-heading-${period.id}-${storyIndex}`}>{story.title}</h2>
+              <p className="journey-story-summary">{story.summary}</p>
+              <div className="journey-story-passages">
+                {groupReferences(story.references).map((group, groupIndex) => {
+                  const firstReference = group.references[0];
+                  const firstVerses = resolveReference(firstReference);
+                  const firstBookId = referenceBookId(firstReference);
+                  return (
+                    <section className="journey-scripture" key={group.key} aria-label={group.label}>
+                      <header className="journey-scripture-heading">
+                        <h3>{group.references.length > 1 ? group.label : referenceLabel(firstReference)}</h3>
+                        <div className="journey-scripture-actions">
+                          {groupIndex === 0 && <button
+                            className={audioStatus !== "idle" && activeStoryIndex === storyIndex ? "journey-story-play active" : "journey-story-play"}
+                            type="button"
+                            onClick={() => {
+                              onSelectAudioStory(storyIndex);
+                              document.getElementById(`story-${period.id}-${storyIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }}
+                            aria-label={`Play ${story.title} and following stories`}
+                            aria-current={audioStatus !== "idle" && activeStoryIndex === storyIndex ? "true" : undefined}
+                          ><Play size={14} aria-hidden="true" /></button>}
+                          <button
+                            className="journey-open-passage"
+                            disabled={!firstVerses[0] || !firstBookId}
+                            onClick={() => firstVerses[0] && firstBookId && onOpenPassage(firstBookId, firstVerses[0].chapter, firstVerses[0].verse)}
+                            aria-label={`Open ${group.label} in the Bible reader`}
+                          >
+                            Open in Bible <ArrowRight size={14} aria-hidden="true" />
+                          </button>
+                        </div>
+                      </header>
+                      {group.references.map((reference) => {
+                        const verses = resolveReference(reference);
+                        const paragraphs = getParagraphs(verses);
+                        return verses.length ? (
+                          <div className="journey-scripture-verses bible-reading-copy" lang="en" key={reference}>
+                            {paragraphs.map((paragraph) => (
+                              <p key={paragraph.id}>{paragraph.verses.map((verse) => (
+                                <span key={`${verse.chapter}:${verse.verse}`}><sup aria-label={`Verse ${verse.verse}`}>{verse.verse}</sup>{verse.text} </span>
+                              ))}</p>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="journey-reference-error" role="status" key={reference}>
+                            This passage is not available in the local Bible text.
+                          </p>
+                        );
+                      })}
+                    </section>
+                  );
+                })}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <footer className="journey-detail-footer">
+        <div className="journey-detail-actions" aria-label="Period navigation">
+          {previous ? <a className="button button-outline journey-previous-action" href={`#/journey/${previous.id}`} rel="prev"><ArrowLeft size={15} /> Previous</a> : <span />}
+          {next ? <a className="button button-outline journey-next-action" href={`#/journey/${next.id}`} rel="next">Next <ArrowRight size={15} /></a> : <span />}
+        </div>
+      </footer>
+      {storageError && <p className="journey-storage-notice" role="status">Progress could not be saved on this device. Your change will remain only for this visit.</p>}
+      {nextStep}
+    </main>
+  );
+}
+
+export function BibleJourneyLibrary({
+  completedIds,
+  storageError,
+  artworkSelections,
+  lastVisitedPeriodId,
+  onResume,
+  nextStep,
+}: Pick<JourneyPageProps, "completedIds" | "storageError" | "artworkSelections"> & {
+  lastVisitedPeriodId: string | null;
+  onResume: () => void;
+  nextStep?: ReactNode;
+}) {
+  const nextPeriod = bibleJourney.find((period) => !completedIds.includes(period.id));
+  const lastVisitedPeriod = bibleJourney.find((period) => period.id === lastVisitedPeriodId);
+  return (
+    <main className="journey-page section-wrap">
+      <header className="journey-heading">
+        <div className="journey-heading-copy">
+          <p className="eyebrow"><span className="eyebrow-dot" /> A guided way through Scripture</p>
+          <h1>Bible <em>Journey</em></h1>
+          <p className="journey-intro">
+            Follow the Bible’s story in chronological order, from creation through Jesus to the forming and
+            continuing mission of the Church. These {bibleJourney.length} stops offer representative readings, not an
+            exhaustive account; take them at your own pace.
+          </p>
+          <button className="button button-coral journey-resume-button" type="button" onClick={onResume}>
+            {lastVisitedPeriod ? `Resume ${lastVisitedPeriod.title}` : "Begin the journey"} <ArrowRight size={15} aria-hidden="true" />
+          </button>
+        </div>
+      </header>
+
+      {storageError && (
+        <p className="journey-storage-notice" role="status">
+          Progress could not be read or saved on this device. Your changes will remain only for this visit.
+        </p>
+      )}
+
+      <section className="journey-library" aria-labelledby="journey-library-title">
+        <div className="journey-library-heading">
+          <div>
+            <p className="eyebrow">The unfolding story</p>
+            <h2 id="journey-library-title">Twelve places to pause.</h2>
+          </div>
+        </div>
+        <ol className="journey-library-list library-stack">
+          {bibleJourney.map((period, index) => {
+            const done = completedIds.includes(period.id);
+            const isNext = nextPeriod?.id === period.id;
+            return (
+              <li className={`journey-library-item${done ? " is-complete" : ""}${isNext ? " is-current" : ""}`} key={period.id}>
+                <a className="journey-library-card" href={`#/journey/${period.id}`} aria-label={`Period ${index + 1}, ${period.title}: ${period.teaser}`}>
+                  <JourneyArtwork periodId={period.id} optionId={artworkSelections[period.id]} index={index} />
+                  <span className="journey-library-copy">
+                    <span className="journey-period-label">
+                      <span>Period {String(index + 1).padStart(2, "0")}</span>
+                      {isNext && <span className="journey-current-label">Up next</span>}
+                      {done && <span className="journey-done-label">Complete</span>}
+                    </span>
+                    <strong>{period.title}</strong>
+                    <span className="journey-library-teaser">{period.teaser}</span>
+                    <span className="journey-library-meta">{period.stories.length} stories <ArrowRight size={14} aria-hidden="true" /></span>
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+      {nextStep}
+    </main>
+  );
+}

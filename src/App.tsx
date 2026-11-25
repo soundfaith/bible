@@ -21,53 +21,40 @@ import {
   ScrollText,
   X,
 } from "lucide-react";
-import { Brand, ThemeToggle } from "./components/Brand";
-import { DailyNextStep, type RecommendationPage } from "./components/DailyNextStep";
-import { BibleMark } from "./components/BibleMark";
+import { Brand, ThemeToggle } from "@/shared/ui";
+import { DailyNextStep, DailyPage, hasEverDone, loadDailyStreak, localDateKey, recordDailyItem, recordJourneySession, routineDoneToday, type DailyItem, type RecommendationPage, type Routine } from "@/features/daily";
+import { BibleMark } from "@/shared/ui";
 import { ModalLayer, type Modal } from "./components/ModalLayer";
-import { SearchModal, type SearchResult } from "./components/SearchModal";
-import { ChatWidget } from "./components/ChatWidget";
-import { HomePage } from "./pages/HomePage";
-import { DailyPage } from "./pages/DailyPage";
-import { JourneysPage } from "./pages/JourneysPage";
-import { NoWorryJourneyPage } from "./pages/NoWorryJourneyPage";
-import { BibleJourneyLibrary, BibleJourneyPage } from "./pages/BibleJourneyPage";
-import { JourneyArtworkPage } from "./pages/JourneyArtworkPage";
-import { BibleBooksPage } from "./pages/BibleBooksPage";
+import { SearchModal, type SearchResult } from "@/features/search";
+import { ChatWidget } from "@/features/chat";
+import { HomePage } from "@/features/home";
+import { JourneysPage, NoWorryJourneyPage, BibleJourneyLibrary, BibleJourneyPage, JourneyArtworkPage, journeyStoryNarration } from "@/features/journeys";
 import { AboutPage } from "./pages/AboutPage";
-import {
-  ChapterPage,
-  getLastReading,
-  hasOpenedBible,
-  type ReadingPosition,
-  type SelectedVerseRange,
-} from "./pages/ChapterPage";
-import { MassReadingPage } from "./pages/MassReadingPage";
-import { BreviaryLibrary, BreviaryPage } from "./pages/BreviaryPage";
-import { RosaryLibrary, RosaryPrayerPage } from "./pages/RosaryPage";
-import { buildRosarySequence, todaysRosaryMysteryIndex, todaysRosaryPath, type RosaryMode } from "./data/rosary";
-import { featuredSaintForDate, hasSaintSlug } from "./data/saintsDaily";
-import { assembleBreviary, breviaryDayInfo, breviaryNarrationText, currentBreviaryHour, isBreviaryHour } from "./lib/breviary";
+import { BibleBooksPage, ChapterPage, bibleBooks, getChapter, getChapterCount, getLastReading, hasOpenedBible, type ReadingPosition, type SelectedVerseRange } from "@/features/bible";
+import { MassReadingPage } from "@/features/mass-readings";
+import { BreviaryLibrary, BreviaryPage } from "@/features/breviary";
+import { RosaryLibrary, RosaryPrayerPage } from "@/features/rosary/RosaryPage";
+import { buildRosarySequence, todaysRosaryMysteryIndex, todaysRosaryPath, type RosaryMode } from "@/features/rosary/rosary";
+import { featuredSaintForDate, hasSaintSlug } from "@/features/saints/saintsDaily";
+import { assembleBreviary, breviaryDayInfo, breviaryNarrationText, currentBreviaryHour, isBreviaryHour } from "@/features/breviary/breviary";
 import { useScrollReveal } from "./lib/reveal";
-import { hasEverDone, loadDailyStreak, localDateKey, recordDailyItem, recordJourneySession, routineDoneToday, type DailyItem, type Routine } from "./lib/dailyStreak";
-import { syncSystemBars } from "./lib/platform";
-import { BookmarksPage } from "./pages/BookmarksPage";
+import { syncSystemBars } from "@/platform/device/platform";
+import { BookmarksPage } from "@/features/bookmarks";
 import { ReferencePage } from "./pages/ReferencePage";
-import { bibleBooks, getChapter, getChapterCount } from "./lib/bible";
-import { bibleJourney } from "./data/bibleJourney";
+import { bibleJourney } from "@/features/journeys/bibleJourney";
 import journeyIntros from "./data/journeyIntros.json";
 import breviaryIntros from "./data/breviaryIntros.json";
-import { resolveJourneyPeriodId, loadJourneyArtworkSelections, saveJourneyArtworkSelections } from "./data/journeyArtwork";
-import { loadJourneyProgress, saveJourneyProgress } from "./lib/journeyProgress";
-import { loadGuidedJourneyProgress, saveGuidedJourneyProgress } from "./lib/guidedJourneyProgress";
-import { journeyProgressStorageKey, loadJourneyProgressData, updateJourneyProgressData } from "./lib/journeyProgressStore";
-import { getJourneyOverview } from "./lib/journeyOverview";
-import { guidedJourneyDays, isGuidedJourneyId, type GuidedJourneyId } from "./data/guidedJourneys";
-import { journeyCadence } from "./data/journeyCatalog";
-import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor, rosaryAudioUrlsFor, saintNarrationAudioUrlsFor } from "./lib/narrationAudio";
-import { getNarrationGender, saveNarrationGender, type NarrationGender } from "./lib/narrationVoice";
-import { getMassReadingForDate, getTodaysMassReading, journeyStoryNarration, resolveReference } from "./lib/readings";
-import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "./lib/bookmarks";
+import { resolveJourneyPeriodId, loadJourneyArtworkSelections, saveJourneyArtworkSelections } from "@/features/journeys/journeyArtwork";
+import { loadJourneyProgress, saveJourneyProgress } from "@/features/journeys/journeyProgress";
+import { loadGuidedJourneyProgress, saveGuidedJourneyProgress } from "@/features/journeys/guidedJourneyProgress";
+import { journeyProgressStorageKey, loadJourneyProgressData, updateJourneyProgressData } from "@/features/journeys/journeyProgressStore";
+import { getJourneyOverview } from "@/features/journeys/journeyOverview";
+import { guidedJourneyDays, isGuidedJourneyId, type GuidedJourneyId } from "@/features/journeys/guidedJourneys";
+import { journeyCadence } from "@/features/journeys/journeyCatalog";
+import { breviaryIntroAudioUrls, journeyIntroAudioUrls, journeyStoryAudioUrls, narrationAudioUrlsFor, rosaryAudioUrlsFor, saintNarrationAudioUrlsFor } from "@/platform/audio/narrationAudio";
+import { getNarrationGender, saveNarrationGender, type NarrationGender } from "@/platform/audio/narrationVoice";
+import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "@/features/mass-readings";
+import { getBookmarkCategories, getBookmarks, isVerseBookmark, saveBookmarkCategories, saveBookmarks, type Bookmark } from "@/features/bookmarks";
 import {
   changeNarrationVoice,
   getNarrationSnapshot,
@@ -89,17 +76,17 @@ import {
   setNarrationPartSeekHandler,
   type NarrationTimeline,
   type NarrationTrack,
-} from "./components/NarratorButton";
-import { AudioPlayer, NavPlayer } from "./components/AudioPlayer";
-import { ListenPage, type PlayKind } from "./pages/ListenPage";
-import { catechismItem, guidedItem, summaQuestionItem } from "./lib/audioPlaylists";
-import { loadSummaData } from "./lib/summa";
-import { catechismEditions } from "./lib/catechism";
+} from "@/platform/audio/NarratorButton";
+import { AudioPlayer, NavPlayer } from "@/platform/audio/AudioPlayer";
+import { ListenPage, type PlayKind } from "@/features/listen";
+import { catechismItem, guidedItem, summaQuestionItem } from "@/platform/audio/audioPlaylists";
+import { loadSummaData } from "@/features/summa/summa";
+import { catechismEditions } from "@/features/catechism/catechism";
 
-const SaintPage = lazy(() => import("./pages/SaintsPage").then((module) => ({ default: module.SaintPage })));
-const SaintsLibrary = lazy(() => import("./pages/SaintsPage").then((module) => ({ default: module.SaintsLibrary })));
-const CatechismPage = lazy(() => import("./pages/CatechismPage").then((module) => ({ default: module.CatechismPage })));
-const SummaPage = lazy(() => import("./pages/SummaPage").then((module) => ({ default: module.SummaPage })));
+const SaintPage = lazy(() => import("@/features/saints/SaintsPage").then((module) => ({ default: module.SaintPage })));
+const SaintsLibrary = lazy(() => import("@/features/saints/SaintsPage").then((module) => ({ default: module.SaintsLibrary })));
+const CatechismPage = lazy(() => import("@/features/catechism/CatechismPage").then((module) => ({ default: module.CatechismPage })));
+const SummaPage = lazy(() => import("@/features/summa/SummaPage").then((module) => ({ default: module.SummaPage })));
 
 type Route = "home" | "listen" | "daily" | "read" | "bible" | "mass" | "bookmarks" | "library" | "about" | "journeys" | "journey" | "guided-journey" | "journey-artwork" | "breviary" | "rosary" | "rosary-prayer" | "saints" | "saint-profile" | "catechism" | "summa";
 type JourneyAudioStatus = "idle" | "playing" | "paused";
@@ -1207,7 +1194,7 @@ export default function App() {
       } else if (kind === "mass") {
         if (start(() => playMassReading(getTodaysMassReading()))) setPlayerOpen(true);
       } else if (kind === "saint") {
-        const { featuredSaintForDate: getSaint, saintNarrationText } = await import("./data/saints");
+        const { featuredSaintForDate: getSaint, saintNarrationText } = await import("@/features/saints/saints");
         if (listenRequestRef.current !== request || getNarrationSnapshot().track !== previousTrack) return;
         const saint = getSaint();
         if (!saint) throw new Error("No saint is listed for today.");

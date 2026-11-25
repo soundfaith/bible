@@ -51,7 +51,7 @@ before(async () => {
   globalThis.Audio = FakeAudio;
   globalThis.SpeechSynthesisUtterance = FakeUtterance;
   server = await createServer({ server: { middlewareMode: true, ws: false }, optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom" });
-  narrator = await server.ssrLoadModule("/src/components/NarratorButton.tsx");
+  narrator = await server.ssrLoadModule("/src/platform/audio/NarratorButton.tsx");
 });
 
 after(async () => {

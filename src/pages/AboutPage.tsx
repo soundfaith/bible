@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowUpRight, BookOpen, Compass, Mail, MessageCircle, Sparkles, Sunrise } from "lucide-react";
-import { AndroidDownload } from "../components/AndroidDownload";
-import { OPEN_ASSISTANT_EVENT } from "../lib/assistant";
-import { isNativeApp } from "../lib/platform";
+import { AndroidDownload } from "@/features/android-download";
+import { OPEN_ASSISTANT_EVENT } from "@/features/chat/assistant";
+import { isNativeApp } from "@/platform/device/platform";
 
 const features = [
   { icon: BookOpen, title: "Bible", description: "Read Scripture, choose a book and chapter, and return to where you left off.", href: "#/bible" },

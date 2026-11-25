@@ -8,15 +8,17 @@ let playlists;
 let editions;
 let readings;
 let journey;
+let narration;
 let breviary;
 
 before(async () => {
   server = await createServer({ server: { middlewareMode: true, ws: false }, optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom" });
-  playlists = await server.ssrLoadModule("/src/lib/audioPlaylists.ts");
-  editions = (await server.ssrLoadModule("/src/lib/catechism.ts")).catechismEditions;
-  readings = await server.ssrLoadModule("/src/lib/readings.ts");
-  journey = (await server.ssrLoadModule("/src/data/bibleJourney.ts")).bibleJourney;
-  breviary = await server.ssrLoadModule("/src/lib/breviary.ts");
+  playlists = await server.ssrLoadModule("/src/platform/audio/audioPlaylists.ts");
+  editions = (await server.ssrLoadModule("/src/features/catechism/catechism.ts")).catechismEditions;
+  readings = await server.ssrLoadModule("/src/features/mass-readings/readings.ts");
+  journey = (await server.ssrLoadModule("/src/features/journeys/bibleJourney.ts")).bibleJourney;
+  narration = await server.ssrLoadModule("/src/features/journeys/journeyNarration.ts");
+  breviary = await server.ssrLoadModule("/src/features/breviary/breviary.ts");
 });
 
 after(async () => {
@@ -56,20 +58,20 @@ test("Summa advances across questions without crossing parts", () => {
 });
 
 test("Bible Journey transcripts match the narration manifest and include spoken introductions", async () => {
-  const manifest = JSON.parse(await readFile(new URL("../scripts/period_narrations.json", import.meta.url), "utf8"));
+  const manifest = JSON.parse(await readFile(new URL("../scripts/narration/period_narrations.json", import.meta.url), "utf8"));
   for (const [index, period] of journey.entries()) {
     assert.equal(period.id, manifest.periods[index].id);
     for (const [storyIndex, story] of period.stories.entries()) {
       const source = manifest.periods[index].stories[storyIndex];
       assert.equal(story.title, source.title);
       assert.deepEqual(story.references, source.references);
-      assert.match(readings.journeyStoryNarration(story), new RegExp(`^${story.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\n\\n`));
+      assert.match(narration.journeyStoryNarration(story), new RegExp(`^${story.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\n\\n`));
     }
   }
-  const creation = readings.journeyStoryNarration(journey[0].stories[0]);
+  const creation = narration.journeyStoryNarration(journey[0].stories[0]);
   assert.match(creation, /^Creation\n\nGenesis, chapter 1\./);
   assert.match(creation, /\n\nGenesis, chapter 2\./);
-  const overlap = readings.journeyStoryNarration({ title: "Test", references: ["Genesis 1:1-2", "Genesis 1:2-3"] });
+  const overlap = narration.journeyStoryNarration({ title: "Test", references: ["Genesis 1:1-2", "Genesis 1:2-3"] });
   assert.equal(overlap.split(readings.resolveReference("Genesis 1:2")[0].text.trim()).length, 2);
 });
 

@@ -45,7 +45,7 @@ Write them in a NEW file `src/data/chat/topics/<category-kebab>.json`. Never edi
 ## Workflow (run in the terminal, from repo root, after each batch of ~20-30 topics)
 1. `npm run chat:validate` - fix every error (unknown verse, duplicate phrasing, missing related id).
 2. `npm run chat:index` - rebuilds `public/chat/index.json` (takes about a minute).
-3. `npm run chat:eval` - must not regress below the current top-1/top-3 numbers. Then add 5-10 NEW unseen test questions for your topics to `scripts/chat/eval.mjs` (in the on-topic list as `[question, expectedId]`). If a question maps to the wrong topic, fix the phrasings (not the test) or merge overlapping topics.
+3. `npm run chat:eval` - must not regress below the current top-1/top-3 numbers. Then add 5-10 NEW unseen test questions for your topics to `scripts/chat-index/eval.mjs` (in the on-topic list as `[question, expectedId]`). If a question maps to the wrong topic, fix the phrasings (not the test) or merge overlapping topics.
 4. `npm run build` must pass.
 
 Work in batches by sub-theme, report after each batch: topics added, validator result, eval numbers, and any overlaps you resolved. Commit the new topic file, `public/chat/index.json` and the eval changes together.
