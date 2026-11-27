@@ -11,6 +11,7 @@ export type PlaylistItem = { text: string; track: NarrationTrack };
 const guidedJourneyTitles: Record<GuidedJourneyId, string> = {
   freedom: "15-Day Journey to Freedom from Attachment",
   "no-worry": "No-Worry Journey",
+  advent: "Advent Journey",
 };
 
 export function guidedItem(journeyId: GuidedJourneyId, day: number): PlaylistItem | null {

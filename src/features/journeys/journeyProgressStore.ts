@@ -17,6 +17,8 @@ export type JourneyProgressData = {
   noWorryCompletedDays: number[];
   freedomStarted: boolean;
   freedomCompletedDays: number[];
+  adventStarted: boolean;
+  adventCompletedDays: number[];
 };
 
 const EMPTY_PROGRESS: JourneyProgressData = {
@@ -26,18 +28,20 @@ const EMPTY_PROGRESS: JourneyProgressData = {
   noWorryCompletedDays: [],
   freedomStarted: false,
   freedomCompletedDays: [],
+  adventStarted: false,
+  adventCompletedDays: [],
 };
 
 export function getGuidedSlot(data: JourneyProgressData, journeyId: GuidedJourneyId): GuidedSlot {
-  return journeyId === "freedom"
-    ? { started: data.freedomStarted, completedDays: data.freedomCompletedDays }
-    : { started: data.noWorryStarted, completedDays: data.noWorryCompletedDays };
+  if (journeyId === "freedom") return { started: data.freedomStarted, completedDays: data.freedomCompletedDays };
+  if (journeyId === "advent") return { started: data.adventStarted, completedDays: data.adventCompletedDays };
+  return { started: data.noWorryStarted, completedDays: data.noWorryCompletedDays };
 }
 
 export function withGuidedSlot(data: JourneyProgressData, journeyId: GuidedJourneyId, slot: GuidedSlot): JourneyProgressData {
-  return journeyId === "freedom"
-    ? { ...data, freedomStarted: slot.started, freedomCompletedDays: slot.completedDays }
-    : { ...data, noWorryStarted: slot.started, noWorryCompletedDays: slot.completedDays };
+  if (journeyId === "freedom") return { ...data, freedomStarted: slot.started, freedomCompletedDays: slot.completedDays };
+  if (journeyId === "advent") return { ...data, adventStarted: slot.started, adventCompletedDays: slot.completedDays };
+  return { ...data, noWorryStarted: slot.started, noWorryCompletedDays: slot.completedDays };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -78,6 +82,9 @@ function normalizeProgress(value: unknown) {
   const freedom = value.freedomStarted === undefined && value.freedomCompletedDays === undefined
     ? { started: false, days: [] as number[], error: false }
     : parseGuidedDays({ started: value.freedomStarted, completedDays: value.freedomCompletedDays }, "freedom");
+  const advent = value.adventStarted === undefined && value.adventCompletedDays === undefined
+    ? { started: false, days: [] as number[], error: false }
+    : parseGuidedDays({ started: value.adventStarted, completedDays: value.adventCompletedDays }, "advent");
   const lastVisitedPeriodId = typeof value.lastVisitedPeriodId === "string"
     ? resolveJourneyPeriodId(value.lastVisitedPeriodId)
     : null;
@@ -92,8 +99,10 @@ function normalizeProgress(value: unknown) {
       noWorryCompletedDays: noWorry.days,
       freedomStarted: freedom.started,
       freedomCompletedDays: freedom.days,
+      adventStarted: advent.started,
+      adventCompletedDays: advent.days,
     },
-    error: bible.error || noWorry.error || freedom.error || (value.lastVisitedPeriodId !== null && value.lastVisitedPeriodId !== undefined && !validLastPeriod),
+    error: bible.error || noWorry.error || freedom.error || advent.error || (value.lastVisitedPeriodId !== null && value.lastVisitedPeriodId !== undefined && !validLastPeriod),
   };
 }
 

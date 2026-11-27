@@ -1,4 +1,4 @@
-import { ArrowRight, Share2 } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronRight, Headphones, Heart, Share2, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { FeedCard } from "@/shared/ui/FeedCard";
 import { SofiAvatar } from "@/features/chat";
@@ -50,6 +50,9 @@ function streakText(days: number) {
 
 export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatechism, onSumma, onResume, onGuidedJourney, onContinueBibleJourney, onAllJourneys, onDaily, bible, bibleJourney, guidedJourney, streak, onOpenDaily, onShare, narration, onPlayHero, onPlay }: HomePageProps) {
   const [shareNote, setShareNote] = useState("");
+  const [recommendationDismissed, setRecommendationDismissed] = useState(() => {
+    try { return window.sessionStorage.getItem("home-recommendation-dismissed") === "1"; } catch { return false; }
+  });
   useHeaderAutoHide();
   const hour = currentBreviaryHour();
   const hourName = breviaryHourInfo[hour].name;
@@ -74,7 +77,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
     { art: "summa", title: "Summa Theologiae", description: "Study St. Thomas Aquinas's enduring work of theology.", action: "Explore the Summa", onClick: onSumma, play: "summa" },
   ];
 
-  const guidedOverview = { freedom: journeyOverview.freedom, "no-worry": journeyOverview.noWorry };
+  const guidedOverview = { freedom: journeyOverview.freedom, "no-worry": journeyOverview.noWorry, advent: journeyOverview.advent };
   const guidedTotal = (id: GuidedJourneyId) => guidedJourneyDays[id].length;
   const guidedDone = (id: GuidedJourneyId) => guidedJourney[id].completedDays.length;
   const featuredGuidedId: GuidedJourneyId | null = featuredJourney === "bible" ? null : featuredJourney;
@@ -137,6 +140,22 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
         : recommendation === "catechism" || recommendation === "summa"
           ? formationCards.find((card) => card.title.toLowerCase().includes(recommendation))!
           : routineCards.find((card) => card.routine === routineByRecommendation[recommendation])!;
+  const hasPriorActivity = bible.started
+    || Boolean(narration.track)
+    || bibleJourney.completedIds.length > 0
+    || Object.values(guidedJourney).some((progress) => progress.started || progress.completedDays.length > 0)
+    || streak.total > 0;
+  const recommendationIcon = nextStepCard.play === "old-testament" || nextStepCard.play === "new-testament" || nextStepCard.play === "gospels"
+    ? <BookOpen size={20} />
+    : nextStepCard.play === "breviary" || nextStepCard.play === "rosary" || nextStepCard.play === "mass"
+      ? <Heart size={20} />
+      : nextStepCard.play === "freedom" || nextStepCard.play === "no-worry" || nextStepCard.play === "advent" || nextStepCard.play === "bible-journey"
+        ? <Sparkles size={20} />
+        : <Headphones size={20} />;
+  const dismissRecommendation = () => {
+    setRecommendationDismissed(true);
+    try { window.sessionStorage.setItem("home-recommendation-dismissed", "1"); } catch { /* Keep the dismissal for this render. */ }
+  };
 
   const share = async () => {
     try {
@@ -181,6 +200,14 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
             <span className="home-sofi-label">Ask {ASSISTANT_NAME}</span>
           </button>
         </section>
+        {!recommendationDismissed && <aside className="home-recommendation-prompt" aria-label={hasPriorActivity ? "Continue your recommended next step" : "Recommended place to start"}>
+          <button className="home-recommendation-action" type="button" onClick={nextStepCard.onClick}>
+            <span className="home-recommendation-icon" aria-hidden="true">{recommendationIcon}</span>
+            <span className="home-recommendation-copy"><span className="home-recommendation-eyebrow">{hasPriorActivity ? "Continue" : "Start here"}</span><strong>{nextStepCard.title}</strong><small>{nextStepCard.action}</small></span>
+            <ChevronRight className="home-recommendation-chevron" size={18} aria-hidden="true" />
+          </button>
+          <button className="home-recommendation-dismiss" type="button" onClick={dismissRecommendation} aria-label="Dismiss recommendation"><X size={16} /></button>
+        </aside>}
       </div>
       <div className="desktop-home">
       <section className="landing-hero section-wrap" aria-labelledby="landing-title">

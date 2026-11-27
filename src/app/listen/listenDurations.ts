@@ -26,6 +26,7 @@ export function getListenDurations({ journeyOverview, rosaryMode, voicePreferenc
     "bible-journey": estimatedNarrationDuration(journeyIntroText(bibleJourney[0].id)),
     "freedom": estimatedNarrationDuration(guidedItem("freedom", journeyOverview.freedom.nextDay)?.text ?? ""),
     "no-worry": estimatedNarrationDuration(guidedItem("no-worry", journeyOverview.noWorry.nextDay)?.text ?? ""),
+    advent: estimatedNarrationDuration(guidedItem("advent", journeyOverview.advent.nextDay)?.text ?? ""),
     "catechism": estimatedNarrationDuration(catechismItem(catechismEditions[0], catechismEditions[0].groups.find((item) => item.questions.length > 0)!).text),
     "mass": estimatedNarrationDuration(Object.values(getTodaysMassReading().readings).map((reading) => reading.text).join("\n\n")),
     "rosary": estimatedNarrationDuration(buildRosarySequence(rosaryMode, todaysRosaryMysteryIndex()).clips.map((clip) => clip.spokenText).join(" ")),

@@ -4,7 +4,7 @@ import { FeedCard } from "@/shared/ui/FeedCard";
 import { narrationDescription, type NarrationSnapshot } from "@/platform/audio/NarratorButton";
 import { useHeaderAutoHide } from "@/lib/useHeaderAutoHide";
 
-export type PlayKind = "old-testament" | "new-testament" | "gospels" | "bible-journey" | "freedom" | "no-worry" | "catechism" | "mass" | "rosary" | "breviary" | "summa" | "saint";
+export type PlayKind = "old-testament" | "new-testament" | "gospels" | "bible-journey" | "freedom" | "no-worry" | "advent" | "catechism" | "mass" | "rosary" | "breviary" | "summa" | "saint";
 type Item = { title: string; detail: string; art: CardArtKey; path: string; play?: PlayKind };
 const sections: { title: string; items: Item[] }[] = [
   { title: "Bible", items: [
@@ -23,7 +23,7 @@ const sections: { title: string; items: Item[] }[] = [
     { title: "Summa Theologiae", detail: "Begin with the first article", art: "summa", path: "#/summa", play: "summa" },
   ] },
   { title: "Saints", items: [{ title: "Saint of the Day", detail: "A life of faith", art: "saints", path: "#/saints/today", play: "saint" }, { title: "Explore the Saints", detail: "Stories of holy lives", art: "saints", path: "#/saints" }] },
-  { title: "Journeys", items: [{ title: "15-Day Journey to Freedom from Attachment", detail: "Learning to let go", art: "freedom-journey", path: "#/journeys/freedom", play: "freedom" }, { title: "No-Worry Journey", detail: "Scripture, reflection and prayer", art: "journey", path: "#/journeys/no-worry", play: "no-worry" }, { title: "Bible Journey", detail: "Walk through Scripture", art: "bible-journey", path: "#/journey", play: "bible-journey" }] },
+  { title: "Journeys", items: [{ title: "15-Day Journey to Freedom from Attachment", detail: "Learning to let go", art: "freedom-journey", path: "#/journeys/freedom", play: "freedom" }, { title: "No-Worry Journey", detail: "Scripture, reflection and prayer", art: "journey", path: "#/journeys/no-worry", play: "no-worry" }, { title: "Advent Journey", detail: "Prepare your heart for the coming of Christ", art: "journey", path: "#/journeys/advent", play: "advent" }, { title: "Bible Journey", detail: "Walk through Scripture", art: "bible-journey", path: "#/journey", play: "bible-journey" }] },
 ];
 
 export function ListenPage({ narration, onOpenPlayer, onPlay, onPlayHero, durations, loading }: { narration: NarrationSnapshot; onOpenPlayer: () => void; onPlay: (kind: PlayKind, autoplay?: boolean) => void; onPlayHero: () => void; durations: Partial<Record<PlayKind, string>>; loading: PlayKind | null }) {

@@ -92,8 +92,9 @@ export function useListenLaunch({ voicePreferenceRef, setPlayerOpen, journeyOver
         if (!part || !question) throw new Error("The first Summa question is unavailable.");
         const item = summaQuestionItem(part, question, data.questions.find((item) => item.part_id === part.id && item.number > question.number && item.articles.length));
         if (start(() => startSpeaking(item.text, [], undefined, undefined, voicePreferenceRef.current, item.track))) setPlayerOpen(true);
-      } else if (kind === "freedom" || kind === "no-worry") {
-        const item = guidedItem(kind, kind === "freedom" ? journeyOverview.freedom.nextDay : journeyOverview.noWorry.nextDay);
+      } else if (kind === "freedom" || kind === "no-worry" || kind === "advent") {
+        const nextDay = kind === "freedom" ? journeyOverview.freedom.nextDay : kind === "no-worry" ? journeyOverview.noWorry.nextDay : journeyOverview.advent.nextDay;
+        const item = guidedItem(kind, nextDay);
         if (!item) throw new Error("This listening item is unavailable.");
         if (start(() => startSpeaking(item.text, [], undefined, undefined, voicePreferenceRef.current, item.track))) {
           if (!hold && item.track.sequence?.kind === "guided") markGuidedDayPlayed(kind, item.track.sequence.day);
@@ -119,7 +120,9 @@ export function useListenLaunch({ voicePreferenceRef, setPlayerOpen, journeyOver
     if (getNarrationSnapshot().status !== "playing") toggleActiveNarration();
   };
   const openActiveJourney = () => {
-    const kind: PlayKind = journeyOverview.freedom.active
+    const kind: PlayKind = journeyOverview.advent.active
+      ? "advent"
+      : journeyOverview.freedom.active
       ? "freedom"
       : journeyOverview.noWorry.active
         ? "no-worry"

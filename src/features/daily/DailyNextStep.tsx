@@ -42,7 +42,7 @@ export function DailyNextStep({
   onOpenReference,
 }: Props) {
   const recommendation = selectDailyRecommendation(page, streak, journeyOverview);
-  const guidedOverview = { freedom: journeyOverview.freedom, "no-worry": journeyOverview.noWorry };
+  const guidedOverview = { freedom: journeyOverview.freedom, "no-worry": journeyOverview.noWorry, advent: journeyOverview.advent };
   const guidedCard = (journey: GuidedJourneyId): SmallCardProps => ({
     art: journeyCatalog[journey].artwork,
     title: journeyCatalog[journey].title,

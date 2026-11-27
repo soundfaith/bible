@@ -11,6 +11,7 @@ export type GuidedOverview = {
 export type JourneyOverview = {
   freedom: GuidedOverview;
   noWorry: GuidedOverview;
+  advent: GuidedOverview;
   bible: {
     active: boolean;
     complete: boolean;
@@ -50,10 +51,12 @@ export function getJourneyOverview(
       : nextAfterLast ?? bibleJourney.find((period) => !completed.has(period.id)) ?? null;
   const freedom = guidedOverview("freedom", guidedProgress.freedom);
   const noWorry = guidedOverview("no-worry", guidedProgress["no-worry"]);
+  const advent = guidedOverview("advent", guidedProgress.advent);
   const bibleActive = !bibleComplete && Boolean(lastPeriod || completed.size > 0);
   return {
     freedom,
     noWorry,
+    advent,
     bible: {
       active: bibleActive,
       complete: bibleComplete,
@@ -62,7 +65,7 @@ export function getJourneyOverview(
       completedCount: completed.size,
       totalCount: bibleJourney.length,
     },
-    hasActiveJourney: freedom.active || noWorry.active || bibleActive,
+    hasActiveJourney: freedom.active || noWorry.active || advent.active || bibleActive,
     featuredJourney: "freedom",
   };
 }

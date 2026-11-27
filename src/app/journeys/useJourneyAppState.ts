@@ -16,6 +16,7 @@ export function useJourneyAppState(route: Route, journeyPeriodId: string | null)
   const [guidedJourneyProgress, setGuidedJourneyProgress] = useState(() => ({
     freedom: loadGuidedJourneyProgress("freedom"),
     "no-worry": loadGuidedJourneyProgress("no-worry"),
+    advent: loadGuidedJourneyProgress("advent"),
   }));
   const [journeyArtwork, setJourneyArtwork] = useState(loadJourneyArtworkSelections);
   useEffect(() => {
@@ -32,6 +33,11 @@ export function useJourneyAppState(route: Route, journeyPeriodId: string | null)
         "no-worry": {
           started: data.noWorryStarted || data.noWorryCompletedDays.length > 0,
           completedDays: data.noWorryCompletedDays,
+          storageError: error,
+        },
+        advent: {
+          started: data.adventStarted || data.adventCompletedDays.length > 0,
+          completedDays: data.adventCompletedDays,
           storageError: error,
         },
       });

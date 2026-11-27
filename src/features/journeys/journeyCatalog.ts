@@ -1,5 +1,5 @@
 export type JourneyCatalogId = "freedom" | "no-worry" | "bible" | "advent" | "lent";
-export type AvailableJourneyId = "freedom" | "no-worry" | "bible";
+export type AvailableJourneyId = "freedom" | "no-worry" | "bible" | "advent";
 export type JourneyCadence = "daily" | "weekly";
 
 export type JourneyCatalogEntry = {
@@ -41,7 +41,7 @@ export const journeyCatalog: Record<JourneyCatalogId, JourneyCatalogEntry> = {
     title: "Advent Journey",
     description: "Prepare your heart for the coming of Christ.",
     artwork: "journey",
-    available: false,
+    available: true,
   },
   lent: {
     id: "lent",

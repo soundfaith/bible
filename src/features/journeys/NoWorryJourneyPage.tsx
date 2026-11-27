@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { NarrationProgress, NarratorButton } from "@/platform/audio/NarratorButton";
 import { guidedJourneyDays, type GuidedJourneyId } from "./guidedJourneys";
 import { freedomJourneyIntro } from "./freedomJourney";
+import { adventJourneyIntro } from "./adventJourney";
 import type { GuidedJourneyProgress } from "./guidedJourneyProgress";
 import type { NarrationGender } from "@/platform/audio/narrationVoice";
 import type { ReactNode } from "react";
@@ -10,6 +11,7 @@ import { guidedItem } from "@/platform/audio/audioPlaylists";
 const journeyNames: Record<GuidedJourneyId, string> = {
   freedom: "15-Day Journey to Freedom from Attachment",
   "no-worry": "No-Worry Journey",
+  advent: "Advent Journey",
 };
 
 type Props = {
@@ -32,7 +34,7 @@ export function NoWorryJourneyPage({ journeyId, progress, voicePreference, nextS
   const day = days[dayNumber - 1];
   const narration = guidedItem(journeyId, dayNumber)!;
   const canCompleteDay = progress.started && !isComplete && dayNumber === currentDay;
-  const intro = journeyId === "freedom" ? freedomJourneyIntro : null;
+  const intro = journeyId === "freedom" ? freedomJourneyIntro : journeyId === "advent" ? adventJourneyIntro : null;
 
   return (
     <main className="journey-page journey-detail-page section-wrap saints-page no-worry-page has-next-step">
@@ -43,7 +45,7 @@ export function NoWorryJourneyPage({ journeyId, progress, voicePreference, nextS
       <header className="journey-detail-heading saints-detail-heading no-worry-heading">
         <p className="eyebrow"><span className="eyebrow-dot" /> {journeyName}</p>
         <h1>{`Day ${dayNumber} of the ${journeyName}`}</h1>
-        <p className="journey-detail-overview">{isComplete ? "Journey complete. Revisit any day whenever you need it." : "A 15-day journey through Scripture, reflection, and prayer."}</p>
+        <p className="journey-detail-overview">{isComplete ? "Journey complete. Revisit any day whenever you need it." : `${days.length}-day journey through Scripture, reflection, and prayer.`}</p>
         <div className="journey-audio-controls">
           <NarratorButton text={narration.text} voicePreference={voicePreference} track={narration.track} />
         </div>

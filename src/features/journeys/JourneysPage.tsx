@@ -26,7 +26,7 @@ export function JourneysPage({
   nextStep,
 }: JourneysPageProps) {
   const overview = getJourneyOverview(guidedProgress, bibleCompletedIds, lastVisitedPeriodId);
-  const guided = { freedom: overview.freedom, "no-worry": overview.noWorry };
+  const guided = { freedom: overview.freedom, "no-worry": overview.noWorry, advent: overview.advent };
   const { bible } = overview;
 
   return (
@@ -44,7 +44,7 @@ export function JourneysPage({
         </div>
         {overview.hasActiveJourney ? (
           <ol className="journey-library-list library-stack">
-            {(["freedom", "no-worry"] as const).filter((id) => guided[id].active).map((id) => (
+            {(["freedom", "no-worry", "advent"] as const).filter((id) => guided[id].active).map((id) => (
               <JourneyLibraryItem
                 key={id}
                 art={journeyCatalog[id].artwork}
@@ -79,7 +79,7 @@ export function JourneysPage({
         </div>
         <ol className="journey-library-list library-stack">
           {journeyList.filter((journey) => !(isGuidedJourneyId(journey.id) && guided[journey.id].active) && !(journey.id === "bible" && bible.active)).map((journey) => {
-            if (journey.id === "advent" || journey.id === "lent") {
+            if (journey.id === "lent") {
               return (
                 <JourneyLibraryItem
                   key={journey.id}
