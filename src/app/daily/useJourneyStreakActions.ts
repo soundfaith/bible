@@ -2,7 +2,7 @@ import { recordDailyItem, recordJourneySession } from "@/features/daily";
 import { guidedDailyItemFor } from "./guidedDailyItem";
 import { guidedJourneyDays, type GuidedJourneyId } from "@/features/journeys/guidedJourneys";
 import { journeyCadence } from "@/features/journeys/journeyCatalog";
-import { saveJourneyProgress } from "@/features/journeys/journeyProgress";
+import { loadJourneyProgress, saveJourneyProgress } from "@/features/journeys/journeyProgress";
 import type { useJourneyAppState } from "../journeys";
 import type { DailyStreakSetter } from "./useDailyCoordination";
 
@@ -18,6 +18,15 @@ export function useJourneyStreakActions({ setDailyStreak, journeyProgress, setJo
     const saved = saveJourneyProgress(completedIds);
     setJourneyProgress({ completedIds, storageError: !saved });
     if (!wasCompleted) setDailyStreak((state) => recordDailyItem(state, "journey-bible"));
+  };
+  // Reads storage at call time because playback callbacks can outlive the render that created them.
+  const completeJourneyPeriod = (periodId: string) => {
+    const current = loadJourneyProgress();
+    if (current.completedIds.includes(periodId)) return;
+    const completedIds = [...current.completedIds, periodId];
+    const saved = saveJourneyProgress(completedIds);
+    setJourneyProgress({ completedIds, storageError: !saved });
+    setDailyStreak((state) => recordDailyItem(state, "journey-bible"));
   };
   const startGuidedJourney = (journeyId: GuidedJourneyId) => {
     updateGuidedProgress(journeyId, { ...guidedJourneyProgress[journeyId], started: true });
@@ -38,5 +47,5 @@ export function useJourneyStreakActions({ setDailyStreak, journeyProgress, setJo
     updateGuidedProgress(journeyId, { ...current, started: true, completedDays });
     setDailyStreak((state) => recordDailyItem(state, guidedDailyItemFor[journeyId]));
   };
-  return { toggleJourneyPeriod, startGuidedJourney, completeGuidedJourneyDay, markGuidedDayPlayed };
+  return { toggleJourneyPeriod, completeJourneyPeriod, startGuidedJourney, completeGuidedJourneyDay, markGuidedDayPlayed };
 }

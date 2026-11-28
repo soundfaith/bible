@@ -209,7 +209,7 @@
 .chapter-select-button { min-height:42px; font-size:11px; }
 .mass-detail-nav { justify-content:flex-end; min-height:46px; }
 .journey-audio-controls .narrator-button { min-height:42px; border:0; background:var(--accent-button,var(--accent)); color:var(--accent-button-text,var(--white)); }
-.narration-progress-centered { margin:0 auto 24px; }
+.narration-progress-centered { margin:24px auto 24px; }
 .bible-chapter-nav { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; margin-top:30px; }
 .bible-chapter-nav .button:first-child { justify-self:start; }
 .bible-chapter-nav .button:last-child { justify-self:end; }
@@ -313,7 +313,7 @@ input,textarea,select { border-radius:var(--radius-sm); } .site-footer { positio
 .mobile-menu-theme { display:none; }
 .menu-scrim { display:none; }
 .narration-progress { display:flex; align-items:center; gap:10px; }
-.narration-progress-desktop { width:min(480px,100%); margin:0 0 16px auto; }
+.narration-progress-desktop { width:min(480px,100%); margin:24px 0 16px auto; }
 .narration-time { min-width:34px; color:var(--muted); font-size:9px; font-variant-numeric:tabular-nums; text-align:center; }
 .narration-seek { width:100%; height:18px; min-height:0; margin:0; padding:0; border:0; border-radius:0; background:transparent; accent-color:var(--accent); cursor:pointer; }
 .narration-seek:disabled { cursor:default; opacity:.45; }
@@ -1016,7 +1016,7 @@ input,textarea,select { border-radius:var(--radius-sm); } .site-footer { positio
 .saints-empty { grid-column:1/-1; padding:30px 0; color:var(--muted); font-size:12px; }
 .saints-source-note { margin:28px 0 0; color:var(--muted); font-size:9px; line-height:1.65; }
 .saints-source-note a { color:var(--accent-deep); text-decoration:underline; text-underline-offset:2px; }
-.saint-narration-progress { width:min(480px,100%); margin:12px auto 0; }
+.saint-narration-progress { width:min(480px,100%); margin:24px auto 0; }
 .saint-biography { max-width:840px; margin:0 auto; }
 .saint-biography-copy { font-size:var(--reader-font-size,22px); line-height:1.72; }
 .saint-quote { max-width:700px; margin:0 auto 38px; padding:5px 0 25px; border:0; border-bottom:1px solid var(--line); background:transparent; text-align:center; }
@@ -1180,6 +1180,8 @@ button.journey-library-card { width:100%; padding:0; font:inherit; text-align:le
 .guided-journey-progress-summary progress::-webkit-progress-value { border-radius:99px; background:var(--accent); }
 .guided-journey-progress-summary progress::-moz-progress-bar { border-radius:99px; background:var(--accent); }
 .guided-journey-primary-action { display:inline-flex; align-items:center; gap:9px; min-height:43px; margin-top:8px; }
+.guided-journey-restart-action { display:inline-flex; align-items:center; gap:8px; margin-left:10px; min-height:43px; margin-top:8px; }
+.guided-journey-restart-actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end; margin-top:18px; }
 .guided-journey-editorial-list { max-width:760px; margin:30px 0 58px; }
 .guided-journey-section + .guided-journey-section { margin-top:37px; }
 .guided-journey-section-heading { margin:0 0 11px; }
@@ -1536,7 +1538,7 @@ figure.journey-artwork[class*="journey-artwork--"] .journey-artwork-motif::after
 .no-worry-heading .journey-detail-overview { margin:0 auto 15px; }
 .no-worry-heading .journey-audio-controls { justify-content:center; }
 .no-worry-heading .journey-audio-controls .narrator-button { display:inline-flex; }
-.no-worry-narration-progress { width:min(480px,100%); margin:12px auto 0; }
+.no-worry-narration-progress { width:min(480px,100%); margin:24px auto 0; }
 .no-worry-content { max-width:840px; margin:0 auto; padding:22px 24px; border:1px solid var(--line); border-radius:14px; background:var(--white); }
 .no-worry-content .rosary-prayer-part { padding-top:8px; }
 .no-worry-content .rosary-prayer-part:first-child { padding-top:0; }

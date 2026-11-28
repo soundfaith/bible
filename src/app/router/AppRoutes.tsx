@@ -93,6 +93,7 @@ export type AppRoutesProps = {
   activeGuidedDay: number | null;
   journeyProgress: JourneyState["journeyProgress"];
   guidedJourneyProgress: JourneyState["guidedJourneyProgress"];
+  updateGuidedProgress: JourneyState["updateGuidedProgress"];
   journeyArtwork: JourneyState["journeyArtwork"];
   lastJourneyPeriodId: JourneyState["lastJourneyPeriodId"];
   selectJourneyArtwork: JourneyState["selectJourneyArtwork"];
@@ -120,7 +121,7 @@ export function AppRoutes(props: AppRoutesProps) {
     breviaryHour, breviaryDate, setBreviaryDate, breviaryDay, breviaryAudioForPage, breviaryDesktopProgress, toggleBreviaryAudio, selectBreviarySegment, skipBreviaryIntro,
     rosaryMysteryIndex, rosaryMode, changeRosaryMode, rosaryAudioForPage, activeRosaryPrayerGroupId, activeRosaryBeadIndex, rosaryDesktopProgress, toggleRosaryAudio, selectRosarySegment,
     saintSlug,
-    journeyPeriodId, activeGuidedId, activeGuidedDay, journeyProgress, guidedJourneyProgress, journeyArtwork, lastJourneyPeriodId, selectJourneyArtwork, startGuidedJourney, completeGuidedJourneyDay, toggleJourneyPeriod,
+    journeyPeriodId, activeGuidedId, activeGuidedDay, journeyProgress, guidedJourneyProgress, journeyArtwork, lastJourneyPeriodId, selectJourneyArtwork, updateGuidedProgress, startGuidedJourney, completeGuidedJourneyDay, toggleJourneyPeriod,
     journeyAudioForPage, journeyDesktopProgress, toggleJourneyAudio, selectJourneyAudioStory, skipJourneyIntro,
     playHero, playListening,
   } = props;
@@ -201,6 +202,7 @@ export function AppRoutes(props: AppRoutesProps) {
         journeyId={activeGuidedId}
         progress={guidedJourneyProgress[activeGuidedId]}
         onSelectDay={(day) => { window.location.hash = `#/journeys/${activeGuidedId}/${day}`; }}
+        onRestart={() => updateGuidedProgress(activeGuidedId, { started: false, completedDays: [], storageError: false })}
       /> :
       <NoWorryJourneyPage
         journeyId={activeGuidedId}

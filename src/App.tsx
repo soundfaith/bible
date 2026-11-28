@@ -36,6 +36,7 @@ import {
   dismissNarrationError,
   playNextPlaylistItem,
   playPreviousPlaylistItem,
+  playSeriesItem,
   narrationPartProgress,
   setNarrationPartSeekHandler,
   type NarrationTimeline,
@@ -122,7 +123,7 @@ export default function App() {
   const menuRef = useRef<HTMLElement | null>(null);
   const activeGuidedStarted = guidedJourneyProgress[activeGuidedId].started;
   const { dailyStreak, setDailyStreak } = useDailyCoordination({ route, breviaryHour, breviaryDate, massDate, saintSlug, journeyPeriodId, activeGuidedId, activeGuidedStarted });
-  const { toggleJourneyPeriod, startGuidedJourney, completeGuidedJourneyDay, markGuidedDayPlayed } = useJourneyStreakActions({ setDailyStreak, journeyProgress, setJourneyProgress, guidedJourneyProgress, updateGuidedProgress });
+  const { toggleJourneyPeriod, completeJourneyPeriod, startGuidedJourney, completeGuidedJourneyDay, markGuidedDayPlayed } = useJourneyStreakActions({ setDailyStreak, journeyProgress, setJourneyProgress, guidedJourneyProgress, updateGuidedProgress });
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -245,7 +246,7 @@ export default function App() {
       const started = startSpeaking(
         text,
         audioUrls,
-        advanceJourneyAudio,
+        finishJourneyStory,
         () => failJourneyAudio(periodId, storyIndex),
         voicePreferenceRef.current,
         { title: storyIndex < 0 ? `${period.title}: Introduction` : period.stories[storyIndex].title, path: `#/journey/${period.id}`, art: "bible-journey", sequence: { kind: "bible-journey", periodId, storyIndex }, timeline: journeyTimelineFor(periodIndex, storyIndex, start), next: period.stories[storyIndex + 1] ? { title: period.stories[storyIndex + 1].title, path: `#/journey/${period.id}?story=story-${period.id}-${storyIndex + 1}` } : bibleJourney[periodIndex + 1] ? { title: `${bibleJourney[periodIndex + 1].title}: Introduction`, path: `#/journey/${bibleJourney[periodIndex + 1].id}` } : undefined },
@@ -272,7 +273,7 @@ export default function App() {
       const started = resumeSpeaking(
         matching ? saved.text : text,
         audioUrls,
-        advanceJourneyAudio,
+        finishJourneyStory,
         () => failJourneyAudio(journeyPeriodId, current.storyIndex),
         voicePreferenceRef.current,
       );
@@ -298,6 +299,13 @@ export default function App() {
     window.requestAnimationFrame(() => {
       document.getElementById(`story-${journeyPeriodId}-${storyIndex}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+  };
+  // Completes the period when its final story ends; the callback is captured at playback start, so it reads state through refs and storage.
+  const finishJourneyStory = () => {
+    const current = journeyAudioStateRef.current;
+    const period = bibleJourney.find((item) => item.id === current.periodId);
+    if (period && current.storyIndex === period.stories.length - 1) completeJourneyPeriod(period.id);
+    advanceJourneyAudio();
   };
   const advanceJourneyAudio = () => {
     const current = journeyAudioStateRef.current;
@@ -565,7 +573,7 @@ export default function App() {
       const period = bibleJourney.find((item) => item.id === sequence.periodId);
       if (!period || !Number.isInteger(sequence.storyIndex) || sequence.storyIndex < -1 || sequence.storyIndex >= period.stories.length) return;
       updateJourneyAudio({ periodId: period.id, storyIndex: sequence.storyIndex, status: "paused", error: null });
-      setNarrationCompletionHandler(advanceJourneyAudio);
+      setNarrationCompletionHandler(finishJourneyStory);
     } else if (sequence.kind === "rosary") {
       if (!Number.isInteger(sequence.mysteryIndex) || sequence.mysteryIndex < 0 || sequence.mysteryIndex > 3 || !["traditional", "gospel"].includes(sequence.mode)) return;
       const restored = buildRosarySequence(sequence.mode, sequence.mysteryIndex);
@@ -827,6 +835,7 @@ export default function App() {
         journeyArtwork={journeyArtwork}
         lastJourneyPeriodId={lastJourneyPeriodId}
         selectJourneyArtwork={selectJourneyArtwork}
+        updateGuidedProgress={updateGuidedProgress}
         startGuidedJourney={startGuidedJourney}
         completeGuidedJourneyDay={completeGuidedJourneyDay}
         toggleJourneyPeriod={toggleJourneyPeriod}
@@ -842,55 +851,19 @@ export default function App() {
       {(playerOpen || playerClosing) && getNarrationSnapshot().track && <AudioPlayer narration={getNarrationSnapshot()} closing={!playerOpen} onClose={() => setPlayerOpen(false)} onToggle={toggleActiveNarration} onSelectEpisode={(index) => {
         const track = getNarrationSnapshot().track;
         if (track?.sequence?.kind === "bible-journey") playJourneyStory(track.sequence.periodId, index - 1, true);
-        else selectRosarySegment(index);
-      }} onSkipIntro={playerIntroSkip} onPrevious={() => {
-        const track = getNarrationSnapshot().track;
-        if (track && isBibleArt(track.art)) {
-          const query = new URLSearchParams(track.path.split("?")[1] ?? "");
-          const bookId = query.get("book");
-          const chapter = Number(query.get("chapter"));
-          const bookIndex = bibleBooks.findIndex((book) => book.id === bookId);
-          if (bookId && bookIndex >= 0 && chapter > 1) advanceNarration({ bookId, chapter: chapter - 1 }, track.art);
-          else if (bookIndex > 0) {
-            const previousBook = bibleBooks[bookIndex - 1];
-            advanceNarration({ bookId: previousBook.id, chapter: getChapterCount(previousBook.id) }, track.art);
+        else if (track?.sequence?.kind === "rosary") selectRosarySegment(index);
+        else if (track && isBibleArt(track.art)) {
+          const bookId = new URLSearchParams(track.path.split("?")[1] ?? "").get("book");
+          if (bookId && bibleBooks.some((book) => book.id === bookId)) {
+            const position = { bookId, chapter: index + 1 };
+            const text = getChapter(bookId, position.chapter).map((verse) => verse.text).join(" ");
+            setReadingPosition(position);
+            const art = track.art;
+            startSpeaking(text, narrationAudioUrlsFor(bookId, position.chapter, voicePreferenceRef.current), () => advanceNarration(position, art), undefined, voicePreferenceRef.current, bibleTrack(position, art));
           }
-        } else if (track?.sequence?.kind === "bible-journey" && track.sequence.storyIndex > -1) {
-          playJourneyStory(track.sequence.periodId, track.sequence.storyIndex - 1, true);
-        } else if (track?.art === "readings") {
-          stepMassReading(track.path, -1);
-        } else if (track?.sequence?.kind === "rosary") {
-          playRosaryClip(track.sequence.clipIndex - 1);
-        } else if (track?.sequence?.kind === "breviary") {
-          playBreviarySegment(track.sequence.segmentIndex - 1);
-        } else if (track?.sequence?.kind === "guided" || track?.sequence?.kind === "catechism") {
-          void playPreviousPlaylistItem();
         }
-      }} onNext={() => {
-        const track = getNarrationSnapshot().track;
-        if (track?.art === "readings") {
-          stepMassReading(track.path, 1);
-        } else if (track && isBibleArt(track.art)) {
-          const query = new URLSearchParams(track.path.split("?")[1] ?? "");
-          const bookId = query.get("book");
-          const chapter = Number(query.get("chapter"));
-          if (bookId && bibleBooks.some((book) => book.id === bookId) && Number.isInteger(chapter) && chapter > 0 && chapter <= getChapterCount(bookId)) {
-            const next = nextBiblePosition({ bookId, chapter });
-            if (next) advanceNarration(next, track.art);
-          }
-        } else if (track?.art === "bible-journey" && journeyAudioStateRef.current.periodId) {
-          advanceJourneyAudio();
-        } else if (track?.sequence?.kind === "rosary") {
-          playRosaryClip(rosaryAudioStateRef.current.clipIndex + 1);
-        } else if (track?.sequence?.kind === "breviary") {
-          playBreviarySegment(breviaryAudioStateRef.current.segmentIndex + 1);
-        } else if (track?.sequence?.kind === "guided" || track?.sequence?.kind === "catechism" || track?.sequence?.kind === "summa") {
-          void playNextPlaylistItem();
-        } else if (track?.next) {
-          setPlayerOpen(false);
-          window.location.hash = track.next.path;
-        }
-      }} onNavigate={(path) => {
+        else void playSeriesItem(index);
+      }} onSkipIntro={playerIntroSkip} onNavigate={(path) => {
         setPlayerOpen(false);
         if (path.startsWith("#/read?")) {
           const query = new URLSearchParams(path.split("?")[1]);
@@ -910,7 +883,7 @@ export default function App() {
         onOpenDailyRoutine={openDailyRoutine}
       />
       <SiteFooter />
-      <AppOverlays modal={modal} setModal={setModal} onOpenVerse={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)} />
+      <AppOverlays modal={modal} setModal={setModal} onOpenVerse={(bookId, chapter, verse) => openReader({ bookId, chapter }, verse)} chatLauncherHidden={playerOpen || route === "home" || route === "listen"} />
     </div>
   );
 }

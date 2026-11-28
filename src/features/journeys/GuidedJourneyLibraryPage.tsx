@@ -1,4 +1,5 @@
-import { ArrowLeft, ArrowRight, Check, Circle, Play } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Circle, Play, RotateCcw, X } from "lucide-react";
 import { journeyCadence, journeyCatalog } from "./journeyCatalog";
 import { guidedJourneyDays, guidedJourneyIntroductions, guidedJourneySections, type GuidedJourneyId } from "./guidedJourneys";
 import type { GuidedJourneyProgress } from "./guidedJourneyProgress";
@@ -10,9 +11,11 @@ type Props = {
   journeyId: GuidedJourneyId;
   progress: GuidedJourneyProgress;
   onSelectDay: (day: number) => void;
+  onRestart: () => void;
 };
 
-export function GuidedJourneyLibraryPage({ journeyId, progress, onSelectDay }: Props) {
+export function GuidedJourneyLibraryPage({ journeyId, progress, onSelectDay, onRestart }: Props) {
+  const [confirmRestart, setConfirmRestart] = useState(false);
   const journey = journeyCatalog[journeyId];
   const days = guidedJourneyDays[journeyId];
   const sections = guidedJourneySections[journeyId];
@@ -26,9 +29,14 @@ export function GuidedJourneyLibraryPage({ journeyId, progress, onSelectDay }: P
   const isAdvent = journeyId === "advent";
   const isFreedom = journeyId === "freedom";
   const isNoWorry = journeyId === "no-worry";
-  const primaryAction = <button className="button button-coral journey-resume-button guided-journey-primary-action" type="button" onClick={() => onSelectDay(nextDay ?? 1)}>
-    {action} <ArrowRight size={16} aria-hidden="true" />
-  </button>;
+  const primaryAction = <>
+    <button className="button button-coral journey-resume-button guided-journey-primary-action" type="button" onClick={() => onSelectDay(nextDay ?? 1)}>
+      {action} <ArrowRight size={16} aria-hidden="true" />
+    </button>
+    {nextDay === null && <button className="button button-outline journey-resume-button guided-journey-restart-action" type="button" onClick={() => setConfirmRestart(true)}>
+      <RotateCcw size={16} aria-hidden="true" /> Restart journey
+    </button>}
+  </>;
 
   return (
     <main className={`journeys-hub-page section-wrap guided-journey-library-page${isAdvent ? " advent-journey-page" : isFreedom ? " freedom-journey-page" : isNoWorry ? " no-worry-journey-library-page" : ""}`}>
@@ -101,6 +109,19 @@ export function GuidedJourneyLibraryPage({ journeyId, progress, onSelectDay }: P
           </section>;
         })}
       </div>
+
+      {confirmRestart && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setConfirmRestart(false); }}>
+        <section className="modal confirmation" role="dialog" aria-modal="true" aria-labelledby="guided-restart-title">
+          <button className="modal-close" onClick={() => setConfirmRestart(false)} aria-label="Close dialog"><X size={18} /></button>
+          <p className="eyebrow">Restart journey</p>
+          <h2 id="guided-restart-title">Start over from <em>Day 1?</em></h2>
+          <p>Your completed days in {journey.title} will be cleared.</p>
+          <div className="guided-journey-restart-actions">
+            <button className="button button-outline" type="button" onClick={() => setConfirmRestart(false)}>Cancel</button>
+            <button className="button button-coral" type="button" onClick={() => { onRestart(); setConfirmRestart(false); }}>Restart journey</button>
+          </div>
+        </section>
+      </div>}
     </main>
   );
 }

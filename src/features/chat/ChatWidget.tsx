@@ -8,7 +8,7 @@ import { respondTo, SUGGESTED_PROMPTS, topicReply, welcomeMessage, type ChatMess
 import { getTopic, parseRef, passageLabel, passageText, type ChatVerse } from "./topics";
 import sofiLogo from "../../../assets/sofi.svg";
 
-type Props = { onOpenVerse: (bookId: string, chapter: number, verse: number) => void };
+type Props = { onOpenVerse: (bookId: string, chapter: number, verse: number) => void; launcherHidden?: boolean };
 
 const MIN_TYPING_MS = 700;
 const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
@@ -160,7 +160,7 @@ function AssistantBubble({ message, onOpen, onOpenCatechism, onOpenSumma, onPick
   );
 }
 
-export function ChatWidget({ onOpenVerse }: Props) {
+export function ChatWidget({ onOpenVerse, launcherHidden = false }: Props) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     const saved = loadChatHistory();
@@ -296,7 +296,7 @@ export function ChatWidget({ onOpenVerse }: Props) {
   return (
     <>
       {!open && (
-        <button type="button" className="chat-fab" aria-label={`Ask ${BOT_NAME} about Scripture and Catholic teaching`} onClick={() => setOpen(true)} onPointerEnter={() => warmUpChatModel()}>
+        <button type="button" className={launcherHidden ? "chat-fab chat-fab--route-hidden" : "chat-fab"} aria-label={`Ask ${BOT_NAME} about Scripture and Catholic teaching`} onClick={() => setOpen(true)} onPointerEnter={() => warmUpChatModel()}>
           <span className="chat-fab-mark"><SofiAvatar size={24} /></span>
           <span>{BOT_NAME} Q&amp;A</span>
         </button>

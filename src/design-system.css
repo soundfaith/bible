@@ -273,7 +273,7 @@ select:focus-visible {
 .journey-detail-page .narration-progress-desktop,
 .catechism-detail-page .narration-progress-desktop,
 .summa-detail-page .narration-progress-desktop {
-  margin: 0 auto 24px;
+  margin: 24px auto 24px;
 }
 
 .journey-detail-page > .journey-artwork--hero,

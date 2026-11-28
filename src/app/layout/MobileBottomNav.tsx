@@ -1,9 +1,12 @@
-import type { ComponentProps } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import { CalendarDays, Compass, Home, Library } from "lucide-react";
 import { NavPlayer } from "@/platform/audio/AudioPlayer";
 import type { Route } from "../routing";
 
 type NavPlayerProps = ComponentProps<typeof NavPlayer>;
+
+const RETURN_HINT_MS = 6000;
+const RETURN_HINT_FADE_MS = 250;
 
 type MobileBottomNavProps = {
   route: Route;
@@ -16,8 +19,26 @@ type MobileBottomNavProps = {
 };
 
 export function MobileBottomNav({ route, narration, playerOpen, onToggle, setPlayerOpen, onOpenActiveJourney, onOpenDailyRoutine }: MobileBottomNavProps) {
+  const audioActive = narration.status !== "idle" && !!narration.track;
+  const trackPath = narration.track?.path;
+  const [hint, setHint] = useState<"hidden" | "shown" | "leaving">("hidden");
+  useEffect(() => {
+    if (playerOpen || !audioActive) {
+      setHint((current) => (current === "hidden" ? current : "leaving"));
+      return;
+    }
+    setHint("shown");
+    const timer = window.setTimeout(() => setHint("leaving"), RETURN_HINT_MS);
+    return () => window.clearTimeout(timer);
+  }, [playerOpen, audioActive, route, trackPath]);
+  useEffect(() => {
+    if (hint !== "leaving") return;
+    const timer = window.setTimeout(() => setHint("hidden"), RETURN_HINT_FADE_MS);
+    return () => window.clearTimeout(timer);
+  }, [hint]);
   return (
     <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+      {hint !== "hidden" && <button type="button" className={hint === "leaving" ? "mobile-return-to-player is-leaving" : "mobile-return-to-player"} onClick={() => setPlayerOpen(true)}>Double tap to return to player</button>}
       <a href="#/" className={route === "home" ? "active" : ""} aria-current={route === "home" ? "page" : undefined} onClick={() => setPlayerOpen(false)}>
         <Home size={17} />
         <span>Home</span>

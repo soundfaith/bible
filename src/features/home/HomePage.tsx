@@ -14,7 +14,8 @@ import { getJourneyOverview } from "@/features/journeys/journeyOverview";
 import { selectDailyRecommendation } from "@/features/daily";
 import { catechismEditions, catechismGroupHref } from "@/features/catechism/catechism";
 import { summaQuestionHref } from "@/features/summa/summa";
-import { narrationDescription, type NarrationSnapshot } from "@/platform/audio/NarratorButton";
+import { narrationDescription, narrationProgress, type NarrationSnapshot, type NarrationTrack } from "@/platform/audio/NarratorButton";
+import { guidedJourneyTitles } from "@/platform/audio/audioPlaylists";
 import { useHeaderAutoHide } from "@/lib/useHeaderAutoHide";
 import type { PlayKind } from "@/features/listen";
 
@@ -43,6 +44,11 @@ function streakText(days: number) {
   if (days >= 2) return `${days} days in a row`;
   if (days === 1) return "1 day, a lovely start";
   return "A new rhythm begins today";
+}
+
+function heroTitles(track: NarrationTrack) {
+  const series = track.sequence?.kind === "rosary" ? "Rosary" : track.sequence?.kind === "guided" ? guidedJourneyTitles[track.sequence.journeyId] : null;
+  return series ? { title: series, part: track.title } : { title: track.title, part: "" };
 }
 
 export function HomePage({ onChoose, onCatechism, onSumma, onResume, onContinueBibleJourney, onAllJourneys, onDaily, bible, bibleJourney, guidedJourney, streak, onOpenDaily, onShare, narration, onPlayHero, onPlay }: HomePageProps) {
@@ -182,12 +188,16 @@ export function HomePage({ onChoose, onCatechism, onSumma, onResume, onContinueB
     }
   };
 
+  const heroTrack = narration.status !== "idle" ? narration.track : null;
+  const heroLabels = heroTrack ? heroTitles(heroTrack) : null;
+
   return (
     <main className="landing-page">
       <div className="mobile-home section-wrap">
         <section className="feed-section feed-bleed">
-          {narration.status !== "idle" && narration.track
-            ? <FeedCard art={narration.track.art} title={narration.track.title} meta={narrationDescription(narration)} playBadge onClick={onPlayHero} />
+          {heroTrack && heroLabels
+            ? <FeedCard art={heroTrack.art} title={heroLabels.title} meta={[heroLabels.part, narrationDescription(narration)].filter(Boolean).join(" · ")} artProgress={narrationProgress(narration)} playBadge onClick={onPlayHero} />
+
             : bible.started
               ? <FeedCard art="bible" title={`Continue ${bible.label}`} meta="Resume your current chapter" playBadge onClick={() => onPlay("bible-current")} />
               : <FeedCard art="bible" title="Begin with Genesis" meta="Listen to the opening story of Scripture" playBadge onClick={() => onPlay("old-testament", true)} />}

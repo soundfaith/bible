@@ -307,11 +307,15 @@ export function estimatedNarrationDuration(text: string) {
   return `~${Math.max(1, Math.ceil(text.length / ESTIMATED_CHARS_PER_SECOND / 60))} min`;
 }
 
+export function narrationProgress(current: NarrationSnapshot) {
+  const progress = current.duration > 0 ? current.position / current.duration : current.text.length ? current.position / current.text.length : 0;
+  return Math.max(0, Math.min(1, progress));
+}
+
 export function narrationDescription(current: NarrationSnapshot) {
   const duration = current.duration || (current.text.length / ESTIMATED_CHARS_PER_SECOND);
-  const progress = current.duration > 0 ? current.position / current.duration : current.text.length ? current.position / current.text.length : 0;
   const minutes = Math.max(1, Math.ceil(duration / 60));
-  return `${current.duration ? "" : "~"}${minutes} min · ${Math.round(Math.max(0, Math.min(1, progress)) * 100)}% complete`;
+  return `${current.duration ? "" : "~"}${minutes} min`;
 }
 
 export function subscribeNarration(listener: () => void) {
@@ -609,6 +613,20 @@ export async function playNextPlaylistItem() {
   } catch (error) {
     console.error("Could not load the next listening item.", error);
     if (snapshot.track === track) reportPlaybackFailure();
+  }
+}
+
+export async function playSeriesItem(index: number) {
+  const track = snapshot.track;
+  if (!track) return;
+  try {
+    const { seriesItem } = await import("./audioPlaylists");
+    const item = await seriesItem(track, index);
+    if (!item) return;
+    startSpeaking(item.text, [], undefined, undefined, activePreference, item.track);
+  } catch (error) {
+    console.error("Could not load that listening item.", error);
+    reportPlaybackFailure();
   }
 }
 

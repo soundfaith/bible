@@ -8,7 +8,7 @@ import type { NarrationTrack } from "./NarratorButton";
 
 export type PlaylistItem = { text: string; track: NarrationTrack };
 
-const guidedJourneyTitles: Record<GuidedJourneyId, string> = {
+export const guidedJourneyTitles: Record<GuidedJourneyId, string> = {
   freedom: "15-Day Journey to Freedom from Attachment",
   "no-worry": "No-Worry Journey",
   advent: "Advent Journey",
@@ -95,6 +95,24 @@ export function nextSummaArticle(questions: SummaQuestion[], question: SummaQues
 export type SeriesEntry = { label: string; path: string; done: boolean; current: boolean; playIndex?: number };
 export type SeriesInfo = { title: string; entries: SeriesEntry[] };
 
+// The item at `index` in the series shown for `track`, so the full player can start it in place.
+export async function seriesItem(track: NarrationTrack, index: number): Promise<PlaylistItem | null> {
+  const sequence = track.sequence;
+  if (sequence?.kind === "guided") return guidedItem(sequence.journeyId, index + 1);
+  if (sequence?.kind === "catechism") {
+    const edition = catechismEditions.find((item) => item.number === sequence.edition);
+    const lesson = edition?.groups.filter((item) => item.kind === "lesson")[index];
+    return edition && lesson ? catechismItem(edition, lesson) : null;
+  }
+  if (sequence?.kind === "summa") {
+    const data = await loadSummaData();
+    const part = data.parts.find((item) => item.slug === sequence.partSlug);
+    const questions = part ? summaQuestionsInPart(data.questions, part.id) : [];
+    return part && questions[index] ? summaQuestionItem(part, questions[index], questions[index + 1]) : null;
+  }
+  return null;
+}
+
 export function seriesFor(track: NarrationTrack): SeriesInfo | null {
   const sequence = track.sequence;
   if (sequence?.kind === "bible-journey") {
@@ -114,9 +132,10 @@ export function seriesFor(track: NarrationTrack): SeriesInfo | null {
   }
   if (sequence?.kind === "guided") {
     const days = guidedJourneyDays[sequence.journeyId];
-    return { title: guidedJourneyTitles[sequence.journeyId], entries: days.map((_, index) => {
+    // Journey days play in the open player; auto-advance does not apply to journeys.
+    return { title: guidedJourneyTitles[sequence.journeyId], entries: days.map((entry, index) => {
       const day = index + 1;
-      return { label: `Day ${day}`, path: `#/journeys/${sequence.journeyId}/${day}`, done: day < sequence.day, current: day === sequence.day };
+      return { label: entry.title, path: "", playIndex: index, done: day < sequence.day, current: day === sequence.day };
     }) };
   }
   if (sequence?.kind === "rosary") {
@@ -129,9 +148,10 @@ export function seriesFor(track: NarrationTrack): SeriesInfo | null {
     const data = loadedSummaData();
     const part = data?.parts.find((item) => item.slug === sequence.partSlug);
     if (!data || !part) return null;
-    return { title: part.name, entries: summaQuestionsInPart(data.questions, part.id).map((question) => ({
+    return { title: part.name, entries: summaQuestionsInPart(data.questions, part.id).map((question, index) => ({
       label: `Question ${question.number}: ${question.title}`,
-      path: summaQuestionHref(part.slug, question.number),
+      path: "",
+      playIndex: index,
       done: question.number < sequence.question,
       current: question.number === sequence.question,
     })) };
@@ -143,7 +163,8 @@ export function seriesFor(track: NarrationTrack): SeriesInfo | null {
     const currentIndex = lessons.findIndex((item) => item.id === sequence.groupId);
     return { title: "Catechism lessons", entries: lessons.map((lesson, index) => ({
       label: `${lesson.number}. ${displayLessonTitle(lesson.title)}`,
-      path: catechismGroupHref(edition.number, lesson.id),
+      path: "",
+      playIndex: index,
       done: currentIndex >= 0 && index < currentIndex,
       current: index === currentIndex,
     })) };
@@ -155,7 +176,7 @@ export function seriesFor(track: NarrationTrack): SeriesInfo | null {
     if (!book || !Number.isInteger(chapter)) return null;
     return { title: book.name, entries: Array.from({ length: getChapterCount(book.id) }, (_, index) => {
       const number = index + 1;
-      return { label: `${book.name} ${number}`, path: `#/read?book=${encodeURIComponent(book.id)}&chapter=${number}`, done: number < chapter, current: number === chapter };
+      return { label: `${book.name} ${number}`, path: "", playIndex: index, done: number < chapter, current: number === chapter };
     }) };
   }
   return null;

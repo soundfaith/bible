@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Headphones, Pause, Play, SkipForward } from "lucide-react";
+import { ArrowLeft, ChevronDown, Headphones, Pause, Play, SkipForward } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { seriesFor } from "./audioPlaylists";
 import { bibleBooks } from "@/features/bible/bible";
@@ -83,10 +83,10 @@ export function NavPlayer({ narration, playerOpen, onToggle, onOpen, onListen }:
   useEffect(() => () => { if (tapTimer.current !== null) window.clearTimeout(tapTimer.current); }, []);
   const track = narration.track;
   const hasTrack = narration.status !== "idle" && !!track;
-  const showArt = hasTrack && !playerOpen && !!track;
+  const showArt = hasTrack && !!track;
   const playing = narration.status === "playing";
   const handleTap = () => {
-    if (!hasTrack || playerOpen) { onListen(); return; }
+    if (!hasTrack) { onListen(); return; }
     if (tapTimer.current !== null) {
       window.clearTimeout(tapTimer.current);
       tapTimer.current = null;
@@ -98,17 +98,17 @@ export function NavPlayer({ narration, playerOpen, onToggle, onOpen, onListen }:
       onToggle();
     }, 250);
   };
-  return <button type="button" className={showArt ? "mobile-nav-player has-art" : "mobile-nav-player"} onClick={handleTap} aria-label={showArt ? `${playing ? "Pause" : "Resume"} ${track?.title ?? ""}. Double tap to open the player` : "Listen"}>
+  return <button type="button" className={showArt ? "mobile-nav-player has-art" : "mobile-nav-player"} onClick={handleTap} aria-label={showArt ? `${playing ? "Pause" : "Resume"} ${track?.title ?? ""}${playerOpen ? "" : ". Double tap to open the player"}` : "Listen"}>
     {showArt && track ? <>
       <CardArt art={track.art} className="mobile-nav-player-art" mode="mini" />
       <span className={playing ? "mobile-nav-player-state is-playing" : "mobile-nav-player-state"} aria-hidden="true">
-        {playing ? <span className="mobile-nav-player-bars"><i /><i /><i /></span> : narration.status === "paused" ? <Pause size={18} fill="currentColor" /> : <Play size={18} />}
+        {playing ? <span className="mobile-nav-player-bars"><i /><i /><i /></span> : <Play size={18} />}
       </span>
     </> : <Headphones size={22} />}
   </button>;
 }
 
-export function AudioPlayer({ narration, closing = false, onToggle, onClose, onPrevious, onNext, onNavigate, onSelectEpisode, onSkipIntro }: Props & { closing?: boolean; onClose: () => void; onPrevious: () => void; onNext: () => void; onNavigate: (path: string) => void; onSelectEpisode?: (index: number) => void; onSkipIntro?: () => void }) {
+export function AudioPlayer({ narration, closing = false, onToggle, onClose, onNavigate, onSelectEpisode, onSkipIntro }: Props & { closing?: boolean; onClose: () => void; onNavigate: (path: string) => void; onSelectEpisode?: (index: number) => void; onSkipIntro?: () => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -155,20 +155,8 @@ export function AudioPlayer({ narration, closing = false, onToggle, onClose, onP
   };
   const track = narration.track;
   if (!track) return null;
-  const series = seriesFor(track);
-  const currentIndex = series?.entries.findIndex((entry) => entry.current) ?? -1;
   const actions = contentActions(track);
   const context = trackContext(track);
-  const bibleQuery = track.path.startsWith("#/read?") ? new URLSearchParams(track.path.split("?")[1] ?? "") : null;
-  const bibleBookIndex = bibleQuery ? bibleBooks.findIndex((book) => book.id === bibleQuery.get("book")) : -1;
-  const canPrevious = track.sequence?.kind === "guided" && track.sequence.day > 1
-    || track.sequence?.kind === "catechism" && currentIndex > 0
-    || track.sequence?.kind === "bible-journey" && track.sequence.storyIndex > -1
-    || track.sequence?.kind === "rosary" && track.sequence.clipIndex > 0
-    || track.sequence?.kind === "breviary" && track.sequence.segmentIndex > 0
-    || track.sequence?.kind === "summa" && track.sequence.article === undefined && currentIndex > 0
-    || track.art === "readings"
-    || !!bibleQuery && (bibleBookIndex > 0 || Number(bibleQuery.get("chapter")) > 1);
   return <div ref={overlayRef} className={`audio-player-overlay${closing ? " is-closing" : ""}`} data-art={track.art} role="dialog" aria-modal="true" aria-label={`Player: ${track.title}`}>
     <div ref={panelRef} className="audio-player">
       <div className={`audio-player-art${narration.status === "playing" ? " is-playing" : ""}`} onPointerDown={startDrag}>
@@ -177,15 +165,11 @@ export function AudioPlayer({ narration, closing = false, onToggle, onClose, onP
       </div>
       <div className="audio-player-context"><span>{context.context}</span><h1>{context.title}</h1>{context.detail && context.detail !== context.title && <p>{context.detail}</p>}</div>
       <NarrationProgress className="audio-player-seek" narration={narration} />
-      <button className="audio-player-play" type="button" onClick={onToggle} aria-label={narration.status === "playing" ? "Pause" : narration.status === "paused" ? "Resume" : "Play again"}>{narration.status === "playing" || narration.status === "paused" ? <Pause size={26} /> : <Play size={26} />}</button>
+      <button className="audio-player-play" type="button" onClick={onToggle} aria-label={narration.status === "playing" ? "Pause" : narration.status === "paused" ? "Resume" : "Play again"}>{narration.status === "playing" ? <Pause size={26} /> : <Play size={26} />}</button>
       {onSkipIntro && <button className="audio-player-skip-intro" type="button" onClick={onSkipIntro}><SkipForward size={15} aria-hidden="true" /> Skip intro</button>}
-      <div className="audio-player-skip">
-        <button type="button" onClick={onPrevious} disabled={!canPrevious}><ChevronLeft size={20} /><span>Previous</span></button>
-        <button type="button" onClick={onNext}><span>Next</span><ChevronRight size={20} /></button>
-      </div>
       <AudioSeries key={`${track.path}:${JSON.stringify(track.sequence ?? null)}`} track={track} onNavigate={onNavigate} onSelectEpisode={onSelectEpisode} />
       <details key={track.path} className="audio-player-section audio-player-transcript"><summary><span className="audio-player-head">Transcript</span><ChevronDown size={18} className="audio-player-chevron" aria-hidden="true" /></summary><div>{(track.transcript ?? narration.text).split("\n").map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div></details>
-      {actions.length > 0 && <nav className="audio-player-links" aria-label="Related content">{actions.map((action) => <button key={action.label} type="button" onClick={() => onNavigate(action.href)}>{action.label}</button>)}</nav>}
+      {actions.length > 0 && <nav className="audio-player-links" aria-label="Related content">{actions.map((action, index) => <button key={action.label} type="button" className={index === 0 ? undefined : "is-secondary"} onClick={() => onNavigate(action.href)}>{action.label}</button>)}</nav>}
     </div>
   </div>;
 }

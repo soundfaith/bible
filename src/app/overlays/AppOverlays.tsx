@@ -7,9 +7,10 @@ type AppOverlaysProps = {
   modal: Modal | null;
   setModal: (modal: Modal | null) => void;
   onOpenVerse: (bookId: string, chapter: number, verse?: number) => void;
+  chatLauncherHidden: boolean;
 };
 
-export function AppOverlays({ modal, setModal, onOpenVerse }: AppOverlaysProps) {
+export function AppOverlays({ modal, setModal, onOpenVerse, chatLauncherHidden }: AppOverlaysProps) {
   const [searchInteracted, setSearchInteracted] = useState(false);
   const searchSheetStartY = useRef<number | null>(null);
   return (
@@ -59,7 +60,7 @@ export function AppOverlays({ modal, setModal, onOpenVerse }: AppOverlaysProps) 
           </section>
         </div>
       )}
-      <ChatWidget onOpenVerse={onOpenVerse} />
+      <ChatWidget onOpenVerse={onOpenVerse} launcherHidden={chatLauncherHidden} />
     </>
   );
 }
