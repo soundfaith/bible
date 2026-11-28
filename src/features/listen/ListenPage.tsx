@@ -5,6 +5,7 @@ import { SofiAvatar } from "@/features/chat";
 import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "@/features/chat/assistant";
 import { type NarrationSnapshot } from "@/platform/audio/NarratorButton";
 import { useHeaderAutoHide } from "@/lib/useHeaderAutoHide";
+import { journeyCatalog } from "@/features/journeys/journeyCatalog";
 
 export type PlayKind = "old-testament" | "new-testament" | "gospels" | "bible-current" | "bible-reference" | "bible-journey" | "freedom" | "no-worry" | "advent" | "catechism" | "mass" | "rosary" | "breviary" | "summa" | "saint";
 type Item = { title: string; detail: string; art: CardArtKey; path: string };
@@ -29,7 +30,7 @@ const sections: { title: string; items: Item[] }[] = [
   ] },
 ];
 
-type MobileDiscoveryItem = Item & { play: PlayKind };
+type MobileDiscoveryItem = Item & { play?: PlayKind; comingSoon?: boolean };
 const mobileSections: { title: string; items: MobileDiscoveryItem[] }[] = [
   { title: "Scripture", items: [
     { title: "The Bible", detail: "Continue with the chapter before you", art: "bible", path: "#/bible", play: "bible-current" },
@@ -47,10 +48,12 @@ const mobileSections: { title: string; items: MobileDiscoveryItem[] }[] = [
     { title: "Summa Theologiae", detail: "Explore the wisdom of St. Thomas", art: "summa", path: "#/summa", play: "summa" },
   ] },
   { title: "Guided Journeys", items: [
-    { title: "Bible Journey", detail: "Travel through the story of Scripture", art: "bible-journey", path: "#/journeys", play: "bible-journey" },
-    { title: "Freedom from Attachment", detail: "A 15-day path toward a freer heart", art: "freedom-hero", path: "#/journeys/freedom", play: "freedom" },
-    { title: "No-Worry Journey", detail: "A gentle path from anxiety toward trust", art: "no-worry-hero", path: "#/journeys/no-worry", play: "no-worry" },
     { title: "Advent Journey", detail: "Make room for hope, one day at a time", art: "advent-hero", path: "#/journeys/advent", play: "advent" },
+    { title: "No-Worry Journey", detail: "A gentle path from anxiety toward trust", art: "no-worry-hero", path: "#/journeys/no-worry", play: "no-worry" },
+    { title: "Freedom from Attachment", detail: "A 15-day path toward a freer heart", art: "freedom-hero", path: "#/journeys/freedom", play: "freedom" },
+    { title: "Bible Journey", detail: "Travel through the story of Scripture", art: "bible-journey", path: "#/journeys", play: "bible-journey" },
+    { title: journeyCatalog.lent.title, detail: "Coming soon", art: journeyCatalog.lent.artwork, path: "", comingSoon: true },
+    { title: journeyCatalog["the-art-of-quiet"].title, detail: "Coming soon", art: journeyCatalog["the-art-of-quiet"].artwork, path: "", comingSoon: true },
   ] },
   { title: "Saints & Witnesses", items: [
     { title: "Saint of the Day", detail: "Spend a moment with a faithful witness", art: "saints", path: "#/saints", play: "saint" },
@@ -64,7 +67,8 @@ export function ListenPage({ narration, onPlay }: { narration: NarrationSnapshot
     art={item.art}
     title={item.title}
     meta={item.detail}
-    onClick={() => onPlay(item.play)}
+    comingSoon={item.comingSoon}
+    onClick={() => { if (item.play) onPlay(item.play); }}
   />;
   const renderItem = (item: Item) => <div className="listen-item listen-discovery-item" key={item.title}>
     <a className="listen-item-link" href={item.path}>

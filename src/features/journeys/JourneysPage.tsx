@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { CardArt, type CardArtKey } from "@/shared/ui/LandingSmallCard";
-import { journeyCadence, journeyCatalog, journeyList, type AvailableJourneyId } from "./journeyCatalog";
+import { journeyCadence, journeyCatalog, orderedJourneyList } from "./journeyCatalog";
 import { guidedJourneyDays, isGuidedJourneyId, type GuidedJourneyId } from "./guidedJourneys";
 import { getJourneyOverview } from "./journeyOverview";
 import type { GuidedJourneyProgress } from "./guidedJourneyProgress";
@@ -78,7 +78,7 @@ export function JourneysPage({
           <p className="landing-section-description">Choose a guided path that meets you where you are.</p>
         </div>
         <ol className="journey-library-list library-stack">
-          {journeyList.filter((journey) => !(isGuidedJourneyId(journey.id) && guided[journey.id].active) && !(journey.id === "bible" && bible.active)).map((journey) => {
+          {orderedJourneyList.filter((journey) => !(isGuidedJourneyId(journey.id) && guided[journey.id].active) && !(journey.id === "bible" && bible.active)).map((journey) => {
             if (!journey.available) {
               return (
                 <JourneyLibraryItem

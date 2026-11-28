@@ -61,6 +61,10 @@ export const journeyCatalog: Record<JourneyCatalogId, JourneyCatalogEntry> = {
 
 export const journeyList = Object.values(journeyCatalog);
 
+export const journeyDisplayOrder: JourneyCatalogId[] = ["advent", "no-worry", "freedom", "bible", "lent", "the-art-of-quiet"];
+
+export const orderedJourneyList = journeyDisplayOrder.map((id) => journeyCatalog[id]);
+
 export function journeyCadence(id: JourneyCatalogId): JourneyCadence {
   return journeyCatalog[id].cadence ?? "daily";
 }

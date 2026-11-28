@@ -8,7 +8,7 @@ import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "@/features/chat/assistant"
 import { breviaryHourInfo, currentBreviaryHour } from "@/features/breviary/breviary";
 import { doneToday, hasEverDone, routineStreak, type DailyItem, type DailyStreakState } from "@/features/daily";
 import { guidedJourneyDays, type GuidedJourneyId } from "@/features/journeys/guidedJourneys";
-import { journeyCadence, journeyCatalog, journeyList } from "@/features/journeys/journeyCatalog";
+import { journeyCadence, journeyCatalog, orderedJourneyList } from "@/features/journeys/journeyCatalog";
 import type { GuidedJourneyProgress } from "@/features/journeys/guidedJourneyProgress";
 import { getJourneyOverview } from "@/features/journeys/journeyOverview";
 import { selectDailyRecommendation } from "@/features/daily";
@@ -218,7 +218,12 @@ export function HomePage({ onChoose, onCatechism, onSumma, onResume, onContinueB
         </section>
         <section className="feed-section"><p className="feed-eyebrow">Recommended</p>
           <div className="feed-carousel">
-            {[nextStepCard, ...formationCards.filter((card) => card.title !== nextStepCard.title)]
+            {[
+              ...(featuredJourney === "advent" ? [] : [journeyNextSteps["journey-advent"]]),
+              nextStepCard,
+              ...formationCards.filter((card) => card.title !== nextStepCard.title),
+            ]
+              .filter((card, index, cards) => cards.findIndex((other) => other.title === card.title) === index)
               .filter((card) => card.title !== featuredJourneyInfo?.title)
               .map((card) => <FeedCard key={card.title} art={card.art} title={card.title} meta={card.action} onClick={() => onPlay(card.play)} />)}
           </div>
@@ -339,7 +344,7 @@ export function HomePage({ onChoose, onCatechism, onSumma, onResume, onContinueB
           <button className="button button-outline" type="button" onClick={onAllJourneys}>More journeys <ArrowRight size={15} /></button>
         </div>
         <div className="landing-explore-grid">
-          {journeyList.filter((journey) => journey.id !== featuredJourney && journey.id !== "the-art-of-quiet").slice(0, 4).map((journey) => {
+          {orderedJourneyList.filter((journey) => journey.id !== featuredJourney && journey.id !== "the-art-of-quiet").map((journey) => {
             if (!journey.available) {
               return (
                 <article className="landing-card landing-card--coming-soon" key={journey.id}>
