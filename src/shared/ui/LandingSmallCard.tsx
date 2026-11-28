@@ -8,10 +8,13 @@ import { SummaArtwork } from "@/features/summa";
 import { CatechismArtwork as CatechismBookArtwork } from "@/features/catechism";
 import { bibleJourney } from "@/features/journeys/bibleJourney";
 import { JourneyArtwork } from "@/features/journeys/artwork/JourneyArtwork";
+import { AdventHeroArtwork } from "@/features/journeys/AdventSectionArtwork";
+import { FreedomHeroArtwork } from "@/features/journeys/FreedomJourneyArtwork";
+import { NoWorryHeroArtwork } from "@/features/journeys/NoWorryJourneyArtwork";
 
-export type CardArtKey = "bible" | "old-testament" | "new-testament" | "gospels" | "journey" | "freedom-journey" | "bible-journey" | "prayer" | "readings" | "rosary" | "saints" | "catechism" | "summa";
+export type CardArtKey = "bible" | "old-testament" | "new-testament" | "gospels" | "journey" | "freedom-journey" | "freedom-hero" | "no-worry-hero" | "advent-hero" | "bible-journey" | "prayer" | "readings" | "rosary" | "saints" | "catechism" | "summa";
 
-function NoWorryJourneyArtwork() {
+function GenericJourneyArtwork() {
   return (
     <svg className="landing-card-artwork" viewBox="0 0 400 200">
       <ellipse className="landing-journey-sun" cx="200" cy="100" rx="60" ry="22" />
@@ -46,10 +49,10 @@ export function useCardPlaying(art: CardArtKey, enabled: boolean) {
   return enabled && activeAudio?.art === art ? activeAudio.status : null;
 }
 
-export function CardArt({ art, className = "", showPlaying = false }: { art: CardArtKey; className?: string; showPlaying?: boolean }) {
+export function CardArt({ art, className = "", showPlaying = false, mode = "wide" }: { art: CardArtKey; className?: string; showPlaying?: boolean; mode?: "wide" | "cover" | "mini" }) {
   const activeStatus = useCardPlaying(art, showPlaying);
   return <div className={`landing-card-art landing-card-art--${art} ${className}`.trim()} aria-hidden="true">
-    {art === "bible" ? <LandingBibleArtwork /> : art === "old-testament" ? <LandingOldTestamentArtwork /> : art === "new-testament" ? <LandingNewTestamentArtwork /> : art === "gospels" ? <LandingGospelsArtwork /> : art === "journey" ? <NoWorryJourneyArtwork /> : art === "freedom-journey" ? <LandingFreedomArtwork /> : art === "bible-journey" ? <JourneyArtwork periodId={bibleJourney[0].id} /> : art === "prayer" ? <LandingBreviaryArtwork /> : art === "rosary" ? <RosaryArtwork home /> : art === "saints" ? <SaintArtwork /> : art === "catechism" ? <CatechismBookArtwork edition={1} /> : art === "summa" ? <SummaArtwork variant="prima-pars" /> : <LandingChurchArtwork />}
+    {art === "bible" ? <LandingBibleArtwork /> : art === "old-testament" ? <LandingOldTestamentArtwork /> : art === "new-testament" ? <LandingNewTestamentArtwork /> : art === "gospels" ? <LandingGospelsArtwork /> : art === "journey" ? <GenericJourneyArtwork /> : art === "freedom-journey" ? <LandingFreedomArtwork /> : art === "freedom-hero" ? <FreedomHeroArtwork card={mode === "wide"} mini={mode === "mini"} /> : art === "no-worry-hero" ? <NoWorryHeroArtwork card={mode === "wide"} mini={mode === "mini"} /> : art === "advent-hero" ? <AdventHeroArtwork card={mode === "wide"} mini={mode === "mini"} /> : art === "bible-journey" ? <JourneyArtwork periodId={bibleJourney[0].id} /> : art === "prayer" ? <LandingBreviaryArtwork /> : art === "rosary" ? <RosaryArtwork home /> : art === "saints" ? <SaintArtwork /> : art === "catechism" ? <CatechismBookArtwork edition={1} /> : art === "summa" ? <SummaArtwork variant="prima-pars" /> : <LandingChurchArtwork />}
         {activeStatus === "playing" && <span className="card-playing-eq"><span className="mobile-nav-player-bars"><i /><i /><i /></span></span>}
         {activeStatus === "paused" && <span className="card-playing-eq card-playing-paused"><Pause size={14} fill="currentColor" /></span>}
   </div>;

@@ -7,24 +7,22 @@ import { NextStepPrompt } from "@/shared/ui/NextStepPrompt";
 import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "@/features/chat/assistant";
 import { breviaryHourInfo, currentBreviaryHour } from "@/features/breviary/breviary";
 import { doneToday, hasEverDone, routineStreak, type DailyItem, type DailyStreakState } from "@/features/daily";
-import { isGuidedJourneyId, guidedJourneyDays, type GuidedJourneyId } from "@/features/journeys/guidedJourneys";
+import { guidedJourneyDays, type GuidedJourneyId } from "@/features/journeys/guidedJourneys";
 import { journeyCadence, journeyCatalog, journeyList } from "@/features/journeys/journeyCatalog";
 import type { GuidedJourneyProgress } from "@/features/journeys/guidedJourneyProgress";
 import { getJourneyOverview } from "@/features/journeys/journeyOverview";
 import { selectDailyRecommendation } from "@/features/daily";
+import { catechismEditions, catechismGroupHref } from "@/features/catechism/catechism";
+import { summaQuestionHref } from "@/features/summa/summa";
 import { narrationDescription, type NarrationSnapshot } from "@/platform/audio/NarratorButton";
 import { useHeaderAutoHide } from "@/lib/useHeaderAutoHide";
 import type { PlayKind } from "@/features/listen";
 
 type HomePageProps = {
-  onJourney: () => void;
   onChoose: () => void;
-  onRosary: () => void;
-  onSaintToday: () => void;
   onCatechism: () => void;
   onSumma: () => void;
   onResume: () => void;
-  onGuidedJourney: (journey: GuidedJourneyId) => void;
   onContinueBibleJourney: () => void;
   onAllJourneys: () => void;
   onDaily: () => void;
@@ -37,7 +35,6 @@ type HomePageProps = {
   narration: NarrationSnapshot;
   onPlay: (kind: PlayKind, autoplay?: boolean) => void;
   onPlayHero: () => void;
-  onPlayDaily: () => void;
 };
 
 const routineDuration = { breviary: "10 min", mass: "5 min", rosary: "20 min", saints: "3 min" };
@@ -48,7 +45,7 @@ function streakText(days: number) {
   return "A new rhythm begins today";
 }
 
-export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatechism, onSumma, onResume, onGuidedJourney, onContinueBibleJourney, onAllJourneys, onDaily, bible, bibleJourney, guidedJourney, streak, onOpenDaily, onShare, narration, onPlayHero, onPlay }: HomePageProps) {
+export function HomePage({ onChoose, onCatechism, onSumma, onResume, onContinueBibleJourney, onAllJourneys, onDaily, bible, bibleJourney, guidedJourney, streak, onOpenDaily, onShare, narration, onPlayHero, onPlay }: HomePageProps) {
   const [shareNote, setShareNote] = useState("");
   const [recommendationDismissed, setRecommendationDismissed] = useState(() => {
     try { return window.sessionStorage.getItem("home-recommendation-dismissed") === "1"; } catch { return false; }
@@ -63,12 +60,12 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
   const saintsDone = done.includes("saints");
   const journeyOverview = getJourneyOverview(guidedJourney, bibleJourney.completedIds, bibleJourney.lastVisitedPeriodId);
   const featuredJourney = journeyOverview.featuredJourney;
-  const featuredJourneyInfo = journeyCatalog[featuredJourney];
+  const featuredJourneyInfo = featuredJourney ? journeyCatalog[featuredJourney] : null;
   const routineCards = [
-    { routine: "breviary" as const, art: "prayer" as const, title: "Breviary", stat: hasEverDone(streak, "breviary") ? streakText(routineStreak(streak, "breviary")) : undefined, action: breviaryDone ? `${hourName} prayed` : `Pray ${hourName}`, done: breviaryDone, onClick: () => onOpenDaily(hour), play: "breviary" as const },
+    { routine: "breviary" as const, art: "prayer" as const, title: "Breviary", stat: hasEverDone(streak, "breviary") ? streakText(routineStreak(streak, "breviary")) : undefined, action: breviaryDone ? `${hourName} prayed` : `Pray ${hourName}`, done: breviaryDone, onClick: () => { window.location.hash = "#/breviary"; }, play: "breviary" as const },
     { routine: "mass" as const, art: "readings" as const, title: "Mass Readings", stat: hasEverDone(streak, "mass") ? streakText(routineStreak(streak, "mass")) : undefined, action: massDone ? "Read today" : "Today's readings", done: massDone, onClick: () => onOpenDaily("mass"), play: "mass" as const },
-    { routine: "rosary" as const, art: "rosary" as const, title: "Rosary", stat: hasEverDone(streak, "rosary") ? streakText(routineStreak(streak, "rosary")) : undefined, action: rosaryDone ? "Prayed today" : "Pray the Rosary", done: rosaryDone, onClick: onRosary, play: "rosary" as const },
-    { routine: "saints" as const, art: "saints" as const, title: "Saint of the Day", stat: hasEverDone(streak, "saints") ? streakText(routineStreak(streak, "saints")) : undefined, action: saintsDone ? "Visited today" : "Meet today's saint", done: saintsDone, onClick: onSaintToday, play: "saint" as const },
+    { routine: "rosary" as const, art: "rosary" as const, title: "Rosary", stat: hasEverDone(streak, "rosary") ? streakText(routineStreak(streak, "rosary")) : undefined, action: rosaryDone ? "Prayed today" : "Pray the Rosary", done: rosaryDone, onClick: () => { window.location.hash = "#/rosary"; }, play: "rosary" as const },
+    { routine: "saints" as const, art: "saints" as const, title: "Saint of the Day", stat: hasEverDone(streak, "saints") ? streakText(routineStreak(streak, "saints")) : undefined, action: saintsDone ? "Visited today" : "Meet today's saint", done: saintsDone, onClick: () => { window.location.hash = "#/saints"; }, play: "saint" as const },
   ];
 
   const formationCards: { art: CardArtKey; title: string; description: string; action: string; onClick: () => void; play: PlayKind }[] = [
@@ -80,7 +77,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
   const guidedOverview = { freedom: journeyOverview.freedom, "no-worry": journeyOverview.noWorry, advent: journeyOverview.advent };
   const guidedTotal = (id: GuidedJourneyId) => guidedJourneyDays[id].length;
   const guidedDone = (id: GuidedJourneyId) => guidedJourney[id].completedDays.length;
-  const featuredGuidedId: GuidedJourneyId | null = featuredJourney === "bible" ? null : featuredJourney;
+  const featuredGuidedId: GuidedJourneyId | null = featuredJourney && featuredJourney !== "bible" ? featuredJourney : null;
   const featuredGuidedOverview = featuredGuidedId ? guidedOverview[featuredGuidedId] : null;
   const journeyNextSteps = {
     "journey-freedom": {
@@ -88,7 +85,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
       title: journeyCatalog.freedom.title,
       description: `Continue with day ${guidedOverview.freedom.nextDay} of ${guidedTotal("freedom")} of Scripture, reflection, and prayer.`,
       action: `Continue Day ${guidedOverview.freedom.nextDay}`,
-      onClick: () => onGuidedJourney("freedom"),
+      onClick: () => { window.location.hash = `#/journeys/freedom/${guidedOverview.freedom.nextDay}`; },
       play: "freedom" as const,
     },
     "journey-no-worry": {
@@ -96,7 +93,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
       title: journeyCatalog["no-worry"].title,
       description: `Continue with day ${guidedOverview["no-worry"].nextDay} of Scripture, reflection, and prayer.`,
       action: `Continue Day ${guidedOverview["no-worry"].nextDay}`,
-      onClick: () => onGuidedJourney("no-worry"),
+      onClick: () => { window.location.hash = `#/journeys/no-worry/${guidedOverview["no-worry"].nextDay}`; },
       play: "no-worry" as const,
     },
     "journey-bible": {
@@ -106,8 +103,16 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
         ? `Continue with ${journeyOverview.bible.resumePeriod.title} in the story of salvation.`
         : journeyCatalog.bible.description,
       action: "Continue Bible Journey",
-      onClick: journeyOverview.bible.active ? onContinueBibleJourney : onJourney,
+      onClick: onContinueBibleJourney,
       play: "bible-journey" as const,
+    },
+    "journey-advent": {
+      art: journeyCatalog.advent.artwork,
+      title: journeyCatalog.advent.title,
+      description: `Continue with day ${guidedOverview.advent.nextDay} of ${guidedTotal("advent")} of Scripture, reflection, and prayer.`,
+      action: `Continue Day ${guidedOverview.advent.nextDay}`,
+      onClick: () => { window.location.hash = `#/journeys/advent/${guidedOverview.advent.nextDay}`; },
+      play: "advent" as const,
     },
   };
   const recommendation = selectDailyRecommendation("home", streak, journeyOverview);
@@ -117,17 +122,8 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
     rosary: "rosary",
     saints: "saints",
   } as const;
-  const nextStepCard = recommendation === "journey-freedom" || recommendation === "journey-no-worry" || recommendation === "journey-bible"
+  const nextStepCard = recommendation === "journey-freedom" || recommendation === "journey-no-worry" || recommendation === "journey-advent" || recommendation === "journey-bible"
     ? journeyNextSteps[recommendation]
-    : recommendation === "journey-library"
-      ? {
-        art: journeyCatalog.bible.artwork,
-        title: "Explore Another Journey",
-        description: "Choose a guided journey through Scripture and daily life.",
-        action: "Explore journeys",
-        onClick: onAllJourneys,
-        play: "no-worry" as const,
-      }
       : recommendation === "bible"
         ? {
           art: "bible" as const,
@@ -135,11 +131,32 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
           description: "Spend a little time with God's Word today.",
           action: bible.started ? `Continue ${bible.label}` : "Start with Genesis",
           onClick: onResume,
-          play: "old-testament" as const,
+          play: bible.started ? "bible-current" as const : "old-testament" as const,
         }
-        : recommendation === "catechism" || recommendation === "summa"
-          ? formationCards.find((card) => card.title.toLowerCase().includes(recommendation))!
-          : routineCards.find((card) => card.routine === routineByRecommendation[recommendation])!;
+        : recommendation === "catechism"
+          ? {
+            ...formationCards.find((card) => card.title.toLowerCase().includes("catechism"))!,
+            action: "Open the first lesson",
+            onClick: () => {
+              const edition = catechismEditions[0];
+              const firstLesson = edition?.groups.find((group) => group.kind === "lesson");
+              if (edition && firstLesson) window.location.hash = catechismGroupHref(edition.number, firstLesson.id);
+              else window.location.hash = "#/catechism";
+            },
+          }
+          : recommendation === "summa"
+            ? {
+              ...formationCards.find((card) => card.title.toLowerCase().includes("summa"))!,
+              action: "Open Question 1",
+              onClick: () => { window.location.hash = summaQuestionHref("prima-pars", 1); },
+            }
+            : recommendation === "breviary"
+              ? { ...routineCards.find((card) => card.routine === "breviary")!, onClick: () => { window.location.hash = `#/breviary/${hour}`; } }
+              : recommendation === "rosary"
+                ? { ...routineCards.find((card) => card.routine === "rosary")!, onClick: () => { window.location.hash = "#/rosary/joyful"; } }
+                : recommendation === "saints"
+                  ? { ...routineCards.find((card) => card.routine === "saints")!, onClick: () => { window.location.hash = "#/saints/today"; } }
+                  : routineCards.find((card) => card.routine === routineByRecommendation[recommendation])!;
   const hasPriorActivity = bible.started
     || Boolean(narration.track)
     || bibleJourney.completedIds.length > 0
@@ -171,7 +188,9 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
         <section className="feed-section feed-bleed">
           {narration.status !== "idle" && narration.track
             ? <FeedCard art={narration.track.art} title={narration.track.title} meta={narrationDescription(narration)} playBadge onClick={onPlayHero} />
-            : <FeedCard art="bible" title="Begin with Genesis" meta="Listen to the opening story of Scripture" playBadge onClick={() => onPlay("old-testament", true)} />}
+            : bible.started
+              ? <FeedCard art="bible" title={`Continue ${bible.label}`} meta="Resume your current chapter" playBadge onClick={() => onPlay("bible-current")} />
+              : <FeedCard art="bible" title="Begin with Genesis" meta="Listen to the opening story of Scripture" playBadge onClick={() => onPlay("old-testament", true)} />}
         </section>
         <section className="feed-section"><p className="feed-eyebrow">Today's Rhythm</p>
           <div className="feed-carousel">
@@ -179,18 +198,18 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
           </div>
         </section>
         <section className="feed-section feed-bleed"><p className="feed-eyebrow">{journeyOverview.hasActiveJourney ? "Current Journey" : "A Journey for You"}</p>
-          <FeedCard
+          {featuredJourneyInfo ? <FeedCard
             art={featuredJourneyInfo.artwork}
             title={featuredJourneyInfo.title}
             meta={featuredGuidedId ? `Day ${featuredGuidedOverview!.nextDay} of ${guidedTotal(featuredGuidedId)}` : `${journeyOverview.bible.completedCount} of ${journeyOverview.bible.totalCount} periods complete`}
             progress={featuredGuidedId ? guidedDone(featuredGuidedId) / guidedTotal(featuredGuidedId) : journeyOverview.bible.totalCount ? journeyOverview.bible.completedCount / journeyOverview.bible.totalCount : 0}
-            onClick={() => onPlay(featuredGuidedId ?? "bible-journey")}
-          />
+            onClick={() => onPlay(featuredJourney === "bible" ? "bible-journey" : featuredGuidedId!)}
+          /> : <FeedCard art="bible-journey" title="Return to Bible Journey" meta="Revisit the story of Scripture" onClick={() => onPlay("bible-journey")} />}
         </section>
         <section className="feed-section"><p className="feed-eyebrow">Recommended</p>
           <div className="feed-carousel">
             {[nextStepCard, ...formationCards.filter((card) => card.title !== nextStepCard.title)]
-              .filter((card) => card.title !== featuredJourneyInfo.title)
+              .filter((card) => card.title !== featuredJourneyInfo?.title)
               .map((card) => <FeedCard key={card.title} art={card.art} title={card.title} meta={card.action} onClick={() => onPlay(card.play)} />)}
           </div>
         </section>
@@ -201,7 +220,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
           </button>
         </section>
         {!recommendationDismissed && <aside className="home-recommendation-prompt" aria-label={hasPriorActivity ? "Continue your recommended next step" : "Recommended place to start"}>
-          <button className="home-recommendation-action" type="button" onClick={nextStepCard.onClick}>
+          <button className="home-recommendation-action" type="button" onClick={() => onPlay(nextStepCard.play)}>
             <span className="home-recommendation-icon" aria-hidden="true">{recommendationIcon}</span>
             <span className="home-recommendation-copy"><span className="home-recommendation-eyebrow">{hasPriorActivity ? "Continue" : "Start here"}</span><strong>{nextStepCard.title}</strong><small>{nextStepCard.action}</small></span>
             <ChevronRight className="home-recommendation-chevron" size={18} aria-hidden="true" />
@@ -227,26 +246,35 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
       <section className="landing-current-journey section-wrap" aria-labelledby="current-journey-title">
         <div className="landing-section-heading">
           <p className="eyebrow">{journeyOverview.hasActiveJourney ? "Your current journey" : "A journey for today"}</p>
-          <h2 id="current-journey-title">{journeyOverview.hasActiveJourney ? "Keep walking, one day at a time." : featuredGuidedOverview?.complete ? "Celebrate the journey you completed." : "A little more peace, one day at a time."}</h2>
+          <h2 id="current-journey-title">{journeyOverview.hasActiveJourney ? "Keep walking, one day at a time." : featuredJourney ? "A little more peace, one day at a time." : "Choose your next journey."}</h2>
         </div>
-        <button className="landing-journey-card" type="button" onClick={featuredGuidedId ? () => onGuidedJourney(featuredGuidedId) : journeyOverview.bible.active ? onContinueBibleJourney : onJourney}>
-          <CardArt art={featuredJourneyInfo.artwork} />
+        <button className="landing-journey-card" type="button" onClick={() => {
+          window.location.hash = featuredJourney === "bible" ? "#/journey" : `#/journeys/${featuredJourney ?? "advent"}`;
+        }}>
+          <CardArt art={featuredJourneyInfo?.artwork ?? journeyCatalog.advent.artwork} mode="cover" />
           <span className="landing-journey-copy">
-            {featuredGuidedId && featuredGuidedOverview ? <>
-              <span className="eyebrow">{featuredGuidedOverview.active ? "In progress" : featuredGuidedOverview.complete ? "Journey complete" : "Featured journey"}</span>
+            {featuredGuidedId && featuredGuidedOverview && featuredJourneyInfo ? <>
+              <span className="eyebrow">{featuredGuidedOverview.active ? "In progress" : "Featured journey"}</span>
               <strong>{featuredJourneyInfo.title}</strong>
-              <span>{featuredGuidedOverview.complete ? "Return to the reflections and prayers whenever you need them." : featuredJourneyInfo.description}</span>
+              <span>{featuredJourneyInfo.description}</span>
               <span className="landing-journey-day">Recommended cadence: {journeyCadence(featuredGuidedId)}</span>
-              <span className="landing-journey-day">{featuredGuidedOverview.complete ? `${guidedTotal(featuredGuidedId)} of ${guidedTotal(featuredGuidedId)} days complete` : `Day ${featuredGuidedOverview.nextDay} of ${guidedTotal(featuredGuidedId)}`}</span>
+              <span className="landing-journey-day">Day {featuredGuidedOverview.nextDay} of {guidedTotal(featuredGuidedId)}</span>
               <progress value={guidedDone(featuredGuidedId)} max={guidedTotal(featuredGuidedId)} aria-label={`${guidedDone(featuredGuidedId)} of ${guidedTotal(featuredGuidedId)} days complete`} />
-              <span className="text-link">{featuredGuidedOverview.active ? "Continue journey" : featuredGuidedOverview.complete ? "Revisit journey" : "Begin journey"} <ArrowRight size={15} /></span>
+              <span className="text-link">Open this journey <ArrowRight size={15} /></span>
             </> : <>
-              <span className="eyebrow">{journeyOverview.bible.active ? "In progress" : "Featured journey"}</span>
-              <strong>{featuredJourneyInfo.title}</strong>
-              <span>{journeyOverview.bible.resumePeriod ? `Continue with ${journeyOverview.bible.resumePeriod.title} in the story of salvation.` : featuredJourneyInfo.description}</span>
-              <span className="landing-journey-day">Recommended cadence: {journeyCadence("bible")}</span>
-              <span className="landing-journey-day">{journeyOverview.bible.completedCount} of {journeyOverview.bible.totalCount} periods complete</span>
-              <span className="text-link">{journeyOverview.bible.active ? "Continue journey" : "Explore journey"} <ArrowRight size={15} /></span>
+              {featuredJourneyInfo ? <>
+                <span className="eyebrow">{journeyOverview.bible.active ? "In progress" : "Featured journey"}</span>
+                <strong>{featuredJourneyInfo.title}</strong>
+                <span>{journeyOverview.bible.resumePeriod ? `Continue with ${journeyOverview.bible.resumePeriod.title} in the story of salvation.` : featuredJourneyInfo.description}</span>
+                <span className="landing-journey-day">Recommended cadence: {journeyCadence("bible")}</span>
+                <span className="landing-journey-day">{journeyOverview.bible.completedCount} of {journeyOverview.bible.totalCount} periods complete</span>
+                <span className="text-link">Open Bible Journey <ArrowRight size={15} /></span>
+              </> : <>
+                <span className="eyebrow">All journeys complete</span>
+                <strong>Revisit a guided journey</strong>
+                <span>Return to a journey's day list and continue at your own pace.</span>
+                <span className="text-link">Browse Advent days <ArrowRight size={15} /></span>
+              </>}
             </>}
           </span>
         </button>
@@ -301,7 +329,7 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
           <button className="button button-outline" type="button" onClick={onAllJourneys}>More journeys <ArrowRight size={15} /></button>
         </div>
         <div className="landing-explore-grid">
-          {journeyList.filter((journey) => journey.id !== featuredJourney).map((journey) => {
+          {journeyList.filter((journey) => journey.id !== featuredJourney && journey.id !== "the-art-of-quiet").slice(0, 4).map((journey) => {
             if (!journey.available) {
               return (
                 <article className="landing-card landing-card--coming-soon" key={journey.id}>
@@ -310,11 +338,8 @@ export function HomePage({ onJourney, onChoose, onRosary, onSaintToday, onCatech
                 </article>
               );
             }
-            const guidedId = isGuidedJourneyId(journey.id) ? journey.id : null;
-            const onSelect = guidedId ? () => onGuidedJourney(guidedId) : onJourney;
-            const action = guidedId
-              ? guidedOverview[guidedId].complete ? "Revisit journey" : guidedOverview[guidedId].active ? "Continue journey" : "Begin journey"
-              : journeyOverview.bible.complete ? "Revisit Bible Journey" : journeyOverview.bible.active ? "Continue Bible Journey" : "Explore Bible Journey";
+            const onSelect = () => { window.location.hash = journey.id === "bible" ? "#/journey" : `#/journeys/${journey.id}`; };
+            const action = journey.id === "bible" ? "Explore Bible Journey" : "View journey days";
             return (
               <button className="landing-card" type="button" key={journey.id} onClick={onSelect}>
                 <CardArt art={journey.artwork} />

@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { rosaryMysteries } from "./rosary";
 
 type RosaryArtworkProps = { index?: number; hero?: boolean; home?: boolean };
@@ -145,11 +146,12 @@ export function FloatingRosaryBeads({ prayedBeadIndices = [], activeBeadIndex = 
 }
 
 export function RosaryArtwork({ index = 0, hero = false, home = false }: RosaryArtworkProps) {
+  const instanceId = useId().replace(/:/g, "");
   const mysteryIndex = home ? 0 : Math.max(0, Math.min(3, index));
   const mystery = rosaryMysteries[mysteryIndex] ?? rosaryMysteries[0];
   const scene = scenes[mysteryIndex];
   const caption = mystery.scenes[representativeScenes[mysteryIndex]] ?? mystery.scenes[0];
-  const id = `rosary-art-${home ? "home" : mysteryIndex}`;
+  const id = `rosary-art-${instanceId}-${home ? "home" : mysteryIndex}`;
 
   return <figure className={`rosary-art${hero ? " rosary-art--hero" : ""}${home ? " rosary-art--home" : ""}`} role="img" aria-label={home ? "A complete five decade rosary with crucifix at dawn" : `${mystery.title}: ${caption.title}`}>
     <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" focusable="false">

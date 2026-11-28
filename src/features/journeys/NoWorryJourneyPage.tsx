@@ -39,12 +39,12 @@ export function NoWorryJourneyPage({ journeyId, progress, voicePreference, nextS
   return (
     <main className="journey-page journey-detail-page section-wrap saints-page no-worry-page has-next-step">
       <nav className="journey-detail-nav" aria-label="Journey navigation">
-        <a className="button button-outline" href="#/"><ArrowLeft size={16} /> Home</a>
+        <a className="button button-outline" href={`#/journeys/${journeyId}`}><ArrowLeft size={16} /> All days</a>
       </nav>
 
       <header className="journey-detail-heading saints-detail-heading no-worry-heading">
         <p className="eyebrow"><span className="eyebrow-dot" /> {journeyName}</p>
-        <h1>{`Day ${dayNumber} of the ${journeyName}`}</h1>
+        <h1>{`Day ${dayNumber}: ${day.title}`}</h1>
         <p className="journey-detail-overview">{isComplete ? "Journey complete. Revisit any day whenever you need it." : `${days.length}-day journey through Scripture, reflection, and prayer.`}</p>
         <div className="journey-audio-controls">
           <NarratorButton text={narration.text} voicePreference={voicePreference} track={narration.track} />

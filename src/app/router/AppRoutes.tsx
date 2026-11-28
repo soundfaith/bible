@@ -1,13 +1,13 @@
 import { lazy, Suspense, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { DailyPage, type RecommendationPage } from "@/features/daily";
 import { HomePage } from "@/features/home";
-import { JourneysPage, NoWorryJourneyPage, BibleJourneyLibrary, BibleJourneyPage, JourneyArtworkPage } from "@/features/journeys";
+import { JourneysPage, NoWorryJourneyPage, GuidedJourneyLibraryPage, BibleJourneyLibrary, BibleJourneyPage, JourneyArtworkPage } from "@/features/journeys";
 import { AboutPage } from "@/pages/AboutPage";
 import { BibleBooksPage, ChapterPage, bibleBooks, hasOpenedBible, type ReadingPosition } from "@/features/bible";
 import { MassReadingPage } from "@/features/mass-readings";
 import { BreviaryLibrary, BreviaryPage } from "@/features/breviary";
 import { RosaryLibrary, RosaryPrayerPage } from "@/features/rosary/RosaryPage";
-import { todaysRosaryPath, type RosaryMode } from "@/features/rosary/rosary";
+import type { RosaryMode } from "@/features/rosary/rosary";
 import { breviaryDayInfo, type assembleBreviary } from "@/features/breviary/breviary";
 import { BookmarksPage, isVerseBookmark } from "@/features/bookmarks";
 import { ReferencePage } from "@/pages/ReferencePage";
@@ -21,7 +21,6 @@ import type { useAppBookmarks } from "../bookmarks";
 import type { useAppNavigation } from "../navigation";
 import type { useVoicePreference } from "../preferences";
 import { shareApp } from "../preferences";
-import { getListenDurations } from "../listen";
 import type { BibleArt } from "../audio";
 import type { Route } from "../routing";
 
@@ -106,7 +105,6 @@ export type AppRoutesProps = {
   selectJourneyAudioStory: (index: number) => void;
   skipJourneyIntro: () => void;
   // Listen
-  loadingListen: PlayKind | null;
   playHero: () => void;
   playListening: (kind: PlayKind, autoplay?: boolean) => Promise<void>;
 };
@@ -124,7 +122,7 @@ export function AppRoutes(props: AppRoutesProps) {
     saintSlug,
     journeyPeriodId, activeGuidedId, activeGuidedDay, journeyProgress, guidedJourneyProgress, journeyArtwork, lastJourneyPeriodId, selectJourneyArtwork, startGuidedJourney, completeGuidedJourneyDay, toggleJourneyPeriod,
     journeyAudioForPage, journeyDesktopProgress, toggleJourneyAudio, selectJourneyAudioStory, skipJourneyIntro,
-    loadingListen, playHero, playListening,
+    playHero, playListening,
   } = props;
   return route === "read" ? (
       <ChapterPage
@@ -199,6 +197,11 @@ export function AppRoutes(props: AppRoutesProps) {
         onSelect={selectJourneyArtwork}
       />
     ) : route === "guided-journey" ? (
+      activeGuidedDay === null ? <GuidedJourneyLibraryPage
+        journeyId={activeGuidedId}
+        progress={guidedJourneyProgress[activeGuidedId]}
+        onSelectDay={(day) => { window.location.hash = `#/journeys/${activeGuidedId}/${day}`; }}
+      /> :
       <NoWorryJourneyPage
         journeyId={activeGuidedId}
         progress={guidedJourneyProgress[activeGuidedId]}
@@ -226,7 +229,7 @@ export function AppRoutes(props: AppRoutesProps) {
         nextStep={recommendation("journey")}
       />
     ) : route === "listen" ? (
-      <ListenPage narration={narration} onOpenPlayer={() => setPlayerOpen(true)} onPlayHero={playHero} loading={loadingListen} durations={getListenDurations({ journeyOverview, rosaryMode, voicePreference })} onPlay={(kind, autoplay = false) => { void playListening(kind, autoplay); }} />
+      <ListenPage narration={narration} onPlay={(kind) => { void playListening(kind); }} />
     ) : route === "daily" ? (
       <DailyPage streak={dailyStreak} onOpenDaily={openDailyItem} />
     ) : route === "journey" ? journeyPeriodId ? (
@@ -263,16 +266,11 @@ export function AppRoutes(props: AppRoutesProps) {
       <HomePage
         narration={narration}
         onPlayHero={playHero}
-        onPlayDaily={() => { void playListening("mass", false); }}
         onPlay={(kind, autoplay = false) => { void playListening(kind, autoplay); }}
         onResume={() => openReader()}
         onChoose={() => { window.location.hash = "#/bible"; }}
-        onJourney={() => { window.location.hash = "#/journey"; }}
-        onRosary={() => { window.location.hash = todaysRosaryPath(); }}
-        onSaintToday={() => { window.location.hash = "#/saints/today"; }}
         onCatechism={() => { window.location.hash = "#/catechism"; }}
         onSumma={() => { window.location.hash = "#/summa"; }}
-        onGuidedJourney={(journey) => { window.location.hash = `#/journeys/${journey}`; }}
         onContinueBibleJourney={resumeJourney}
         onAllJourneys={() => { window.location.hash = "#/journeys"; }}
         onDaily={() => { window.location.hash = "#/daily"; }}

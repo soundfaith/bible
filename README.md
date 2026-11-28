@@ -15,6 +15,96 @@ it does not automatically start unrelated content. If a recording becomes
 unavailable, playback continues using device speech at approximately the same
 relative position. Device speech timings are estimates.
 
+## Adding a guided journey
+
+When journey content is supplied separately (for example, as
+`src/features/journeys/adventJourney.ts`), leave that content file unchanged.
+Treat this list as the integration checklist; adding a data file alone does not
+register a journey across the app. Follow the existing guided journey pattern
+used by Freedom from Attachment, No-Worry, and Advent. Bible Journey is a
+separate multi-period feature, so do not use it as the template for a daily
+guided journey.
+
+### Registration checklist
+
+- [ ] **Content and identity:** Confirm the supplied data exports the existing
+  guided-day shape. Add the journey ID and data import to
+  `src/features/journeys/guidedJourneys.ts`, including its ID type, day map,
+  and `isGuidedJourneyId` check. Do not invent or rewrite journey content.
+- [ ] **Catalog and artwork:** Add its title, description, artwork key,
+  availability, and cadence to `src/features/journeys/journeyCatalog.ts`.
+  Add artwork to `CardArtKey` and the `CardArt` renderer in
+  `src/shared/ui/LandingSmallCard.tsx` if it needs a distinct illustration.
+  Catalog order also determines which newest available, incomplete journey is
+  featured when there is no active journey; preserve that ordering intentionally.
+- [ ] **Progress persistence:** Add a distinct started flag and completed-day
+  list in `src/features/journeys/journeyProgressStore.ts`. Update its empty
+  defaults, read/normalize logic, and `getGuidedSlot` / `withGuidedSlot`
+  mappings. Hydrate and synchronize it in
+  `src/app/journeys/useJourneyAppState.ts`. Keep existing storage keys and
+  progress intact; validate day numbers against the new content length.
+- [ ] **Route and page:** Verify `src/app/routing/routes.ts` parses the journey
+  slug and valid day number using `guidedJourneyDays`; verify
+  `src/app/router/AppRoutes.tsx` passes the selected ID, progress, start, and
+  completion handlers to the guided journey page. Check the navigation helpers
+  in `src/app/navigation/useAppNavigation.ts` and all links for the canonical
+  `#/journeys/<id>` route. Update explicit journey lists or page labels where
+  needed; the route parser alone does not add the journey everywhere.
+- [ ] **Journeys page:** Check both the in-progress list and the explore list in
+  `src/features/journeys/JourneysPage.tsx`. Update any explicit guided-ID arrays,
+  active journey filters, labels, and actions. Confirm the journey appears once
+  in the Journeys page and opens the correct journey and day.
+- [ ] **Home page:** Update `src/features/home/HomePage.tsx` for both the mobile
+  Current Journey card and desktop current journey card, plus Recommended and
+  Explore Journeys where appropriate. Check card artwork, title, progress,
+  click destination, and filtering so the current journey is not recommended
+  again. Update `src/features/journeys/journeyOverview.ts` so completed
+  journeys are not selected as current and the intended active/newest-incomplete
+  selection order is applied consistently. Do not leave a hard-coded journey
+  ID as the featured default.
+- [ ] **Browse page:** Add the journey to the Journeys section in
+  `src/features/listen/ListenPage.tsx` for desktop and mobile. Check its title,
+  detail, artwork, route, play action, and any Recently Added list. Browse cards
+  are separate from the catalog and are not populated automatically.
+- [ ] **Daily recommendation and streaks:** Decide whether the journey belongs
+  in daily recommendations. If so, update `DailyItem` and valid stored items in
+  `src/features/daily/dailyStreak.ts`, the guided journey mapping in
+  `src/app/daily/guidedDailyItem.ts`, recommendation priority and cadence logic
+  in `src/features/daily/dailyRecommendations.ts`, card rendering in
+  `src/features/daily/DailyNextStep.tsx` / `src/app/daily/renderDailyRecommendation.tsx`,
+  and navigation in `src/app/navigation/useAppNavigation.ts`. Update the streak
+  completion/session actions in `src/app/daily/useJourneyStreakActions.ts` as
+  needed. Do not add a recommendation if the journey should only be browsable.
+- [ ] **Listening and narration:** If the journey is playable, add its
+  `PlayKind`, home/browse play actions, loading/duration entry in
+  `src/app/listen/listenDurations.ts`, launch handling in
+  `src/app/listen/useListenLaunch.ts`, playlist title and item sequencing in
+  `src/platform/audio/audioPlaylists.ts`, and introduction/narration text in
+  `src/app/audio/` or `src/features/journeys/journeyNarration.ts` as appropriate.
+  Check next-item navigation, transcript text, artwork, and that playing a day
+  does not accidentally mark it complete.
+- [ ] **Exports and other explicit lists:** Search for the new ID and existing
+  journey IDs across `src/` (especially navigation, progress, player, home,
+  browse, daily recommendations, and journey pages). Update exports in
+  `src/features/journeys/index.ts` only when a new public component or helper
+  needs exporting. Check the mobile bottom navigation's active route behavior.
+
+### Verification checklist
+
+- [ ] The journey appears on the Journeys page, Browse page, and both mobile
+  and desktop Home surfaces that are intended to show it.
+- [ ] Every card opens the correct journey, and direct links to the journey and
+  a valid day load correctly; invalid day numbers fall back safely.
+- [ ] Starting and completing a day persists across reloads and another tab,
+  updates the right journey only, and preserves existing journey progress.
+- [ ] Completion removes it from the current-journey recommendation; the next
+  active or newest available incomplete journey is selected according to the
+  documented overview/catalog order.
+- [ ] Narration intro, day audio, transcript, artwork, duration, and next-day
+  playback behave correctly when playback is supported.
+- [ ] Run `npm run build` and manually check desktop and mobile Home, Browse,
+  Journeys, journey route, progress, and playback.
+
 ## Build an Android APK
 
 The web app can be packaged as a native Android app with Capacitor. Install

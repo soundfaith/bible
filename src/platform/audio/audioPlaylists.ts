@@ -18,11 +18,10 @@ export function guidedItem(journeyId: GuidedJourneyId, day: number): PlaylistIte
   const days = guidedJourneyDays[journeyId];
   const entry = days[day - 1];
   if (!entry) return null;
-  const name = guidedJourneyTitles[journeyId];
   const path = `#/journeys/${journeyId}/${day}`;
   return {
     text: [entry.title, entry.scripture, entry.reference, entry.reflection, entry.prayer].filter(Boolean).join("\n\n"),
-    track: { title: `Day ${day} – ${name}`, path, art: journeyId === "freedom" ? "freedom-journey" : "journey", sequence: { kind: "guided", journeyId, day }, next: day < days.length ? { title: `Day ${day + 1} – ${name}`, path: `#/journeys/${journeyId}/${day + 1}` } : undefined },
+    track: { title: `Day ${day}: ${entry.title}`, path, art: journeyId === "freedom" ? "freedom-hero" : journeyId === "advent" ? "advent-hero" : "no-worry-hero", sequence: { kind: "guided", journeyId, day }, next: day < days.length ? { title: `Day ${day + 1}: ${days[day].title}`, path: `#/journeys/${journeyId}/${day + 1}` } : undefined },
   };
 }
 

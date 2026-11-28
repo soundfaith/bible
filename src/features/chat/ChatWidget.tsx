@@ -1,5 +1,5 @@
 import { ArrowRight, Send, Trash2, X } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "@/chat.css";
 import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "./assistant";
 import { clearChatHistory, loadChatHistory, saveChatHistory } from "./history";
@@ -19,30 +19,10 @@ export function SofiAvatar({ size = 46 }: { size?: number }) {
   return <img src={sofiLogo} width={size} height={size} alt="" aria-hidden="true" draggable={false} />;
 }
 
-function SparkleIcon({ size = 22, tone = "gradient" }: { size?: number; tone?: "gradient" | "white" }) {
-  const id = useId();
-  const fill = tone === "white" ? "#fff" : `url(#${id})`;
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      {tone === "gradient" && (
-        <defs>
-          <linearGradient id={id} x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#125b55" />
-            <stop offset="0.65" stopColor="#18776e" />
-            <stop offset="1" stopColor="#d3aa67" />
-          </linearGradient>
-        </defs>
-      )}
-      <path fill={fill} d="M10 2.5c.5 4.6 2.9 7 7.5 7.5-4.6.5-7 2.9-7.5 7.5-.5-4.600-2.900-7-7.500-7.500 4.600-.5 7-2.900 7.500-7.500Z" />
-      <path fill={fill} d="M18.500 14c.3 2.300 1.400 3.400 3.700 3.700-2.300.3-3.400 1.400-3.700 3.700-.3-2.300-1.400-3.400-3.700-3.700 2.300-.3 3.400-1.400 3.700-3.700Z" />
-    </svg>
-  );
-}
-
 function VerseCard({ reference, why, onOpen }: { reference: string; why?: string; onOpen: Props["onOpenVerse"] }) {
   const passage = parseRef(reference);
   if (!passage) return null;
-  const full = passageText(passage);
+  const full = passageText(passage).replace(/^[\s"'“”‘’«»]+|[\s"'“”‘’«»]+$/g, "");
   const text = full.length > 240 ? `${full.slice(0, 237).trimEnd()}…` : full;
   return (
     <button type="button" className="chat-verse" onClick={() => onOpen(passage.bookId, passage.chapter, passage.start)}>
@@ -188,8 +168,10 @@ export function ChatWidget({ onOpenVerse }: Props) {
   });
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const lastQuestionIdRef = useRef<string | null>(null);
+  const panelRef = useRef<HTMLElement>(null);
 
   useEffect(() => { saveChatHistory(messages); }, [messages]);
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
@@ -205,11 +187,20 @@ export function ChatWidget({ onOpenVerse }: Props) {
   useEffect(() => {
     if (!open) return;
     warmUpChatModel();
-    inputRef.current?.focus();
   }, [open]);
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
+    const questionId = lastQuestionIdRef.current;
+    if (questionId) {
+      const question = list.querySelector<HTMLElement>(`[data-message-id="${questionId}"]`);
+      if (question) {
+        const listTop = list.getBoundingClientRect().top;
+        const questionTop = question.getBoundingClientRect().top;
+        list.scrollTo({ top: Math.max(0, list.scrollTop + questionTop - listTop - 8), behavior: "smooth" });
+        return;
+      }
+    }
     const last = messages[messages.length - 1];
     const bubble = list.lastElementChild as HTMLElement | null;
     // Show a fresh answer from its beginning instead of its end.
@@ -220,6 +211,34 @@ export function ChatWidget({ onOpenVerse }: Props) {
     }
   }, [messages, busy, open]);
   useEffect(() => {
+    if (!open || window.innerWidth > 760) return;
+    const panel = panelRef.current;
+    const viewport = window.visualViewport;
+    if (!panel || !viewport) return;
+    const updateViewport = () => {
+      const keyboardHeight = window.innerHeight - viewport.height - viewport.offsetTop;
+      const keyboardOpen = keyboardHeight > 100;
+      panel.classList.toggle("is-keyboard-open", keyboardOpen);
+      if (keyboardOpen) {
+        panel.style.setProperty("--chat-visible-height", `${viewport.height}px`);
+        panel.style.setProperty("--chat-visible-top", `${viewport.offsetTop}px`);
+      } else {
+        panel.style.removeProperty("--chat-visible-height");
+        panel.style.removeProperty("--chat-visible-top");
+      }
+    };
+    updateViewport();
+    viewport.addEventListener("resize", updateViewport);
+    viewport.addEventListener("scroll", updateViewport);
+    return () => {
+      viewport.removeEventListener("resize", updateViewport);
+      viewport.removeEventListener("scroll", updateViewport);
+      panel.classList.remove("is-keyboard-open");
+      panel.style.removeProperty("--chat-visible-height");
+      panel.style.removeProperty("--chat-visible-top");
+    };
+  }, [open]);
+  useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
     window.addEventListener("keydown", onKey);
@@ -229,7 +248,9 @@ export function ChatWidget({ onOpenVerse }: Props) {
   const ask = async (text: string, direct?: string) => {
     const question = text.trim();
     if (!question || busy) return;
-    setMessages((current) => [...current, { id: uid(), role: "user", text: question }]);
+    const questionId = uid();
+    lastQuestionIdRef.current = questionId;
+    setMessages((current) => [...current, { id: questionId, role: "user", text: question }]);
     setDraft("");
     setBusy(true);
     let reply: ChatMessage;
@@ -266,39 +287,43 @@ export function ChatWidget({ onOpenVerse }: Props) {
 
   const reset = () => {
     clearChatHistory();
+    lastQuestionIdRef.current = null;
+    setConfirmClear(false);
     setMessages([welcomeMessage()]);
   };
+  const hasConversation = messages.some((message) => message.role === "user");
 
   return (
     <>
       {!open && (
         <button type="button" className="chat-fab" aria-label={`Ask ${BOT_NAME} about Scripture and Catholic teaching`} onClick={() => setOpen(true)} onPointerEnter={() => warmUpChatModel()}>
-          <SparkleIcon size={22} tone="white" />
+          <span className="chat-fab-mark"><SofiAvatar size={24} /></span>
           <span>{BOT_NAME} Q&amp;A</span>
         </button>
       )}
       {open && (
-        <section className="chat-panel" role="dialog" aria-label={`${BOT_NAME}, Scripture and Catholic teaching guide`}>
+        <section ref={panelRef} className="chat-panel" role="dialog" aria-label={`${BOT_NAME}, Scripture and Catholic teaching guide`}>
           <header className="chat-header">
             <span className="chat-avatar"><SofiAvatar size={46} /></span>
             <div>
               <strong>{BOT_NAME}</strong>
-              <span>Curated Catholic Questions &amp; Answers</span>
+              <span className="chat-subtitle">Curated Catholic Questions &amp; Answers</span>
             </div>
-            <button type="button" aria-label="Clear questions" title="Clear questions" onClick={reset}><Trash2 size={16} /></button>
+            {hasConversation && <button type="button" aria-label="Clear questions" title="Clear questions" onClick={() => setConfirmClear(true)}><Trash2 size={16} /></button>}
             <button type="button" aria-label="Close" onClick={() => setOpen(false)}><X size={18} /></button>
           </header>
+          {confirmClear && <div className="chat-clear-confirm" role="alertdialog" aria-label="Clear conversation confirmation"><span>Clear this conversation?</span><button type="button" onClick={reset}>Clear</button><button type="button" onClick={() => setConfirmClear(false)}>Cancel</button></div>}
           <div className="chat-list" ref={listRef} aria-live="polite" onClick={(event) => {
             const prompt = (event.target as HTMLElement).closest<HTMLElement>("[data-prompt]")?.dataset.prompt;
             if (prompt) void ask(prompt);
           }}>
             {messages.slice(busy ? -1 : -2).map((message) => message.role === "user"
-              ? <h2 className="sofi-question" key={message.id}>{message.text}</h2>
+              ? <h2 className="sofi-question" data-message-id={message.id} key={message.id}>{message.text}</h2>
               : <AssistantBubble key={message.id} message={message} onOpen={openVerse} onOpenCatechism={openCatechism} onOpenSumma={openSumma} onPick={(id) => void ask(getTopic(id)?.title ?? "", id)} />)}
             {busy && <p role="status">Searching the sources…</p>}
           </div>
           <form className="chat-form" onSubmit={(event) => { event.preventDefault(); void ask(draft); }}>
-            <input ref={inputRef} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Search questions or a verse…" maxLength={300} aria-label="Your question" />
+            <input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Search questions or a verse…" maxLength={300} aria-label="Your question" />
             <button type="submit" aria-label="Search questions" disabled={busy || !draft.trim()}><Send size={17} /></button>
           </form>
         </section>

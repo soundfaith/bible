@@ -15,11 +15,13 @@ import {
   Sunrise,
   Sparkles,
   ScrollText,
+  MessageCircle,
   X,
 } from "lucide-react";
 import { Brand, ThemeToggle } from "@/shared/ui";
 import type { NarrationGender } from "@/platform/audio/narrationVoice";
 import type { Route } from "../routing";
+import { OPEN_ASSISTANT_EVENT } from "@/features/chat/assistant";
 
 function RosaryMenuIcon() {
   return (
@@ -79,14 +81,14 @@ export function SiteHeader({
           <a href="#/listen" className="mobile-drawer-link" aria-current={route === "listen" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Headphones size={17} />Listen</a>
           <div className="mobile-drawer-group">
             <p className="mobile-drawer-group-title">Scripture &amp; growth</p>
-            <a href="#/read" className="mobile-drawer-link" aria-current={route === "read" || route === "bible" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible</a>
-            <a href="#/journeys" className="mobile-drawer-link" aria-current={route === "journeys" || route === "journey" || route === "guided-journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Compass size={17} />Journeys</a>
+            <a href="#/bible" className="mobile-drawer-link" aria-current={route === "read" || route === "bible" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookOpen size={17} />Bible</a>
+            <a href="#/journeys" className="mobile-drawer-link mobile-catalog-link" aria-current={route === "journeys" || route === "journey" || route === "guided-journey" || route === "journey-artwork" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Compass size={17} />Journeys</a>
             <a href="#/catechism" className="mobile-drawer-link" aria-current={route === "catechism" ? "page" : undefined} onClick={() => setMenuOpen(false)}><ScrollText size={17} />Catechism</a>
             <a href="#/summa" className="mobile-drawer-link" aria-current={route === "summa" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Landmark size={17} />Summa Theologiae</a>
           </div>
           <div className="mobile-drawer-group">
             <p className="mobile-drawer-group-title">Prayer &amp; daily life</p>
-            <a href="#/daily" className="mobile-drawer-link" aria-current={route === "daily" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily rhythm</a>
+            <a href="#/daily" className="mobile-drawer-link mobile-catalog-link" aria-current={route === "daily" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CalendarDays size={17} />Daily rhythm</a>
             <a href="#/breviary" className="mobile-drawer-link" aria-current={route === "breviary" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sunrise size={17} />Breviary</a>
             <a href="#/rosary" className="mobile-drawer-link" aria-current={route === "rosary" || route === "rosary-prayer" ? "page" : undefined} onClick={() => setMenuOpen(false)}><RosaryMenuIcon />Rosary</a>
             <a href="#/saints" className="mobile-drawer-link" aria-current={route === "saints" || route === "saint-profile" ? "page" : undefined} onClick={() => setMenuOpen(false)}><Sparkles size={17} />Saints</a>
@@ -96,6 +98,7 @@ export function SiteHeader({
             <p className="mobile-drawer-group-title">Your library</p>
             <a href="#/bookmarks" className="mobile-drawer-link" aria-current={route === "bookmarks" ? "page" : undefined} onClick={() => setMenuOpen(false)}><BookmarkMenuIcon size={17} />Saved Passages</a>
             <a href="#/about" className="mobile-drawer-link" aria-current={route === "about" ? "page" : undefined} onClick={() => setMenuOpen(false)}><CircleHelp size={17} />About SoundFaith</a>
+            <button type="button" className="mobile-drawer-link" onClick={() => { setMenuOpen(false); window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT)); }}><MessageCircle size={17} />Ask Sofi</button>
           </div>
           <section className="font-size-control" aria-label="Reading font size">
             <div className="font-size-heading"><span>Text size</span><span>{fontSize}px</span></div>

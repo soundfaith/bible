@@ -14,7 +14,7 @@ export type NarrationTimeline = { parts: { urls: string[]; chars: number }[]; in
 export type NarrationTrack = {
   title: string;
   path: string;
-  art: "bible" | "old-testament" | "new-testament" | "gospels" | "journey" | "freedom-journey" | "bible-journey" | "prayer" | "readings" | "rosary" | "saints" | "catechism" | "summa";
+  art: "bible" | "old-testament" | "new-testament" | "gospels" | "journey" | "freedom-journey" | "freedom-hero" | "no-worry-hero" | "advent-hero" | "bible-journey" | "prayer" | "readings" | "rosary" | "saints" | "catechism" | "summa";
   next?: { title: string; path: string };
   timeline?: NarrationTimeline;
   // Full text of the whole item when its audio is split into parts; the player shows this as the transcript.
@@ -147,11 +147,12 @@ function loadSavedNarration(): SavedNarration | null {
     const saved = JSON.parse(raw) as SavedNarration;
     const track = saved.snapshot?.track;
     if (!track || typeof track.title !== "string" || typeof track.path !== "string" || !track.path.startsWith("#/") ||
-      !["bible", "journey", "bible-journey", "prayer", "readings", "rosary", "saints", "catechism", "summa"].includes(track.art) ||
+      !["bible", "journey", "freedom-journey", "freedom-hero", "no-worry-hero", "advent-hero", "bible-journey", "prayer", "readings", "rosary", "saints", "catechism", "summa"].includes(track.art) ||
       typeof saved.snapshot.text !== "string" || !saved.snapshot.text.trim() ||
       !Number.isFinite(saved.snapshot.position) || !Number.isFinite(saved.snapshot.duration) ||
       !Array.isArray(saved.sources) || !saved.sources.every((source) => typeof source === "string")) return null;
-    return saved;
+    const guidedArt = track.path.startsWith("#/journeys/freedom") ? "freedom-hero" : track.path.startsWith("#/journeys/advent") ? "advent-hero" : track.path.startsWith("#/journeys/no-worry") ? "no-worry-hero" : null;
+    return guidedArt ? { ...saved, snapshot: { ...saved.snapshot, track: { ...track, art: guidedArt } } } : saved;
   } catch (error) {
     console.warn("Could not restore listening progress.", error);
     return null;
@@ -160,7 +161,7 @@ function loadSavedNarration(): SavedNarration | null {
 
 function currentTrack(): NarrationTrack {
   const path = window.location.hash || "#/";
-  const art = path.startsWith("#/read") ? "bible" : path.startsWith("#/journeys/freedom") ? "freedom-journey" : path.startsWith("#/journeys") ? "journey" : path.startsWith("#/journey") ? "bible-journey" : path.startsWith("#/breviary") ? "prayer" : path.startsWith("#/rosary") ? "rosary" : path.startsWith("#/saints") ? "saints" : path.startsWith("#/catechism") ? "catechism" : path.startsWith("#/summa") ? "summa" : "readings";
+  const art = path.startsWith("#/read") ? "bible" : path.startsWith("#/journeys/freedom") ? "freedom-hero" : path.startsWith("#/journeys/advent") ? "advent-hero" : path.startsWith("#/journeys/no-worry") ? "no-worry-hero" : path.startsWith("#/journey") ? "bible-journey" : path.startsWith("#/breviary") ? "prayer" : path.startsWith("#/rosary") ? "rosary" : path.startsWith("#/saints") ? "saints" : path.startsWith("#/catechism") ? "catechism" : path.startsWith("#/summa") ? "summa" : "readings";
   return { title: document.querySelector("main h1")?.textContent?.trim() || "SoundFaith narration", path, art };
 }
 

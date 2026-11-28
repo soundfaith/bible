@@ -1,4 +1,13 @@
-import type { GuidedJourneyDay } from "./noWorryJourney";
+import type { GuidedJourneyDay, GuidedJourneySection } from "./noWorryJourney";
+
+export const freedomJourneyIntroduction = "Over these 15 days, gently notice what has begun to take up too much space in your heart. With Scripture and prayer, learn to receive created things as gifts while placing your deepest trust in God. Take this at your own pace; Christ leads us into freedom with patience and love.";
+
+export const freedomJourneySections: GuidedJourneySection[] = [
+  { label: "Part 1", title: "Notice What Holds Your Heart", startDay: 1, endDay: 3 },
+  { label: "Part 2", title: "Loosen Your Grasp", startDay: 4, endDay: 8 },
+  { label: "Part 3", title: "Love Without Clinging", startDay: 9, endDay: 12 },
+  { label: "Part 4", title: "Rest in God's Freedom", startDay: 13, endDay: 15 },
+];
 
 export const freedomJourneyIntro = {
   anchorVerse: "Do not love the world or the things in the world. The love of the Father is not in those who love the world.",

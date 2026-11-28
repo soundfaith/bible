@@ -1,6 +1,7 @@
 import { bibleJourney } from "./bibleJourney";
 import { guidedJourneyDays, type GuidedJourneyId } from "./guidedJourneys";
 import type { GuidedJourneyProgress } from "./guidedJourneyProgress";
+import { journeyList, type AvailableJourneyId } from "./journeyCatalog";
 
 export type GuidedOverview = {
   active: boolean;
@@ -21,7 +22,7 @@ export type JourneyOverview = {
     totalCount: number;
   };
   hasActiveJourney: boolean;
-  featuredJourney: "freedom" | "bible";
+  featuredJourney: AvailableJourneyId | null;
 };
 
 function guidedOverview(journeyId: GuidedJourneyId, progress: GuidedJourneyProgress): GuidedOverview {
@@ -53,6 +54,26 @@ export function getJourneyOverview(
   const noWorry = guidedOverview("no-worry", guidedProgress["no-worry"]);
   const advent = guidedOverview("advent", guidedProgress.advent);
   const bibleActive = !bibleComplete && Boolean(lastPeriod || completed.size > 0);
+  const hasActiveJourney = freedom.active || noWorry.active || advent.active || bibleActive;
+  const isJourneyComplete = (id: AvailableJourneyId) => id === "bible"
+    ? bibleComplete
+    : id === "freedom" ? freedom.complete
+      : id === "no-worry" ? noWorry.complete
+        : advent.complete;
+  // Preserve the existing active-journey priority. When none remain active,
+  // use catalog order so the newest available, incomplete journey comes first.
+  const nextJourney = [...journeyList].reverse().find(
+    (journey) => journey.available && !isJourneyComplete(journey.id as AvailableJourneyId),
+  );
+  const featuredJourney: AvailableJourneyId | null = freedom.active
+    ? "freedom"
+    : noWorry.active
+      ? "no-worry"
+      : bibleActive
+        ? "bible"
+        : advent.active
+          ? "advent"
+          : nextJourney ? nextJourney.id as AvailableJourneyId : null;
   return {
     freedom,
     noWorry,
@@ -65,7 +86,7 @@ export function getJourneyOverview(
       completedCount: completed.size,
       totalCount: bibleJourney.length,
     },
-    hasActiveJourney: freedom.active || noWorry.active || advent.active || bibleActive,
-    featuredJourney: "freedom",
+    hasActiveJourney,
+    featuredJourney,
   };
 }

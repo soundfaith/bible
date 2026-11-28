@@ -52,7 +52,7 @@ export function JourneysPage({
                 title={journeyCatalog[id].title}
                 teaser={`Day ${guided[id].nextDay} of ${guidedJourneyDays[id].length} · Scripture, reflection, and prayer.`}
                 meta={`Continue Day ${guided[id].nextDay}`}
-                onClick={() => onSelectJourney(id)}
+                onClick={() => { window.location.hash = `#/journeys/${id}/${guided[id].nextDay}`; }}
               />
             ))}
             {bible.active && bible.resumePeriod && (
@@ -67,7 +67,7 @@ export function JourneysPage({
             )}
           </ol>
         ) : (
-          <p className="journeys-hub-empty">No journey in progress yet. The 15-Day Journey to Freedom from Attachment is a gentle place to start, or explore the Bible Journey below.</p>
+          <p className="journeys-hub-empty">No journey in progress yet. Advent offers a gentle place to begin, or choose a path that speaks to you below.</p>
         )}
       </section>
 
@@ -79,7 +79,7 @@ export function JourneysPage({
         </div>
         <ol className="journey-library-list library-stack">
           {journeyList.filter((journey) => !(isGuidedJourneyId(journey.id) && guided[journey.id].active) && !(journey.id === "bible" && bible.active)).map((journey) => {
-            if (journey.id === "lent") {
+            if (!journey.available) {
               return (
                 <JourneyLibraryItem
                   key={journey.id}

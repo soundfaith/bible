@@ -1,4 +1,13 @@
-import type { GuidedJourneyDay } from "./noWorryJourney";
+import type { GuidedJourneyDay, GuidedJourneySection } from "./noWorryJourney";
+
+export const adventJourneyIntroduction = "Advent is a season of waiting with hope. Each day offers Scripture, a quiet reflection, and prayer to help you make room for Christ and notice the light He brings. Come as you are and take one faithful step at a time.";
+
+export const adventJourneySections: GuidedJourneySection[] = [
+  { label: "Week 1", title: "Hope", startDay: 1, endDay: 7 },
+  { label: "Week 2", title: "Prepare the Way", startDay: 8, endDay: 14 },
+  { label: "Week 3", title: "Mary's Yes", startDay: 15, endDay: 21 },
+  { label: "Week 4", title: "Receiving Christ", startDay: 22, endDay: 28 },
+];
 
 export const adventJourneyIntro = {
   anchorVerse: "The people who walked in darkness have seen a great light.",

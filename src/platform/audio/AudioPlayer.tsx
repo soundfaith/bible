@@ -100,7 +100,7 @@ export function NavPlayer({ narration, playerOpen, onToggle, onOpen, onListen }:
   };
   return <button type="button" className={showArt ? "mobile-nav-player has-art" : "mobile-nav-player"} onClick={handleTap} aria-label={showArt ? `${playing ? "Pause" : "Resume"} ${track?.title ?? ""}. Double tap to open the player` : "Listen"}>
     {showArt && track ? <>
-      <CardArt art={track.art} className="mobile-nav-player-art" />
+      <CardArt art={track.art} className="mobile-nav-player-art" mode="mini" />
       <span className={playing ? "mobile-nav-player-state is-playing" : "mobile-nav-player-state"} aria-hidden="true">
         {playing ? <span className="mobile-nav-player-bars"><i /><i /><i /></span> : narration.status === "paused" ? <Pause size={18} fill="currentColor" /> : <Play size={18} />}
       </span>
@@ -172,7 +172,7 @@ export function AudioPlayer({ narration, closing = false, onToggle, onClose, onP
   return <div ref={overlayRef} className={`audio-player-overlay${closing ? " is-closing" : ""}`} data-art={track.art} role="dialog" aria-modal="true" aria-label={`Player: ${track.title}`}>
     <div ref={panelRef} className="audio-player">
       <div className={`audio-player-art${narration.status === "playing" ? " is-playing" : ""}`} onPointerDown={startDrag}>
-        <CardArt art={track.art} />
+        <CardArt art={track.art} mode="cover" />
         <button ref={closeRef} className="audio-player-close" type="button" onClick={onClose} aria-label="Back"><ArrowLeft size={20} /></button>
       </div>
       <div className="audio-player-context"><span>{context.context}</span><h1>{context.title}</h1>{context.detail && context.detail !== context.title && <p>{context.detail}</p>}</div>

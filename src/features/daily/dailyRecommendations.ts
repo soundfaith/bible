@@ -3,17 +3,17 @@ import type { JourneyOverview } from "@/features/journeys/journeyOverview";
 import { journeyCadence } from "@/features/journeys/journeyCatalog";
 
 export type RecommendationPage = "home" | "bible" | "mass" | "breviary" | "rosary" | "saints" | "catechism" | "summa" | "journey";
-export type DailyRecommendation = "mass" | "bible" | "breviary" | "rosary" | "saints" | "catechism" | "summa" | "journey-freedom" | "journey-no-worry" | "journey-bible" | "journey-library";
+export type DailyRecommendation = "mass" | "bible" | "breviary" | "rosary" | "saints" | "catechism" | "summa" | "journey-freedom" | "journey-no-worry" | "journey-advent" | "journey-bible";
 
 const priorities: Record<RecommendationPage, DailyRecommendation[]> = {
-  home: ["journey-freedom", "journey-no-worry", "journey-bible", "mass", "bible", "breviary", "rosary", "saints", "catechism", "summa"],
-  bible: ["journey-freedom", "journey-no-worry", "journey-bible", "breviary", "rosary", "saints", "catechism", "summa"],
-  mass: ["journey-freedom", "journey-no-worry", "journey-bible", "breviary", "rosary", "saints", "catechism", "summa"],
-  breviary: ["mass", "bible", "journey-freedom", "journey-no-worry", "journey-bible", "saints", "catechism", "summa"],
-  rosary: ["mass", "bible", "journey-freedom", "journey-no-worry", "journey-bible", "saints", "catechism", "summa"],
-  saints: ["breviary", "rosary", "mass", "bible", "journey-freedom", "journey-no-worry", "journey-bible", "journey-library"],
-  catechism: ["mass", "bible", "journey-freedom", "journey-no-worry", "journey-bible", "breviary", "rosary", "saints"],
-  summa: ["mass", "bible", "journey-freedom", "journey-no-worry", "journey-bible", "breviary", "rosary", "saints"],
+  home: ["journey-freedom", "journey-no-worry", "journey-advent", "journey-bible", "mass", "bible", "breviary", "rosary", "saints", "catechism", "summa"],
+  bible: ["journey-freedom", "journey-no-worry", "journey-advent", "journey-bible", "breviary", "rosary", "saints", "catechism", "summa"],
+  mass: ["journey-freedom", "journey-no-worry", "journey-advent", "journey-bible", "breviary", "rosary", "saints", "catechism", "summa"],
+  breviary: ["mass", "bible", "journey-freedom", "journey-no-worry", "journey-advent", "journey-bible", "saints", "catechism", "summa"],
+  rosary: ["mass", "bible", "journey-freedom", "journey-no-worry", "journey-advent", "journey-bible", "saints", "catechism", "summa"],
+  saints: ["breviary", "rosary", "mass", "bible", "journey-freedom", "journey-no-worry", "journey-advent", "journey-bible"],
+  catechism: ["mass", "bible", "journey-freedom", "journey-no-worry", "journey-advent", "journey-bible", "breviary", "rosary", "saints"],
+  summa: ["mass", "bible", "journey-freedom", "journey-no-worry", "journey-advent", "journey-bible", "breviary", "rosary", "saints"],
   journey: ["breviary", "rosary", "mass", "bible"],
 };
 
@@ -25,14 +25,14 @@ function isComplete(recommendation: DailyRecommendation, completed: Set<DailyIte
   if (recommendation === "breviary") {
     return completed.has("lauds") || completed.has("vespers") || completed.has("compline");
   }
-  if (recommendation === "journey-freedom" || recommendation === "journey-no-worry" || recommendation === "journey-bible" || recommendation === "journey-library") {
+  if (recommendation === "journey-freedom" || recommendation === "journey-no-worry" || recommendation === "journey-advent" || recommendation === "journey-bible") {
     return false;
   }
   return completed.has(recommendation);
 }
 
 function isJourneyDue(
-  recommendation: "journey-freedom" | "journey-no-worry" | "journey-bible",
+  recommendation: "journey-freedom" | "journey-no-worry" | "journey-advent" | "journey-bible",
   streak: DailyStreakState,
   overview: JourneyOverview,
   date: Date,
@@ -45,21 +45,12 @@ function isJourneyDue(
     return overview.noWorry.active
       && !hasJourneySessionInCadence(streak, "no-worry", journeyCadence("no-worry"), date);
   }
+  if (recommendation === "journey-advent") {
+    return overview.advent.active
+      && !hasJourneySessionInCadence(streak, "advent", journeyCadence("advent"), date);
+  }
   return overview.bible.active
     && !hasJourneySessionInCadence(streak, "bible", journeyCadence("bible"), date);
-}
-
-function hasJourneyToExplore(streak: DailyStreakState, overview: JourneyOverview, date: Date) {
-  const freedomUnstarted = !overview.freedom.active
-    && !overview.freedom.complete
-    && !hasJourneySessionInCadence(streak, "freedom", journeyCadence("freedom"), date);
-  const noWorryUnstarted = !overview.noWorry.active
-    && !overview.noWorry.complete
-    && !hasJourneySessionInCadence(streak, "no-worry", journeyCadence("no-worry"), date);
-  const bibleUnstarted = !overview.bible.active
-    && !overview.bible.complete
-    && !hasJourneySessionInCadence(streak, "bible", journeyCadence("bible"), date);
-  return freedomUnstarted || noWorryUnstarted || bibleUnstarted;
 }
 
 export function selectDailyRecommendation(
@@ -70,18 +61,17 @@ export function selectDailyRecommendation(
 ): DailyRecommendation {
   const completed = new Set(streak.log[localDateKey(date)] ?? []);
   const candidates = priorities[page].map((item) => {
-    if (item === "journey-freedom" || item === "journey-no-worry" || item === "journey-bible") {
+    if (item === "journey-freedom" || item === "journey-no-worry" || item === "journey-advent" || item === "journey-bible") {
       return isJourneyDue(item, streak, journeyOverview, date) ? item : null;
     }
-    if (item === "journey-library" && !hasJourneyToExplore(streak, journeyOverview, date)) return null;
     return item;
   });
 
   const selected = candidates.find((item) =>
     item !== null && (
-      item === "journey-library"
-      || item === "journey-freedom"
+      item === "journey-freedom"
       || item === "journey-no-worry"
+      || item === "journey-advent"
       || item === "journey-bible"
       || !isComplete(item, completed)
     ),
@@ -92,6 +82,5 @@ export function selectDailyRecommendation(
   const deeperFormation = formation.find((item) => item !== page && !isComplete(item, completed));
   if (deeperFormation) return deeperFormation;
 
-  if (hasJourneyToExplore(streak, journeyOverview, date)) return "journey-library";
   return page === "summa" ? "catechism" : "summa";
 }

@@ -8,26 +8,27 @@ const svgProps = {
 } as const;
 
 export function LandingBibleArtwork() {
+  const id = useId().replace(/:/g, "");
   return (
     <svg {...svgProps}>
       <defs>
-        <linearGradient id="lb-sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-lb-sky`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#2a4058" />
           <stop offset=".55" stopColor="#c59a7d" />
           <stop offset="1" stopColor="#f2d4a0" />
         </linearGradient>
-        <radialGradient id="lb-glow" cx=".5" cy=".5" r=".5">
+        <radialGradient id={`${id}-lb-glow`} cx=".5" cy=".5" r=".5">
           <stop offset="0" stopColor="#fff2c8" stopOpacity=".95" />
           <stop offset="1" stopColor="#fff2c8" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="lb-ray" x1="0" y1="1" x2="0" y2="0">
+        <linearGradient id={`${id}-lb-ray`} x1="0" y1="1" x2="0" y2="0">
           <stop offset="0" stopColor="#fff2c8" stopOpacity=".5" />
           <stop offset="1" stopColor="#fff2c8" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <rect width="400" height="200" fill="url(#lb-sky)" />
-      <circle cx="200" cy="118" r="110" fill="url(#lb-glow)" />
-      <g fill="url(#lb-ray)">
+      <rect width="400" height="200" fill={`url(#${id}-lb-sky)`} />
+      <circle cx="200" cy="118" r="110" fill={`url(#${id}-lb-glow)`} />
+      <g fill={`url(#${id}-lb-ray)`}>
         <path d="M200 118 150 0h34z" />
         <path d="M200 118 192 0h32z" />
         <path d="M200 118 232 0h34z" />
@@ -63,25 +64,26 @@ export function LandingBibleArtwork() {
 }
 
 export function LandingChurchArtwork() {
+  const id = useId().replace(/:/g, "");
   return (
     <svg {...svgProps}>
       <defs>
-        <linearGradient id="lc-sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-lc-sky`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#415b73" />
           <stop offset=".6" stopColor="#d9b88f" />
           <stop offset="1" stopColor="#f3dcae" />
         </linearGradient>
-        <radialGradient id="lc-glow" cx=".5" cy=".5" r=".5">
+        <radialGradient id={`${id}-lc-glow`} cx=".5" cy=".5" r=".5">
           <stop offset="0" stopColor="#ffe9b0" stopOpacity=".9" />
           <stop offset="1" stopColor="#ffe9b0" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="lc-door" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-lc-door`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#ffe2a0" />
           <stop offset="1" stopColor="#f0a85d" />
         </linearGradient>
       </defs>
-      <rect width="400" height="200" fill="url(#lc-sky)" />
-      <circle cx="318" cy="64" r="70" fill="url(#lc-glow)" opacity=".7" />
+      <rect width="400" height="200" fill={`url(#${id}-lc-sky)`} />
+      <circle cx="318" cy="64" r="70" fill={`url(#${id}-lc-glow)`} opacity=".7" />
       <circle cx="318" cy="64" r="20" fill="#fff0c4" />
       <g fill="#fff" opacity=".35">
         <rect x="40" y="42" width="90" height="6" rx="3" />
@@ -99,7 +101,7 @@ export function LandingChurchArtwork() {
       <circle cx="200" cy="82" r="11" fill="#7894a3" />
       <circle cx="200" cy="82" r="11" fill="none" stroke="#f4ead2" strokeWidth="2.5" />
       <path d="M200 71v22M189 82h22" stroke="#f4ead2" strokeWidth="1.5" />
-      <path d="M180 168v-30q0-26 20-26t20 26v30z" fill="url(#lc-door)" />
+      <path d="M180 168v-30q0-26 20-26t20 26v30z" fill={`url(#${id}-lc-door)`} />
       <path d="M200 112v56M180 140h40" stroke="#8d6d4a" strokeWidth="1.6" opacity=".5" />
       <path d="M112 132q0-16 10-16t10 16v20h-20zm156 0q0-16 10-16t10 16v20h-20z" fill="#f1b866" />
       <path d="M170 168h60v6h-60z" fill="#c9b894" />
@@ -111,26 +113,27 @@ export function LandingChurchArtwork() {
 }
 
 export function LandingBreviaryArtwork() {
+  const id = useId().replace(/:/g, "");
   return (
     <svg {...svgProps}>
       <defs>
-        <linearGradient id="lp-wall" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-lp-wall`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#1b2340" />
           <stop offset=".7" stopColor="#4a4467" />
           <stop offset="1" stopColor="#7d5f66" />
         </linearGradient>
-        <linearGradient id="lp-window" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-lp-window`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#0d1530" />
           <stop offset="1" stopColor="#35497a" />
         </linearGradient>
-        <radialGradient id="lp-glow" cx=".5" cy=".5" r=".5">
+        <radialGradient id={`${id}-lp-glow`} cx=".5" cy=".5" r=".5">
           <stop offset="0" stopColor="#ffd58a" stopOpacity=".85" />
           <stop offset="1" stopColor="#ffd58a" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect width="400" height="200" fill="url(#lp-wall)" />
+      <rect width="400" height="200" fill={`url(#${id}-lp-wall)`} />
       <g transform="translate(215 158) scale(.7) translate(-215 -158)">
-        <path d="M92 150V70q0-40 40-40t40 40v80z" fill="url(#lp-window)" stroke="#8d86a8" strokeWidth="5" />
+        <path d="M92 150V70q0-40 40-40t40 40v80z" fill={`url(#${id}-lp-window)`} stroke="#8d86a8" strokeWidth="5" />
         <path d="M132 30v120M92 90h80" stroke="#8d86a8" strokeWidth="3" />
         <circle cx="152" cy="62" r="11" fill="#f4efd6" />
         <circle cx="158" cy="58" r="10" fill="#1a2547" />
@@ -141,7 +144,7 @@ export function LandingBreviaryArtwork() {
           <circle cx="112" cy="132" r="1.1" />
           <circle cx="140" cy="44" r="1" />
         </g>
-        <circle className="art-candle-glow" cx="270" cy="104" r="92" fill="url(#lp-glow)" />
+        <circle className="art-candle-glow" cx="270" cy="104" r="92" fill={`url(#${id}-lp-glow)`} />
       </g>
       <path d="M0 158h400v42H0z" fill="#3a2f45" />
       <path d="M0 158h400v6H0z" fill="#5a4a58" />
@@ -220,24 +223,25 @@ export function LandingFreedomArtwork() {
 }
 
 export function LandingOldTestamentArtwork() {
+  const id = useId().replace(/:/g, "");
   return (
     <svg {...svgProps}>
       <defs>
-        <linearGradient id="ot-sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-ot-sky`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#1c2f4d" />
           <stop offset=".55" stopColor="#7e6c7c" />
           <stop offset="1" stopColor="#f2c88e" />
         </linearGradient>
-        <radialGradient id="ot-glow" cx=".5" cy=".5" r=".5">
+        <radialGradient id={`${id}-ot-glow`} cx=".5" cy=".5" r=".5">
           <stop offset="0" stopColor="#ffe6a8" stopOpacity=".95" />
           <stop offset="1" stopColor="#ffe6a8" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="ot-ray" x1="0" y1="1" x2="0" y2="0">
+        <linearGradient id={`${id}-ot-ray`} x1="0" y1="1" x2="0" y2="0">
           <stop offset="0" stopColor="#ffe6a8" stopOpacity=".45" />
           <stop offset="1" stopColor="#ffe6a8" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <rect width="400" height="200" fill="url(#ot-sky)" />
+      <rect width="400" height="200" fill={`url(#${id}-ot-sky)`} />
       <g fill="#fff6dc">
         <circle cx="48" cy="34" r="1.3" opacity=".7" />
         <circle cx="96" cy="16" r="1.1" opacity=".6" />
@@ -246,8 +250,8 @@ export function LandingOldTestamentArtwork() {
         <circle cx="366" cy="52" r="1.5" opacity=".7" />
         <circle cx="262" cy="10" r="1" opacity=".5" />
       </g>
-      <circle className="art-glow" cx="200" cy="150" r="150" fill="url(#ot-glow)" />
-      <g fill="url(#ot-ray)">
+      <circle className="art-glow" cx="200" cy="150" r="150" fill={`url(#${id}-ot-glow)`} />
+      <g fill={`url(#${id}-ot-ray)`}>
         <path d="M200 150 170 20h60z" />
         <path d="M200 150 60 60v22z" opacity=".6" />
         <path d="M200 150 340 60v22z" opacity=".6" />
@@ -267,28 +271,29 @@ export function LandingOldTestamentArtwork() {
 }
 
 export function LandingNewTestamentArtwork() {
+  const id = useId().replace(/:/g, "");
   return (
     <svg {...svgProps}>
       <defs>
-        <linearGradient id="nt-sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-nt-sky`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#263f5f" />
           <stop offset=".6" stopColor="#e4a88c" />
           <stop offset="1" stopColor="#f7d9a6" />
         </linearGradient>
-        <linearGradient id="nt-water" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-nt-water`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#5b7c8c" />
           <stop offset="1" stopColor="#21384a" />
         </linearGradient>
-        <radialGradient id="nt-glow" cx=".5" cy=".5" r=".5">
+        <radialGradient id={`${id}-nt-glow`} cx=".5" cy=".5" r=".5">
           <stop offset="0" stopColor="#fff0c0" stopOpacity=".9" />
           <stop offset="1" stopColor="#fff0c0" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect width="400" height="200" fill="url(#nt-sky)" />
-      <circle className="art-glow" cx="290" cy="116" r="90" fill="url(#nt-glow)" />
+      <rect width="400" height="200" fill={`url(#${id}-nt-sky)`} />
+      <circle className="art-glow" cx="290" cy="116" r="90" fill={`url(#${id}-nt-glow)`} />
       <circle cx="290" cy="116" r="18" fill="#fff4d2" />
       <path d="M0 116q40-16 90-8t80-4 60 6 60-8 110 6v12H0z" fill="#4f6168" opacity=".85" />
-      <path d="M0 124h400v76H0z" fill="url(#nt-water)" />
+      <path d="M0 124h400v76H0z" fill={`url(#${id}-nt-water)`} />
       <g className="art-shimmer" fill="#fff4d2" opacity=".55">
         <rect x="268" y="128" width="44" height="2.5" rx="1.25" />
         <rect x="256" y="138" width="68" height="2" rx="1" opacity=".7" />
@@ -308,26 +313,27 @@ export function LandingNewTestamentArtwork() {
 }
 
 export function LandingGospelsArtwork() {
+  const id = useId().replace(/:/g, "");
   return (
     <svg {...svgProps}>
       <defs>
-        <linearGradient id="gs-sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`${id}-gs-sky`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#1d3a3c" />
           <stop offset=".6" stopColor="#5f7a68" />
           <stop offset="1" stopColor="#e9d5a0" />
         </linearGradient>
-        <radialGradient id="gs-glow" cx=".5" cy=".5" r=".5">
+        <radialGradient id={`${id}-gs-glow`} cx=".5" cy=".5" r=".5">
           <stop offset="0" stopColor="#fff2c8" stopOpacity=".9" />
           <stop offset="1" stopColor="#fff2c8" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="gs-ray" x1="0" y1="1" x2="0" y2="0">
+        <linearGradient id={`${id}-gs-ray`} x1="0" y1="1" x2="0" y2="0">
           <stop offset="0" stopColor="#fff2c8" stopOpacity=".5" />
           <stop offset="1" stopColor="#fff2c8" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <rect width="400" height="200" fill="url(#gs-sky)" />
-      <circle className="art-glow" cx="200" cy="124" r="120" fill="url(#gs-glow)" />
-      <g fill="url(#gs-ray)">
+      <rect width="400" height="200" fill={`url(#${id}-gs-sky)`} />
+      <circle className="art-glow" cx="200" cy="124" r="120" fill={`url(#${id}-gs-glow)`} />
+      <g fill={`url(#${id}-gs-ray)`}>
         <path d="M200 124 168 0h64z" />
         <path d="M200 124 110 30v22z" opacity=".7" />
         <path d="M200 124 290 30v22z" opacity=".7" />

@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
-import { hasEverDone, localDateKey, routineDoneToday, type Routine } from "@/features/daily";
-import { getChapter, type ReadingPosition } from "@/features/bible";
+import { bibleBooks, getChapter, type ReadingPosition } from "@/features/bible";
 import type { PlayKind } from "@/features/listen";
-import { getMassReadingForDate, getTodaysMassReading } from "@/features/mass-readings";
+import { hasEverDone, localDateKey, routineDoneToday, type Routine } from "@/features/daily";
+import { getMassReadingForDate, getTodaysMassReading, resolveReference } from "@/features/mass-readings";
 import { todaysRosaryMysteryIndex, todaysRosaryPath, type RosaryMode } from "@/features/rosary/rosary";
 import { currentBreviaryHour, type BreviaryHour } from "@/features/breviary/breviary";
 import type { getJourneyOverview } from "@/features/journeys/journeyOverview";
@@ -19,10 +19,11 @@ import type { BibleArt } from "../audio";
 
 type ListenLaunchOptions = {
   voicePreferenceRef: ReturnType<typeof useVoicePreference>["voicePreferenceRef"];
+  readingPosition: ReadingPosition;
   setPlayerOpen: (open: boolean) => void;
   journeyOverview: ReturnType<typeof getJourneyOverview>;
-  rosaryMode: RosaryMode;
   dailyStreak: DailyStreak;
+  rosaryMode: RosaryMode;
   advanceNarration: (position: ReadingPosition, art?: BibleArt) => void;
   bibleTrack: (position: ReadingPosition, art?: BibleArt) => NarrationTrack;
   playJourneyIntro: (periodId: string) => void;
@@ -34,7 +35,7 @@ type ListenLaunchOptions = {
 };
 
 // Starts playback from the Listen, Home and mobile-nav entry points.
-export function useListenLaunch({ voicePreferenceRef, setPlayerOpen, journeyOverview, rosaryMode, dailyStreak, advanceNarration, bibleTrack, playJourneyIntro, prepareRosaryPlayback, playRosaryClip, prepareBreviaryPlayback, playBreviaryIntro, markGuidedDayPlayed }: ListenLaunchOptions) {
+export function useListenLaunch({ voicePreferenceRef, readingPosition, setPlayerOpen, journeyOverview, dailyStreak, rosaryMode, advanceNarration, bibleTrack, playJourneyIntro, prepareRosaryPlayback, playRosaryClip, prepareBreviaryPlayback, playBreviaryIntro, markGuidedDayPlayed }: ListenLaunchOptions) {
   const [loadingListen, setLoadingListen] = useState<PlayKind | null>(null);
   const listenRequestRef = useRef(0);
   const playMassReading = (entry: ReturnType<typeof getTodaysMassReading>) => {
@@ -50,14 +51,25 @@ export function useListenLaunch({ voicePreferenceRef, setPlayerOpen, journeyOver
     if (entry) playMassReading(entry);
   };
   // Mobile opens items paused so tapping a card never plays sound; only the hero card and the play action start audio.
-  const playListening = async (kind: PlayKind, autoplay = true) => {
+  const playListening = async (kind: PlayKind, autoplay = true, reference?: string) => {
     const request = ++listenRequestRef.current;
     const previousTrack = getNarrationSnapshot().track;
     const hold = !autoplay && window.innerWidth <= 760 && getNarrationSnapshot().status === "idle";
     const start = <T,>(load: () => T): T => (hold ? loadWithoutPlaying(load) : load());
     setLoadingListen(kind === "summa" || kind === "saint" ? kind : null);
     try {
-      if (kind === "old-testament" || kind === "new-testament" || kind === "gospels") {
+      if (kind === "bible-reference" && reference) {
+        const verses = resolveReference(reference);
+        const bookName = reference.split(/\s+\d+:/)[0].toLowerCase();
+        const book = bibleBooks.find((item) => item.name.toLowerCase() === bookName || (bookName === "psalm" && item.id === "psalms"));
+        const position = book && verses[0] ? { bookId: book.id, chapter: verses[0].chapter } : null;
+        if (!position) throw new Error("This Bible passage is unavailable.");
+        const text = getChapter(position.bookId, position.chapter).map((verse) => verse.text).join(" ");
+        if (start(() => startSpeaking(text, narrationAudioUrlsFor(position.bookId, position.chapter, voicePreferenceRef.current), () => advanceNarration(position), undefined, voicePreferenceRef.current, bibleTrack(position)))) setPlayerOpen(true);
+      } else if (kind === "bible-current") {
+        const text = getChapter(readingPosition.bookId, readingPosition.chapter).map((verse) => verse.text).join(" ");
+        if (start(() => startSpeaking(text, narrationAudioUrlsFor(readingPosition.bookId, readingPosition.chapter, voicePreferenceRef.current), () => advanceNarration(readingPosition), undefined, voicePreferenceRef.current, bibleTrack(readingPosition)))) setPlayerOpen(true);
+      } else if (kind === "old-testament" || kind === "new-testament" || kind === "gospels") {
         const position = { bookId: kind === "old-testament" ? "genesis" : "matthew", chapter: 1 };
         const art: BibleArt = kind;
         const text = getChapter(position.bookId, position.chapter).map((verse) => verse.text).join(" ");
@@ -123,12 +135,12 @@ export function useListenLaunch({ voicePreferenceRef, setPlayerOpen, journeyOver
     const kind: PlayKind = journeyOverview.advent.active
       ? "advent"
       : journeyOverview.freedom.active
-      ? "freedom"
-      : journeyOverview.noWorry.active
-        ? "no-worry"
-        : journeyOverview.bible.active
-          ? "bible-journey"
-          : "freedom";
+        ? "freedom"
+        : journeyOverview.noWorry.active
+          ? "no-worry"
+          : journeyOverview.bible.active
+            ? "bible-journey"
+            : "freedom";
     void playListening(kind, false);
   };
   const openDailyRoutine = () => {

@@ -966,6 +966,7 @@ body::before {
 @media (max-width: 760px) {
   .site-header,
   .mobile-bottom-nav,
+  .home-recommendation-prompt,
   body .chat-fab,
   body::after {
     transition: translate .6s cubic-bezier(.65, 0, .35, 1), opacity .6s cubic-bezier(.65, 0, .35, 1);
@@ -977,6 +978,12 @@ body::before {
 
   html[data-chrome="header"] .mobile-bottom-nav {
     translate: 0 calc(100% + 20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  html[data-chrome="header"] body .home-recommendation-prompt {
+    translate: 0 calc(100% + 90px + env(safe-area-inset-bottom, 0px));
+    opacity: 0;
+    pointer-events: none;
   }
 
   html[data-chrome="header"] body .chat-fab {

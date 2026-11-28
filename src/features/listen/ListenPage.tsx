@@ -1,75 +1,108 @@
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { CardArt, type CardArtKey } from "@/shared/ui/LandingSmallCard";
 import { FeedCard } from "@/shared/ui/FeedCard";
-import { narrationDescription, type NarrationSnapshot } from "@/platform/audio/NarratorButton";
+import { SofiAvatar } from "@/features/chat";
+import { ASSISTANT_NAME, OPEN_ASSISTANT_EVENT } from "@/features/chat/assistant";
+import { type NarrationSnapshot } from "@/platform/audio/NarratorButton";
 import { useHeaderAutoHide } from "@/lib/useHeaderAutoHide";
 
-export type PlayKind = "old-testament" | "new-testament" | "gospels" | "bible-journey" | "freedom" | "no-worry" | "advent" | "catechism" | "mass" | "rosary" | "breviary" | "summa" | "saint";
-type Item = { title: string; detail: string; art: CardArtKey; path: string; play?: PlayKind };
+export type PlayKind = "old-testament" | "new-testament" | "gospels" | "bible-current" | "bible-reference" | "bible-journey" | "freedom" | "no-worry" | "advent" | "catechism" | "mass" | "rosary" | "breviary" | "summa" | "saint";
+type Item = { title: string; detail: string; art: CardArtKey; path: string };
 const sections: { title: string; items: Item[] }[] = [
   { title: "Bible", items: [
-    { title: "Old Testament", detail: "Begin with Genesis", art: "old-testament", path: "#/read?book=genesis&chapter=1", play: "old-testament" },
-    { title: "New Testament", detail: "Begin with Matthew", art: "new-testament", path: "#/read?book=matthew&chapter=1", play: "new-testament" },
-    { title: "Gospels", detail: "The life of Jesus", art: "gospels", path: "#/read?book=matthew&chapter=1", play: "gospels" },
-    { title: "Bible Journey", detail: "The story of salvation", art: "bible-journey", path: "#/journey", play: "bible-journey" },
+    { title: "Bible", detail: "Browse books and chapters", art: "bible", path: "#/bible" },
   ] },
   { title: "Prayer", items: [
-    { title: "Rosary", detail: "Pray today's mysteries", art: "rosary", path: "#/rosary", play: "rosary" },
-    { title: "Breviary", detail: "Pray the current hour", art: "prayer", path: "#/breviary", play: "breviary" },
-    { title: "Mass Readings", detail: "Daily Scripture", art: "readings", path: "#/mass", play: "mass" },
+    { title: "Rosary", detail: "Browse the mysteries", art: "rosary", path: "#/rosary" },
+    { title: "Breviary", detail: "Browse the hours of prayer", art: "prayer", path: "#/breviary" },
+    { title: "Mass Readings", detail: "Read today's Scripture", art: "readings", path: "#/mass" },
   ] },
   { title: "Formation", items: [
-    { title: "Baltimore Catechism", detail: "Lessons in the faith", art: "catechism", path: "#/catechism", play: "catechism" },
-    { title: "Summa Theologiae", detail: "Begin with the first article", art: "summa", path: "#/summa", play: "summa" },
+    { title: "Baltimore Catechism", detail: "Browse lessons in the faith", art: "catechism", path: "#/catechism" },
+    { title: "Summa Theologiae", detail: "Browse questions and articles", art: "summa", path: "#/summa" },
   ] },
-  { title: "Saints", items: [{ title: "Saint of the Day", detail: "A life of faith", art: "saints", path: "#/saints/today", play: "saint" }, { title: "Explore the Saints", detail: "Stories of holy lives", art: "saints", path: "#/saints" }] },
-  { title: "Journeys", items: [{ title: "15-Day Journey to Freedom from Attachment", detail: "Learning to let go", art: "freedom-journey", path: "#/journeys/freedom", play: "freedom" }, { title: "No-Worry Journey", detail: "Scripture, reflection and prayer", art: "journey", path: "#/journeys/no-worry", play: "no-worry" }, { title: "Advent Journey", detail: "Prepare your heart for the coming of Christ", art: "journey", path: "#/journeys/advent", play: "advent" }, { title: "Bible Journey", detail: "Walk through Scripture", art: "bible-journey", path: "#/journey", play: "bible-journey" }] },
+  { title: "Saints", items: [
+    { title: "Saints", detail: "Browse the saints catalogue", art: "saints", path: "#/saints" },
+  ] },
+  { title: "Journeys", items: [
+    { title: "Journeys", detail: "Browse guided paths through Scripture and prayer", art: "journey", path: "#/journeys" },
+  ] },
 ];
 
-export function ListenPage({ narration, onOpenPlayer, onPlay, onPlayHero, durations, loading }: { narration: NarrationSnapshot; onOpenPlayer: () => void; onPlay: (kind: PlayKind, autoplay?: boolean) => void; onPlayHero: () => void; durations: Partial<Record<PlayKind, string>>; loading: PlayKind | null }) {
+type MobileDiscoveryItem = Item & { play: PlayKind };
+const mobileSections: { title: string; items: MobileDiscoveryItem[] }[] = [
+  { title: "Scripture", items: [
+    { title: "The Bible", detail: "Continue with the chapter before you", art: "bible", path: "#/bible", play: "bible-current" },
+    { title: "Old Testament", detail: "Listen to the story of God’s people", art: "old-testament", path: "#/bible", play: "old-testament" },
+    { title: "New Testament", detail: "Meet Jesus and the early Church", art: "new-testament", path: "#/bible", play: "new-testament" },
+    { title: "The Gospels", detail: "Walk with Jesus through the Gospels", art: "gospels", path: "#/bible", play: "gospels" },
+    { title: "Mass Readings", detail: "Pray with today’s readings", art: "readings", path: "#/mass", play: "mass" },
+  ] },
+  { title: "Prayer", items: [
+    { title: "The Rosary", detail: "Rest in the mysteries of Christ", art: "rosary", path: "#/rosary", play: "rosary" },
+    { title: "The Breviary", detail: "Let the hours shape your day", art: "prayer", path: "#/breviary", play: "breviary" },
+  ] },
+  { title: "Formation", items: [
+    { title: "Baltimore Catechism", detail: "Grow in the foundations of faith", art: "catechism", path: "#/catechism", play: "catechism" },
+    { title: "Summa Theologiae", detail: "Explore the wisdom of St. Thomas", art: "summa", path: "#/summa", play: "summa" },
+  ] },
+  { title: "Guided Journeys", items: [
+    { title: "Bible Journey", detail: "Travel through the story of Scripture", art: "bible-journey", path: "#/journeys", play: "bible-journey" },
+    { title: "Freedom from Attachment", detail: "A 15-day path toward a freer heart", art: "freedom-hero", path: "#/journeys/freedom", play: "freedom" },
+    { title: "No-Worry Journey", detail: "A gentle path from anxiety toward trust", art: "no-worry-hero", path: "#/journeys/no-worry", play: "no-worry" },
+    { title: "Advent Journey", detail: "Make room for hope, one day at a time", art: "advent-hero", path: "#/journeys/advent", play: "advent" },
+  ] },
+  { title: "Saints & Witnesses", items: [
+    { title: "Saint of the Day", detail: "Spend a moment with a faithful witness", art: "saints", path: "#/saints", play: "saint" },
+  ] },
+];
+
+export function ListenPage({ narration, onPlay }: { narration: NarrationSnapshot; onPlay: (kind: PlayKind) => void }) {
   useHeaderAutoHide();
-  const openItem = (item: Item) => {
-    if (item.play) onPlay(item.play);
-    else window.location.hash = item.path;
-  };
-  const mobileItem = (item: Item) => <FeedCard
+  const mobileItem = (item: MobileDiscoveryItem) => <FeedCard
     key={item.title}
     art={item.art}
     title={item.title}
-    meta={item.play && loading === item.play ? "Loading…" : item.play && durations[item.play] ? durations[item.play]! : item.detail}
-    disabled={loading !== null && item.play !== undefined}
-    onClick={() => openItem(item)}
+    meta={item.detail}
+    onClick={() => onPlay(item.play)}
   />;
-  const recentlyAdded: Item = { title: "15-Day Journey to Freedom from Attachment", detail: "Learning to let go", art: "freedom-journey", path: "#/journeys/freedom", play: "freedom" };
   const renderItem = (item: Item) => <div className="listen-item listen-discovery-item" key={item.title}>
-    <a className="listen-item-link" href={item.path}><CardArt art={item.art} showPlaying /><span><strong>{item.title}</strong><small>{item.detail}{item.play && durations[item.play] ? ` · ${durations[item.play]}` : ""}{loading && loading === item.play ? " · Loading…" : ""}</small></span></a>
-    {item.play ? <button className="listen-play" type="button" aria-label={`Play ${item.title}`} disabled={loading !== null} onClick={() => item.play && onPlay(item.play)}><Play size={16} fill="currentColor" /></button> : <a className="listen-browse" href={item.path} aria-label={`Browse ${item.title}`}><ArrowRight size={16} /></a>}
+    <a className="listen-item-link" href={item.path}>
+      <CardArt art={item.art} />
+      <span><strong>{item.title}</strong><small>{item.detail}</small></span>
+      <ArrowRight size={16} aria-hidden="true" />
+    </a>
   </div>;
+
   return <main className="listen-page section-wrap">
     <div className="mobile-home mobile-listen">
-      <section className="feed-section feed-bleed">
-        {narration.status !== "idle" && narration.track
-          ? <FeedCard art={narration.track.art} title={narration.track.title} meta={narrationDescription(narration)} playBadge onClick={onPlayHero} />
-          : <FeedCard art="bible" title="Start with Genesis" meta="Tap to start listening" playBadge onClick={() => onPlay(sections[0].items[0].play!, true)} />}
-      </section>
-      {sections.map((section) => <section className="feed-section" key={section.title}><p className="feed-eyebrow">{section.title}</p>
-        <div className="feed-carousel">{section.items.filter((item) => item.play).map(mobileItem)}</div>
+      <header className="mobile-browse-heading">
+        <p className="eyebrow">A place for every season</p>
+        <h1>Find a place to <em>begin.</em></h1>
+        <p>Scripture, prayer, and gentle paths for growing closer to God. Choose a card and settle in.</p>
+      </header>
+      {mobileSections.map((section) => <section className="feed-section" key={section.title}>
+        <p className="feed-eyebrow">{section.title}</p>
+        <div className="feed-carousel">{section.items.map(mobileItem)}</div>
       </section>)}
-      <section className="feed-section"><p className="feed-eyebrow">Recently Added</p>
-        <div className="feed-carousel">{mobileItem(recentlyAdded)}</div>
+      <section className="feed-section home-sofi">
+        <button className="home-sofi-launch" type="button" onClick={() => window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT))} aria-label={`Chat with ${ASSISTANT_NAME}`}>
+          <span className="home-sofi-mark"><SofiAvatar size={76} /></span>
+          <span className="home-sofi-label">Ask {ASSISTANT_NAME}</span>
+        </button>
       </section>
     </div>
     <div className="desktop-listen">
-    <header><p className="eyebrow">A quieter way to listen</p><h1>Listen and <em>discover.</em></h1><p className="listen-empty">Tap play to start listening, or choose a collection to browse.</p></header>
-    <section className="listen-section"><h2>Continue Listening</h2>
-      {narration.status !== "idle" && narration.track
-        ? <button className="listen-item" type="button" onClick={onOpenPlayer}><CardArt art={narration.track.art} /><span><strong>{narration.track.title}</strong><small>{narrationDescription(narration)}</small></span><ArrowRight size={16} /></button>
-        : <p className="listen-empty">Choose something to listen to. Your current audio will appear here.</p>}
-    </section>
-    {sections.map((section) => <section className="listen-section" key={section.title}><h2>{section.title}</h2><div className="listen-grid">
-      {section.items.map(renderItem)}
-    </div></section>)}
-    <section className="listen-section"><h2>Recently Added</h2><div className="listen-grid">{renderItem(recentlyAdded)}</div></section>
+      <header><p className="eyebrow">A quieter way to listen</p><h1>Listen and <em>discover.</em></h1><p className="listen-empty">Choose a collection to explore. Playback begins from its content page.</p></header>
+      <section className="listen-section"><h2>Continue Listening</h2>
+        {narration.status !== "idle" && narration.track
+          ? <a className="listen-item listen-item-link" href={narration.track.path}><CardArt art={narration.track.art} /><span><strong>{narration.track.title}</strong><small>Return to the current content</small></span><ArrowRight size={16} aria-hidden="true" /></a>
+          : <p className="listen-empty">Your current item will appear here while audio is active.</p>}
+      </section>
+      {sections.map((section) => <section className="listen-section" key={section.title}>
+        <h2>{section.title}</h2>
+        <div className="listen-grid">{section.items.map(renderItem)}</div>
+      </section>)}
     </div>
   </main>;
 }

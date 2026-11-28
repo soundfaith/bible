@@ -671,8 +671,7 @@ export default function App() {
     return () => document.removeEventListener("pointerdown", close);
   }, [menuOpen]);
   const journeyOverview = getJourneyOverview(guidedJourneyProgress, journeyProgress.completedIds, lastJourneyPeriodId);
-  const { openReader, resumeJourney, openJourneyRecommendation, openExploreJourneys, openCurrentBreviary, openDailyItem, openPicker, openBibleBooks, openMassReference } = useAppNavigation({
-    route,
+  const { openReader, resumeJourney, openJourneyRecommendation, openCurrentBreviary, openDailyItem, openPicker, openBibleBooks, openMassReference } = useAppNavigation({
     readingPosition,
     setReadingPosition,
     setHighlightVerse,
@@ -706,7 +705,6 @@ export default function App() {
     : activeSequence?.kind === "bible-journey" && journeyAudio.periodId === activeSequence.periodId && journeyAudio.storyIndex === JOURNEY_INTRO_INDEX && journeyAudio.status !== "idle"
       ? skipJourneyIntro
       : undefined;
-  const recommendation = (page: RecommendationPage) => renderDailyRecommendation(page, { dailyStreak, journeyOverview, setMassDate, openCurrentBreviary, openJourneyRecommendation, openExploreJourneys, openMassReference });
   const journeyDesktopProgress = isJourneyDetail ? <JourneyNarrationProgress
     className="narration-progress-desktop narration-progress-centered"
     storyCount={bibleJourney.find((period) => period.id === journeyPeriodId)?.stories.length ?? 0}
@@ -744,10 +742,11 @@ export default function App() {
   };
   const { loadingListen, playListening, playHero, stepMassReading, openActiveJourney, openDailyRoutine } = useListenLaunch({
     voicePreferenceRef,
+    readingPosition,
     setPlayerOpen,
     journeyOverview,
-    rosaryMode,
     dailyStreak,
+    rosaryMode,
     advanceNarration,
     bibleTrack,
     playJourneyIntro: (periodId) => playJourneyStory(periodId, JOURNEY_INTRO_INDEX, true),
@@ -757,6 +756,7 @@ export default function App() {
     playBreviaryIntro,
     markGuidedDayPlayed,
   });
+  const recommendation = (page: RecommendationPage) => renderDailyRecommendation(page, { dailyStreak, journeyOverview, setMassDate, openCurrentBreviary, openJourneyRecommendation, openMassReference, playListening });
   const activeRosaryPrayerGroupId = rosaryAudioForPage.status === "idle" ? null : rosaryClipsRef.current[rosaryAudioForPage.clipIndex]?.groupId ?? null;
   return (
     <div className={route === "read" ? "app-shell app-shell--reader" : "app-shell"}>
@@ -835,7 +835,6 @@ export default function App() {
         toggleJourneyAudio={toggleJourneyAudio}
         selectJourneyAudioStory={selectJourneyAudioStory}
         skipJourneyIntro={skipJourneyIntro}
-        loadingListen={loadingListen}
         playHero={playHero}
         playListening={playListening}
       />

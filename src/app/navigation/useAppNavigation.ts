@@ -8,10 +8,8 @@ import { getTodaysMassReading, resolveReference } from "@/features/mass-readings
 import { currentBreviaryHour } from "@/features/breviary/breviary";
 import { todaysRosaryPath } from "@/features/rosary/rosary";
 import type { Modal } from "@/components/ModalLayer";
-import type { Route } from "../routing";
 
 type AppNavigationOptions = {
-  route: Route;
   readingPosition: ReadingPosition;
   setReadingPosition: Dispatch<SetStateAction<ReadingPosition>>;
   setHighlightVerse: Dispatch<SetStateAction<number | null>>;
@@ -22,7 +20,6 @@ type AppNavigationOptions = {
 };
 
 export function useAppNavigation({
-  route,
   readingPosition,
   setReadingPosition,
   setHighlightVerse,
@@ -50,15 +47,6 @@ export function useAppNavigation({
       window.location.hash = `#/journeys/${journey}`;
     }
   };
-  const openExploreJourneys = () => {
-    if (route === "journeys") {
-      if (!journeyOverview.freedom.complete) openJourneyRecommendation("freedom");
-      else if (!journeyOverview.noWorry.complete) openJourneyRecommendation("no-worry");
-      else window.location.hash = "#/journey";
-    } else {
-      window.location.hash = "#/journeys";
-    }
-  };
   const openCurrentBreviary = () => {
     setBreviaryDate(new Date());
     window.location.hash = `#/breviary/${currentBreviaryHour()}`;
@@ -81,6 +69,8 @@ export function useAppNavigation({
       window.location.hash = "#/journeys/freedom";
     } else if (item === "journey-no-worry") {
       window.location.hash = "#/journeys/no-worry";
+    } else if (item === "journey-advent") {
+      window.location.hash = "#/journeys/advent";
     } else if (item === "journey-bible") {
       resumeJourney();
     } else {
@@ -115,7 +105,6 @@ export function useAppNavigation({
     openReader,
     resumeJourney,
     openJourneyRecommendation,
-    openExploreJourneys,
     openCurrentBreviary,
     openDailyItem,
     openPicker,
